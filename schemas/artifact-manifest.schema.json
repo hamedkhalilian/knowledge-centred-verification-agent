@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/kcv/artifact-manifest.schema.json",
+  "title": "KCV Artifact Manifest",
+  "type": "object",
+  "required": ["run_id", "artifacts"],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "status",
+          "path_or_reference",
+          "non_empty_verified",
+          "compile_verified"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": ["PRODUCED", "NOT_PRODUCED", "FAILED", "NOT_APPLICABLE"]
+          },
+          "path_or_reference": {
+            "type": ["string", "null"]
+          },
+          "non_empty_verified": {
+            "type": "boolean"
+          },
+          "compile_verified": {
+            "type": ["boolean", "null"]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "PRODUCED"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "path_or_reference": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "non_empty_verified": {
+                  "const": true
+                }
+              }
+            },
+            "else": {
+              "required": ["reason"]
+            }
+          }
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

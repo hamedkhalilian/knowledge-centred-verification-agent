@@ -2,8 +2,8 @@
 
 The protocol in ``prompts/master_prompt_v2.2.md`` is authoritative. This module
 implements only checks that can be evaluated mechanically from the currently
-modelled Run and Claim objects; semantic truth and source adequacy remain
-separate review concerns.
+modelled Run, Claim, Source, Evidence, and edge objects; semantic truth and
+source adequacy remain separate review concerns.
 """
 
 from __future__ import annotations
@@ -40,6 +40,65 @@ EVIDENCE_STATUSES = frozenset(
         "SOURCE_CONFLICT",
     }
 )
+EVIDENCE_RETRIEVAL_METHODS = frozenset(
+    {
+        "primary_text",
+        "official_portal",
+        "licensed_database",
+        "authoritative_secondary",
+        "secondary_summary",
+        "internal_source",
+        "none",
+    }
+)
+EVIDENCE_STANCES = frozenset({"AFFIRMS", "QUALIFIES", "CONTRADICTS", "SILENT"})
+SOURCE_KINDS = frozenset(
+    {
+        "statute",
+        "regulation",
+        "judgment",
+        "regulator_guidance",
+        "professional_standard",
+        "official_guidance",
+        "commentary",
+        "academic",
+        "secondary",
+        "data",
+        "internal",
+    }
+)
+SOURCE_ACCESS_VALUES = frozenset({"PUBLIC", "LICENSED", "PAYWALLED", "INTERNAL"})
+SOURCE_REQUIRED_FIELDS = frozenset(
+    {
+        "source_id",
+        "kind",
+        "identifier",
+        "title",
+        "version_label",
+        "version_date",
+        "access",
+        "locator",
+        "sufficient_for",
+    }
+)
+SOURCE_FIELDS = frozenset({*SOURCE_REQUIRED_FIELDS, "evidence_level", "provenance_note"})
+EVIDENCE_REQUIRED_FIELDS = frozenset(
+    {
+        "evidence_id",
+        "source_id",
+        "retrieved_at",
+        "retrieval_method",
+        "fragment",
+        "extract",
+        "supersession_checked",
+        "superseded_by",
+        "queries_attempted",
+        "search_scope",
+        "agent",
+        "prompt_version",
+    }
+)
+EVIDENCE_FIELDS = EVIDENCE_REQUIRED_FIELDS
 
 # Exact transcription of the normative §3.5 matrix. Missing cells are illegal.
 # FLAG cells are legal only when the Claim carries an explicit qualification.
@@ -149,12 +208,14 @@ class LedgerValidator:
     def validate(self, ledger: Mapping[str, Any]) -> ValidationResult:
         findings: list[Finding] = []
         self._validate_run(ledger.get("run"), findings)
+        findings.extend(self._evidence_source_links(ledger))
         claims = self._claims(ledger, findings)
         if claims is None:
             return ValidationResult(tuple(findings))
 
         for index, claim in enumerate(claims):
             self._validate_claim_structure(claim, index, findings)
+        findings.extend(self._supported_claim_evidence(claims, ledger))
 
         ids = [
             claim["claim_id"]
@@ -176,6 +237,495 @@ class LedgerValidator:
         findings.extend(self._derived_claims(claims, by_id))
 
         return ValidationResult(tuple(findings))
+
+    @staticmethod
+    def _supported_claim_evidence(
+        claims: list[Mapping[str, Any]], ledger: Mapping[str, Any]
+    ) -> list[Finding]:
+        """Enforce V-006 Claim-specific positive Evidence for supported Claims."""
+        raw_evidence = ledger.get("evidence")
+        raw_edges = ledger.get("edges")
+        evidence_methods: dict[str, str] = {}
+        if isinstance(raw_evidence, Sequence) and not isinstance(
+            raw_evidence, (str, bytes)
+        ):
+            for item in raw_evidence:
+                if not isinstance(item, Mapping):
+                    continue
+                evidence_id = item.get("evidence_id")
+                method = item.get("retrieval_method")
+                if _non_empty_string(evidence_id) and isinstance(method, str):
+                    evidence_methods[evidence_id] = method
+
+        supported_claim_ids: set[str] = set()
+        if isinstance(raw_edges, Sequence) and not isinstance(raw_edges, (str, bytes)):
+            for edge in raw_edges:
+                if not isinstance(edge, Mapping) or edge.get("type") != "EVIDENCED_BY":
+                    continue
+                claim_id = edge.get("from")
+                evidence_id = edge.get("to")
+                stance = edge.get("stance")
+                if (
+                    _non_empty_string(claim_id)
+                    and _non_empty_string(evidence_id)
+                    and isinstance(stance, str)
+                    and stance in {"AFFIRMS", "QUALIFIES"}
+                    and evidence_methods.get(evidence_id) in (
+                        EVIDENCE_RETRIEVAL_METHODS - {"none"}
+                    )
+                ):
+                    supported_claim_ids.add(claim_id)
+
+        findings: list[Finding] = []
+        for claim in claims:
+            claim_id = claim.get("claim_id")
+            if (
+                claim.get("claim_type") in {"SOURCE", "INTERPRETIVE", "DEFINITION"}
+                and claim.get("claim_status") in {"SUPPORTED", "SUPPORTED_CONDITIONAL"}
+                and _non_empty_string(claim_id)
+                and claim_id not in supported_claim_ids
+            ):
+                findings.append(
+                    Finding(
+                        "V-006",
+                        "RELEASE_BLOCKING",
+                        f"Supported Claim {claim_id} requires Claim-specific AFFIRMS or QUALIFIES Evidence.",
+                        claim_id,
+                    )
+                )
+        return findings
+
+    @staticmethod
+    def _evidence_source_links(ledger: Mapping[str, Any]) -> list[Finding]:
+        """Validate Source/Evidence provenance when those ledger views exist."""
+        findings: list[Finding] = []
+        raw_sources = ledger.get("sources")
+        raw_evidence = ledger.get("evidence")
+        raw_edges = ledger.get("edges")
+
+        if raw_sources is None and raw_evidence is None and raw_edges is None:
+            return findings
+
+        def object_list(raw: Any, field: str) -> list[Mapping[str, Any]]:
+            if raw is None:
+                return []
+            if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes)):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Ledger field '{field}' must be a list.",
+                    )
+                )
+                return []
+            objects: list[Mapping[str, Any]] = []
+            for index, item in enumerate(raw):
+                if not isinstance(item, Mapping):
+                    findings.append(
+                        Finding(
+                            "V-000",
+                            "RELEASE_BLOCKING",
+                            f"{field.title()} item at index {index} must be an object.",
+                        )
+                    )
+                    continue
+                objects.append(item)
+            return objects
+
+        sources = object_list(raw_sources, "sources")
+        evidence = object_list(raw_evidence, "evidence")
+        edges = object_list(raw_edges, "edges")
+
+        source_id_values: list[str] = []
+        for index, source in enumerate(sources):
+            LedgerValidator._validate_source_structure(source, index, findings)
+            source_id = source.get("source_id")
+            if not _non_empty_string(source_id):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Source at index {index} has an invalid 'source_id'.",
+                    )
+                )
+                continue
+            source_id_values.append(source_id)
+        source_ids = set(source_id_values)
+        for source_id, count in sorted(Counter(source_id_values).items()):
+            if count > 1:
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Duplicate Source ID: {source_id}.",
+                    )
+                )
+
+        evidence_id_values: list[str] = []
+        evidence_methods: dict[str, list[Any]] = {}
+        for index, item in enumerate(evidence):
+            LedgerValidator._validate_evidence_structure(item, index, findings)
+            evidence_id = item.get("evidence_id")
+            if not _non_empty_string(evidence_id):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Evidence at index {index} has an invalid 'evidence_id'.",
+                    )
+                )
+                continue
+            evidence_id_values.append(evidence_id)
+            evidence_methods.setdefault(evidence_id, []).append(
+                item.get("retrieval_method")
+            )
+        evidence_ids = set(evidence_id_values)
+        for evidence_id, count in sorted(Counter(evidence_id_values).items()):
+            if count > 1:
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Duplicate Evidence ID: {evidence_id}.",
+                    )
+                )
+
+        raw_claims = ledger.get("claims")
+        claim_ids: set[str] = set()
+        if isinstance(raw_claims, Sequence) and not isinstance(raw_claims, (str, bytes)):
+            claim_ids = {
+                claim.get("claim_id")
+                for claim in raw_claims
+                if isinstance(claim, Mapping)
+                and _non_empty_string(claim.get("claim_id"))
+            }
+
+        retrieved_from: dict[str, list[str]] = {}
+        for edge in edges:
+            edge_type = edge.get("type")
+            if edge_type == "EVIDENCED_BY":
+                claim_id = edge.get("from")
+                evidence_id = edge.get("to")
+                stance = edge.get("stance")
+                if not _non_empty_string(claim_id) or not _non_empty_string(evidence_id):
+                    findings.append(
+                        Finding(
+                            "V-000",
+                            "RELEASE_BLOCKING",
+                            "EVIDENCED_BY edges require non-empty 'from' and 'to' IDs.",
+                        )
+                    )
+                    continue
+                if claim_id not in claim_ids:
+                    findings.append(
+                        Finding(
+                            "V-003",
+                            "RELEASE_BLOCKING",
+                            f"EVIDENCED_BY edge references missing Claim {claim_id}.",
+                            claim_id,
+                        )
+                    )
+                if evidence_id not in evidence_ids:
+                    findings.append(
+                        Finding(
+                            "V-003",
+                            "RELEASE_BLOCKING",
+                            f"EVIDENCED_BY edge references missing Evidence {evidence_id}.",
+                            claim_id,
+                        )
+                    )
+                if not isinstance(stance, str) or stance not in EVIDENCE_STANCES:
+                    findings.append(
+                        Finding(
+                            "V-000",
+                            "RELEASE_BLOCKING",
+                            f"EVIDENCED_BY edge has invalid stance={stance!s}.",
+                            claim_id,
+                        )
+                    )
+                elif (
+                    evidence_id in evidence_ids
+                    and "none" in evidence_methods.get(evidence_id, [])
+                    and stance != "SILENT"
+                ):
+                    findings.append(
+                        Finding(
+                            "V-025",
+                            "RELEASE_BLOCKING",
+                            f"Negative-retrieval Evidence {evidence_id} requires stance=SILENT.",
+                            claim_id,
+                        )
+                    )
+                continue
+            if edge_type != "RETRIEVED_FROM":
+                continue
+            evidence_id = edge.get("from")
+            source_id = edge.get("to")
+            if not _non_empty_string(evidence_id) or not _non_empty_string(source_id):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        "RETRIEVED_FROM edges require non-empty 'from' and 'to' IDs.",
+                    )
+                )
+                continue
+            retrieved_from.setdefault(evidence_id, []).append(source_id)
+            if evidence_id not in evidence_ids:
+                findings.append(
+                    Finding(
+                        "V-003",
+                        "RELEASE_BLOCKING",
+                        f"RETRIEVED_FROM edge references missing Evidence {evidence_id}.",
+                    )
+                )
+            if source_id not in source_ids:
+                findings.append(
+                    Finding(
+                        "V-003",
+                        "RELEASE_BLOCKING",
+                        f"RETRIEVED_FROM edge references missing Source {source_id}.",
+                    )
+                )
+
+        for item in evidence:
+            evidence_id = item.get("evidence_id")
+            if not _non_empty_string(evidence_id):
+                continue
+            if "stance" in item:
+                findings.append(
+                    Finding(
+                        "V-025",
+                        "RELEASE_BLOCKING",
+                        f"Evidence {evidence_id} stores stance globally instead of on an EVIDENCED_BY edge.",
+                    )
+                )
+            method = item.get("retrieval_method")
+            source_id = item.get("source_id")
+            linked_sources = retrieved_from.get(evidence_id, [])
+            if not isinstance(method, str) or method not in EVIDENCE_RETRIEVAL_METHODS:
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Evidence {evidence_id} has invalid retrieval_method={method!s}.",
+                    )
+                )
+                continue
+
+            if method == "none":
+                if source_id is not None or linked_sources:
+                    findings.append(
+                        Finding(
+                            "V-003",
+                            "RELEASE_BLOCKING",
+                            f"Negative-retrieval Evidence {evidence_id} must have no Source or RETRIEVED_FROM edge.",
+                        )
+                    )
+                continue
+
+            if not _non_empty_string(source_id) or source_id not in source_ids:
+                findings.append(
+                    Finding(
+                        "V-003",
+                        "RELEASE_BLOCKING",
+                        f"Positive-retrieval Evidence {evidence_id} references missing Source {source_id!s}.",
+                    )
+                )
+            if linked_sources != [source_id]:
+                findings.append(
+                    Finding(
+                        "V-003",
+                        "RELEASE_BLOCKING",
+                        f"Evidence {evidence_id} must have exactly one RETRIEVED_FROM edge to {source_id!s}.",
+                    )
+                )
+
+        return findings
+
+    @staticmethod
+    def _validate_source_structure(
+        source: Mapping[str, Any], index: int, findings: list[Finding]
+    ) -> None:
+        source_id = source.get("source_id")
+        for field in sorted(SOURCE_REQUIRED_FIELDS - source.keys()):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source at index {index} is missing required field '{field}'.",
+                )
+            )
+        for field in sorted(source.keys() - SOURCE_FIELDS):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} has unknown field '{field}'.",
+                )
+            )
+
+        kind = source.get("kind")
+        if "kind" in source and (
+            not isinstance(kind, str) or kind not in SOURCE_KINDS
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} has invalid kind={kind!s}.",
+                )
+            )
+        access = source.get("access")
+        if "access" in source and (
+            not isinstance(access, str) or access not in SOURCE_ACCESS_VALUES
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} has invalid access={access!s}.",
+                )
+            )
+        for field in ("identifier", "title"):
+            if field in source and not _non_empty_string(source[field]):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Source {source_id!s} field '{field}' must be a non-empty string.",
+                    )
+                )
+        for field in ("version_label", "locator"):
+            if field in source and source[field] is not None and not isinstance(
+                source[field], str
+            ):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Source {source_id!s} field '{field}' must be a string or null.",
+                    )
+                )
+        if "version_date" in source and source["version_date"] is not None and not _iso_date(
+            source["version_date"]
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} field 'version_date' must be an ISO date or null.",
+                )
+            )
+        if "sufficient_for" in source and not _non_empty_string_list(
+            source["sufficient_for"]
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} field 'sufficient_for' must be a list of strings.",
+                )
+            )
+        if "evidence_level" in source:
+            level = source["evidence_level"]
+            if level is not None and (
+                isinstance(level, bool) or not isinstance(level, int) or level < 1
+            ):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Source {source_id!s} field 'evidence_level' must be a positive integer or null.",
+                    )
+                )
+        if "provenance_note" in source and not _non_empty_string(
+            source["provenance_note"]
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} field 'provenance_note' must be a non-empty string.",
+                )
+            )
+
+    @staticmethod
+    def _validate_evidence_structure(
+        evidence: Mapping[str, Any], index: int, findings: list[Finding]
+    ) -> None:
+        evidence_id = evidence.get("evidence_id")
+        for field in sorted(EVIDENCE_REQUIRED_FIELDS - evidence.keys()):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence at index {index} is missing required field '{field}'.",
+                )
+            )
+        for field in sorted(evidence.keys() - EVIDENCE_FIELDS):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} has unknown field '{field}'.",
+                )
+            )
+
+        if "retrieved_at" in evidence and not _iso_date(evidence["retrieved_at"]):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} field 'retrieved_at' must be an ISO date.",
+                )
+            )
+        for field in ("fragment", "extract", "search_scope"):
+            if field in evidence and evidence[field] is not None and not isinstance(
+                evidence[field], str
+            ):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Evidence {evidence_id!s} field '{field}' must be a string or null.",
+                    )
+                )
+        if "supersession_checked" in evidence and not isinstance(
+            evidence["supersession_checked"], bool
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} field 'supersession_checked' must be boolean.",
+                )
+            )
+        for field in ("superseded_by", "queries_attempted"):
+            if field in evidence and not _string_list(evidence[field]):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Evidence {evidence_id!s} field '{field}' must be a list of strings.",
+                    )
+                )
+        if "agent" in evidence and not _non_empty_string(evidence["agent"]):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} field 'agent' must be a non-empty string.",
+                )
+            )
+        if "prompt_version" in evidence and evidence["prompt_version"] != "v2.2":
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} field 'prompt_version' must equal 'v2.2'.",
+                )
+            )
 
     @staticmethod
     def _validate_run(raw_run: Any, findings: list[Finding]) -> None:
@@ -650,7 +1200,7 @@ def _non_empty_string(value: Any) -> bool:
 
 
 def _iso_date(value: Any) -> bool:
-    if not isinstance(value, str):
+    if not isinstance(value, str) or re.fullmatch(r"\d{4}-\d{2}-\d{2}", value) is None:
         return False
     try:
         date.fromisoformat(value)
@@ -665,6 +1215,10 @@ def _string_list(value: Any) -> bool:
         and not isinstance(value, (str, bytes))
         and all(isinstance(item, str) for item in value)
     )
+
+
+def _non_empty_string_list(value: Any) -> bool:
+    return _string_list(value) and all(_non_empty_string(item) for item in value)
 
 
 def _claim_id_list(value: Any) -> bool:
@@ -709,10 +1263,4 @@ def validate_ledger(ledger: Mapping[str, Any]) -> ValidationResult:
                 ),
             )
         )
-    return LedgerValidator().validate(ledger)
-
-
-def validate_ledger(ledger: Mapping[str, Any]) -> ValidationResult:
-    """Convenience entry point for callers that do not need a validator instance."""
-
     return LedgerValidator().validate(ledger)

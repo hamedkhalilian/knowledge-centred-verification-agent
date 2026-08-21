@@ -5,7 +5,7 @@
     "document_manifest": [
       "prompts/master_prompt_v2.2.md",
       "AGENTS.md",
-      "github:issue/2"
+      "task-input:github:issue/2"
     ],
     "requested_output_formats": [
       "capability-declaration.md",
@@ -13,7 +13,8 @@
       "claim-ledger.json",
       "findings.json",
       "report.md",
-      "release-summary.md"
+      "release-summary.md",
+      "artifact_manifest.json"
     ],
     "strict_blind_audit_required": false,
     "model_id": null,
@@ -30,21 +31,21 @@
     },
     "gates": {
       "G-01": "FAIL",
-      "G-02": "PASS",
+      "G-02": "NOT_EVALUATED",
       "G-03": "PASS",
-      "G-04": "PASS",
+      "G-04": "NOT_EVALUATED",
       "G-05": "PASS",
-      "G-06": "PASS",
-      "G-07": "PASS",
+      "G-06": "NOT_EVALUATED",
+      "G-07": "NOT_EVALUATED",
       "G-08": "NOT_APPLICABLE",
       "G-09": "PASS",
       "G-10": "PASS",
       "G-11A": "NOT_APPLICABLE",
       "G-11B": "NOT_APPLICABLE",
       "G-12": "PASS",
-      "G-13": "PASS",
+      "G-13": "NOT_EVALUATED",
       "G-14": "NOT_APPLICABLE",
-      "G-15": "PASS"
+      "G-15": "FAIL"
     },
     "release_state": "BLOCKED"
   },
@@ -787,11 +788,36 @@
       "kind": "internal",
       "identifier": "issue-2",
       "title": "GitHub issue #2",
-      "version_label": "snapshot 2026-08-21",
+      "version_label": "task snapshot supplied to the agent",
       "version_date": "2026-08-21",
-      "access": "PUBLIC",
+      "access": "INTERNAL",
       "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/issues/2",
-      "sufficient_for": ["existence", "citation"]
+      "provenance_note": "Supplied as task input and read through internal_source; not independently retrieved as external legal authority.",
+      "sufficient_for": ["task_scope", "acceptance_criteria"]
+    },
+    {
+      "source_id": "SRC-INT-004",
+      "kind": "internal",
+      "identifier": "pr-4-review-thread-actions-v7",
+      "title": "PR #4 review thread: action-version finding and owner response",
+      "version_label": "review-thread snapshot",
+      "version_date": "2026-08-21",
+      "access": "INTERNAL",
+      "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/pull/4#discussion_r3832594050",
+      "provenance_note": "Supplied to the post-run reviewer as repository-internal PR review input after the legal-research phase. No independent API/web retrieval is attributed to that phase; named release pages are not relied upon as verified external evidence.",
+      "sufficient_for": ["review_provenance", "finding_resolution_context"]
+    },
+    {
+      "source_id": "SRC-INT-005",
+      "kind": "internal",
+      "identifier": "github-actions-run-32511718595",
+      "title": "GitHub Actions validation run 32511718595",
+      "version_label": "completed run snapshot",
+      "version_date": "2026-08-21",
+      "access": "INTERNAL",
+      "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/actions/runs/32511718595",
+      "provenance_note": "Supplied to the post-run reviewer as repository-internal workflow result input after the legal-research phase; no independent API/web retrieval is attributed to external legal retrieval.",
+      "sufficient_for": ["workflow_execution", "action_resolution", "test_result"]
     }
   ],
   "evidence": [
@@ -827,7 +853,7 @@
       "evidence_id": "EV-0003",
       "source_id": "SRC-INT-003",
       "retrieved_at": "2026-08-21",
-      "retrieval_method": "official_portal",
+      "retrieval_method": "internal_source",
       "fragment": "Issue #2 body",
       "extract": "Research questions, mandatory distinctions, and acceptance criteria.",
       "supersession_checked": false,
@@ -835,6 +861,34 @@
       "queries_attempted": [],
       "search_scope": null,
       "agent": "VO",
+      "prompt_version": "v2.2"
+    },
+    {
+      "evidence_id": "EV-0004",
+      "source_id": "SRC-INT-004",
+      "retrieved_at": "2026-08-21",
+      "retrieval_method": "internal_source",
+      "fragment": "P1 action-version review comment and owner reply",
+      "extract": "The thread preserves the rejected assertion, the response, and the references supplied with that response; official release-page publication is not independently asserted by this evidence record.",
+      "supersession_checked": false,
+      "superseded_by": [],
+      "queries_attempted": [],
+      "search_scope": null,
+      "agent": "CR",
+      "prompt_version": "v2.2"
+    },
+    {
+      "evidence_id": "EV-0005",
+      "source_id": "SRC-INT-005",
+      "retrieved_at": "2026-08-21",
+      "retrieval_method": "internal_source",
+      "fragment": "workflow run 32511718595 status, job steps, and validation outcome",
+      "extract": "GitHub Actions resolved and executed actions/checkout@v7 and actions/setup-python@v7; the run completed successfully with 22 tests and both ledger validations passing.",
+      "supersession_checked": false,
+      "superseded_by": [],
+      "queries_attempted": [],
+      "search_scope": null,
+      "agent": "CR",
       "prompt_version": "v2.2"
     },
     {
@@ -922,6 +976,8 @@
     { "from": "EV-0001", "to": "SRC-INT-001", "type": "RETRIEVED_FROM" },
     { "from": "EV-0002", "to": "SRC-INT-002", "type": "RETRIEVED_FROM" },
     { "from": "EV-0003", "to": "SRC-INT-003", "type": "RETRIEVED_FROM" },
+    { "from": "EV-0004", "to": "SRC-INT-004", "type": "RETRIEVED_FROM" },
+    { "from": "EV-0005", "to": "SRC-INT-005", "type": "RETRIEVED_FROM" },
     { "from": "C-0001", "to": "EV-0001", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0002", "to": "EV-0001", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0002", "to": "EV-0002", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
@@ -931,6 +987,7 @@
     { "from": "C-0101", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0102", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0103", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
+    { "from": "C-0104", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0301", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0302", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0401", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
@@ -938,6 +995,8 @@
     { "from": "C-0403", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0404", "to": "EV-0102", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0405", "to": "EV-0102", "type": "EVIDENCED_BY", "stance": "SILENT" },
+    { "from": "C-0406", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
+    { "from": "C-0407", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0304", "to": "EV-0103", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0201", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0202", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },

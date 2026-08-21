@@ -8,8 +8,13 @@ from kcv_agent.validator import (
     CLAIM_REQUIRED_FIELDS,
     CLAIM_STATUSES,
     CLAIM_TYPES,
+    EVIDENCE_REQUIRED_FIELDS,
+    EVIDENCE_RETRIEVAL_METHODS,
     EVIDENCE_STATUSES,
     RUN_REQUIRED_FIELDS,
+    SOURCE_ACCESS_VALUES,
+    SOURCE_KINDS,
+    SOURCE_REQUIRED_FIELDS,
     STATUS_MATRIX,
 )
 
@@ -54,7 +59,104 @@ def claim(
 
 
 def ledger(*claims: dict) -> dict:
-    return {"run": run(), "claims": list(claims)}
+    payload = {
+        "run": run(),
+        "claims": list(claims),
+        "sources": [
+            {
+                "source_id": "SRC-TEST",
+                "kind": "internal",
+                "identifier": "test-fixture",
+                "title": "Validator test fixture",
+                "version_label": "test",
+                "version_date": "2026-08-21",
+                "access": "INTERNAL",
+                "locator": "tests/test_validator.py",
+                "sufficient_for": ["validator_test"],
+            }
+        ],
+        "evidence": [
+            {
+                "evidence_id": "EV-TEST",
+                "source_id": "SRC-TEST",
+                "retrieved_at": "2026-08-21",
+                "retrieval_method": "internal_source",
+                "fragment": "test fixture",
+                "extract": "Synthetic evidence for deterministic validator tests.",
+                "supersession_checked": False,
+                "superseded_by": [],
+                "queries_attempted": [],
+                "search_scope": None,
+                "agent": "TEST",
+                "prompt_version": "v2.2",
+            }
+        ],
+        "edges": [
+            {"from": "EV-TEST", "to": "SRC-TEST", "type": "RETRIEVED_FROM"}
+        ],
+    }
+    for item in claims:
+        if (
+            item.get("claim_type") in {"SOURCE", "INTERPRETIVE", "DEFINITION"}
+            and item.get("claim_status") in {"SUPPORTED", "SUPPORTED_CONDITIONAL"}
+            and isinstance(item.get("claim_id"), str)
+        ):
+            payload["edges"].append(
+                {
+                    "from": item["claim_id"],
+                    "to": "EV-TEST",
+                    "type": "EVIDENCED_BY",
+                    "stance": "AFFIRMS",
+                }
+            )
+    return payload
+
+
+def ledger_with_evidence(*, source_id: object = "SRC-001", edge_target: object = "SRC-001") -> dict:
+    payload = ledger(claim("C-001"))
+    payload["sources"] = [
+        {
+            "source_id": "SRC-001",
+            "kind": "internal",
+            "identifier": "test-source",
+            "title": "Test source",
+            "version_label": "test snapshot",
+            "version_date": "2026-08-21",
+            "access": "INTERNAL",
+            "locator": "memory",
+            "sufficient_for": ["test"],
+        }
+    ]
+    payload["evidence"] = [
+        {
+            "evidence_id": "EV-001",
+            "source_id": source_id,
+            "retrieved_at": "2026-08-21",
+            "retrieval_method": "internal_source",
+            "fragment": "test fragment",
+            "extract": "test extract",
+            "supersession_checked": False,
+            "superseded_by": [],
+            "queries_attempted": [],
+            "search_scope": None,
+            "agent": "TEST",
+            "prompt_version": "v2.2",
+        }
+    ]
+    payload["edges"] = [
+        {
+            "from": "EV-001",
+            "to": edge_target,
+            "type": "RETRIEVED_FROM",
+        },
+        {
+            "from": "C-001",
+            "to": "EV-001",
+            "type": "EVIDENCED_BY",
+            "stance": "AFFIRMS",
+        }
+    ]
+    return payload
 
 
 def rule_ids(payload: dict) -> set[str]:
@@ -171,6 +273,158 @@ class LedgerValidatorTests(unittest.TestCase):
     def test_empty_ledger_is_blocking(self) -> None:
         self.assertEqual(rule_ids({"run": run(), "claims": []}), {"V-000"})
 
+    def test_positive_evidence_requires_existing_source_and_matching_edge(self) -> None:
+        self.assertTrue(validate_ledger(ledger_with_evidence()).ok)
+        self.assertIn(
+            "V-003",
+            rule_ids(ledger_with_evidence(source_id="SRC-DOES-NOT-EXIST")),
+        )
+        self.assertIn(
+            "V-003",
+            rule_ids(ledger_with_evidence(edge_target="SRC-DOES-NOT-EXIST")),
+        )
+
+    def test_supported_external_claim_requires_positive_claim_evidence(self) -> None:
+        missing_edge = ledger_with_evidence()
+        missing_edge["edges"] = [
+            edge for edge in missing_edge["edges"]
+            if edge["type"] != "EVIDENCED_BY"
+        ]
+        self.assertIn("V-006", rule_ids(missing_edge))
+
+        silent_only = ledger_with_evidence()
+        evidenced_by = next(
+            edge for edge in silent_only["edges"]
+            if edge["type"] == "EVIDENCED_BY"
+        )
+        evidenced_by["stance"] = "SILENT"
+        self.assertIn("V-006", rule_ids(silent_only))
+
+    def test_negative_retrieval_must_not_claim_a_source_or_edge(self) -> None:
+        payload = ledger_with_evidence()
+        payload["claims"][0]["claim_status"] = "UNESTABLISHED"
+        payload["claims"][0]["evidence_status"] = "NOT_RETRIEVED"
+        payload["evidence"][0]["retrieval_method"] = "none"
+        self.assertIn("V-003", rule_ids(payload))
+
+        payload["evidence"][0]["source_id"] = None
+        payload["edges"] = []
+        self.assertTrue(validate_ledger(payload).ok)
+
+    def test_evidenced_by_edges_require_existing_typed_endpoints(self) -> None:
+        payload = ledger_with_evidence()
+        payload["edges"].append(
+            {
+                "from": "C-001",
+                "to": "EV-001",
+                "type": "EVIDENCED_BY",
+                "stance": "AFFIRMS",
+            }
+        )
+        self.assertTrue(validate_ledger(payload).ok)
+
+        payload["edges"][-1]["to"] = "EV-MISSING"
+        self.assertIn("V-003", rule_ids(payload))
+        payload["edges"][-1]["to"] = "EV-001"
+        payload["edges"][-1]["from"] = "C-MISSING"
+        self.assertIn("V-003", rule_ids(payload))
+        payload["edges"][-1]["from"] = "C-001"
+        payload["edges"][-1]["stance"] = "GLOBAL_AFFIRMATION"
+        self.assertIn("V-000", rule_ids(payload))
+
+    def test_duplicate_source_and_evidence_ids_are_blocking(self) -> None:
+        duplicate_source = ledger_with_evidence()
+        duplicate_source["sources"].append({"source_id": "SRC-001"})
+        self.assertIn("V-000", rule_ids(duplicate_source))
+
+        duplicate_evidence = ledger_with_evidence()
+        duplicate_evidence["evidence"].append(
+            {
+                "evidence_id": "EV-001",
+                "source_id": "SRC-MISSING",
+                "retrieval_method": "internal_source",
+            }
+        )
+        self.assertIn("V-000", rule_ids(duplicate_evidence))
+        self.assertIn("V-003", rule_ids(duplicate_evidence))
+
+    def test_negative_retrieval_edges_require_silent_stance(self) -> None:
+        payload = ledger_with_evidence()
+        payload["claims"][0]["claim_status"] = "UNESTABLISHED"
+        payload["claims"][0]["evidence_status"] = "NOT_RETRIEVED"
+        payload["evidence"][0]["retrieval_method"] = "none"
+        payload["evidence"][0]["source_id"] = None
+        payload["edges"] = [
+            {
+                "from": "C-001",
+                "to": "EV-001",
+                "type": "EVIDENCED_BY",
+                "stance": "AFFIRMS",
+            }
+        ]
+        self.assertIn("V-025", rule_ids(payload))
+
+        payload["edges"][0]["stance"] = "SILENT"
+        self.assertTrue(validate_ledger(payload).ok)
+
+    def test_evidence_must_not_store_global_stance(self) -> None:
+        payload = ledger_with_evidence()
+        payload["evidence"][0]["stance"] = "AFFIRMS"
+        self.assertIn("V-025", rule_ids(payload))
+
+    def test_non_scalar_evidence_enums_are_blocking_not_crashing(self) -> None:
+        bad_method = ledger_with_evidence()
+        bad_method["evidence"][0]["retrieval_method"] = ["internal_source"]
+        self.assertIn("V-000", rule_ids(bad_method))
+
+        bad_stance = ledger_with_evidence()
+        bad_stance["edges"].append(
+            {
+                "from": "C-001",
+                "to": "EV-001",
+                "type": "EVIDENCED_BY",
+                "stance": {"value": "AFFIRMS"},
+            }
+        )
+        self.assertIn("V-000", rule_ids(bad_stance))
+
+    def test_source_structure_and_vocabularies_are_runtime_validated(self) -> None:
+        bad_kind = ledger_with_evidence()
+        bad_kind["sources"][0]["kind"] = ["internal"]
+        self.assertIn("V-000", rule_ids(bad_kind))
+
+        bad_access = ledger_with_evidence()
+        bad_access["sources"][0]["access"] = {"value": "INTERNAL"}
+        self.assertIn("V-000", rule_ids(bad_access))
+
+        missing_title = ledger_with_evidence()
+        missing_title["sources"][0].pop("title")
+        self.assertIn("V-000", rule_ids(missing_title))
+
+        empty_sufficiency = ledger_with_evidence()
+        empty_sufficiency["sources"][0]["sufficient_for"] = [""]
+        self.assertIn("V-000", rule_ids(empty_sufficiency))
+
+    def test_evidence_required_structure_is_runtime_validated(self) -> None:
+        payload = ledger_with_evidence()
+        payload["evidence"][0].pop("retrieved_at")
+        self.assertIn("V-000", rule_ids(payload))
+
+    def test_dates_require_rfc3339_full_date_shape(self) -> None:
+        compact_source = ledger_with_evidence()
+        compact_source["sources"][0]["version_date"] = "20260821"
+        self.assertIn("V-000", rule_ids(compact_source))
+
+        week_date_evidence = ledger_with_evidence()
+        week_date_evidence["evidence"][0]["retrieved_at"] = "2026-W34-5"
+        self.assertIn("V-000", rule_ids(week_date_evidence))
+
+    def test_non_object_ledger_root_is_blocking_not_crashing(self) -> None:
+        self.assertEqual(
+            {finding.rule_id for finding in validate_ledger([]).findings},
+            {"V-000"},
+        )
+
     def test_run_required_fields_are_enforced(self) -> None:
         payload = ledger(claim("C-001"))
         payload["run"] = {"run_id": "R-INCOMPLETE"}
@@ -206,6 +460,12 @@ class LedgerValidatorTests(unittest.TestCase):
         finding_schema = json.loads(
             (ROOT / "schemas/finding.schema.json").read_text(encoding="utf-8")
         )
+        source_schema = json.loads(
+            (ROOT / "schemas/source.schema.json").read_text(encoding="utf-8")
+        )
+        evidence_schema = json.loads(
+            (ROOT / "schemas/evidence.schema.json").read_text(encoding="utf-8")
+        )
 
         properties = claim_schema["properties"]
         self.assertEqual(set(properties["claim_type"]["enum"]), CLAIM_TYPES)
@@ -215,6 +475,19 @@ class LedgerValidatorTests(unittest.TestCase):
         )
         self.assertEqual(set(claim_schema["required"]), CLAIM_REQUIRED_FIELDS)
         self.assertEqual(set(run_schema["required"]), RUN_REQUIRED_FIELDS)
+        self.assertEqual(
+            set(source_schema["properties"]["kind"]["enum"]), SOURCE_KINDS
+        )
+        self.assertEqual(
+            set(source_schema["properties"]["access"]["enum"]),
+            SOURCE_ACCESS_VALUES,
+        )
+        self.assertEqual(set(source_schema["required"]), SOURCE_REQUIRED_FIELDS)
+        self.assertEqual(
+            set(evidence_schema["properties"]["retrieval_method"]["enum"]),
+            EVIDENCE_RETRIEVAL_METHODS,
+        )
+        self.assertEqual(set(evidence_schema["required"]), EVIDENCE_REQUIRED_FIELDS)
         self.assertIsNotNone(
             re.fullmatch(finding_schema["properties"]["rule_id"]["pattern"], "V-006D")
         )
