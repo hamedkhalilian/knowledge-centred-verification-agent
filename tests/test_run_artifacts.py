@@ -214,6 +214,29 @@ def test_evidence_source_links_match_retrieval_method() -> None:
     assert list(validator.iter_errors(not_retrieved))
 
 
+def test_evidence_sources_exist_and_match_retrieval_edges() -> None:
+    ledger = load_json(RUN_DIR / "claim-ledger.json")
+    source_ids = {source["source_id"] for source in ledger["sources"]}
+    retrieved_from = {
+        (edge["from"], edge["to"])
+        for edge in ledger["edges"]
+        if edge["type"] == "RETRIEVED_FROM"
+    }
+
+    for evidence in ledger["evidence"]:
+        evidence_id = evidence["evidence_id"]
+        source_id = evidence["source_id"]
+        matching_edges = {
+            edge for edge in retrieved_from if edge[0] == evidence_id
+        }
+        if evidence["retrieval_method"] == "none":
+            assert source_id is None
+            assert not matching_edges
+        else:
+            assert source_id in source_ids
+            assert matching_edges == {(evidence_id, source_id)}
+
+
 def test_each_use_case_has_a_separate_eight_dimension_analysis() -> None:
     report = (RUN_DIR / "report.md").read_text(encoding="utf-8")
     headings = (

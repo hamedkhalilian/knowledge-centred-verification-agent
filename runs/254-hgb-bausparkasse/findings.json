@@ -320,6 +320,22 @@
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T18:38:04Z"
+    },
+    {
+      "finding_id": "F-254-021",
+      "target_type": "ledger",
+      "target_id": "claim-ledger.json#evidence",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_6",
+      "kind": "DANGLING_EVIDENCE_SOURCE_LINK",
+      "statement": "Object-level Evidence validation did not prove that a positive source_id exists in the ledger or agrees with a RETRIEVED_FROM edge.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "A ledger-level regression test now requires every positive Evidence source_id to identify an existing Source and match exactly one RETRIEVED_FROM edge; none-method Evidence must have no such edge.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:44:01Z"
     }
   ]
 }
