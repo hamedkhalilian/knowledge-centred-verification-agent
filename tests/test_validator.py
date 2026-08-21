@@ -325,10 +325,23 @@ class LedgerValidatorTests(unittest.TestCase):
         missing_title["sources"][0].pop("title")
         self.assertIn("V-000", rule_ids(missing_title))
 
+        empty_sufficiency = ledger_with_evidence()
+        empty_sufficiency["sources"][0]["sufficient_for"] = [""]
+        self.assertIn("V-000", rule_ids(empty_sufficiency))
+
     def test_evidence_required_structure_is_runtime_validated(self) -> None:
         payload = ledger_with_evidence()
         payload["evidence"][0].pop("retrieved_at")
         self.assertIn("V-000", rule_ids(payload))
+
+    def test_dates_require_rfc3339_full_date_shape(self) -> None:
+        compact_source = ledger_with_evidence()
+        compact_source["sources"][0]["version_date"] = "20260821"
+        self.assertIn("V-000", rule_ids(compact_source))
+
+        week_date_evidence = ledger_with_evidence()
+        week_date_evidence["evidence"][0]["retrieved_at"] = "2026-W34-5"
+        self.assertIn("V-000", rule_ids(week_date_evidence))
 
     def test_non_object_ledger_root_is_blocking_not_crashing(self) -> None:
         self.assertEqual(

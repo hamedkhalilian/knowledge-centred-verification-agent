@@ -464,6 +464,38 @@
       "agent": "mechanical-checker",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T19:16:17Z"
+    },
+    {
+      "finding_id": "F-254-030",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#_iso_date",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_12",
+      "kind": "DATE_FORMAT_RUNTIME_SCHEMA_MISMATCH",
+      "statement": "date.fromisoformat accepted compact and week-date forms that JSON Schema full-date rejects.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "The shared date helper now requires the exact YYYY-MM-DD shape before calendar validation; compact Source and week-date Evidence regression cases return V-000.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T19:25:15Z"
+    },
+    {
+      "finding_id": "F-254-031",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#sufficient_for",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_12",
+      "kind": "EMPTY_SOURCE_SUFFICIENCY_ACCEPTED",
+      "statement": "Runtime Source validation accepted empty strings in sufficient_for although the Source schema requires non-empty items.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "sufficient_for now uses a non-empty-string-list validator and a malformed empty-item unit case returns V-000.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T19:25:15Z"
     }
   ]
 }

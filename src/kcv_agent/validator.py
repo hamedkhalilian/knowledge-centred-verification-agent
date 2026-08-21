@@ -559,7 +559,9 @@ class LedgerValidator:
                     f"Source {source_id!s} field 'version_date' must be an ISO date or null.",
                 )
             )
-        if "sufficient_for" in source and not _string_list(source["sufficient_for"]):
+        if "sufficient_for" in source and not _non_empty_string_list(
+            source["sufficient_for"]
+        ):
             findings.append(
                 Finding(
                     "V-000",
@@ -1140,7 +1142,7 @@ def _non_empty_string(value: Any) -> bool:
 
 
 def _iso_date(value: Any) -> bool:
-    if not isinstance(value, str):
+    if not isinstance(value, str) or re.fullmatch(r"\d{4}-\d{2}-\d{2}", value) is None:
         return False
     try:
         date.fromisoformat(value)
@@ -1155,6 +1157,10 @@ def _string_list(value: Any) -> bool:
         and not isinstance(value, (str, bytes))
         and all(isinstance(item, str) for item in value)
     )
+
+
+def _non_empty_string_list(value: Any) -> bool:
+    return _string_list(value) and all(_non_empty_string(item) for item in value)
 
 
 def _claim_id_list(value: Any) -> bool:
