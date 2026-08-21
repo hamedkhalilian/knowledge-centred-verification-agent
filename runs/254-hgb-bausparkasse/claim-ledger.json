@@ -43,7 +43,7 @@
       "G-11A": "NOT_APPLICABLE",
       "G-11B": "NOT_APPLICABLE",
       "G-12": "PASS",
-      "G-13": "PASS",
+      "G-13": "NOT_EVALUATED",
       "G-14": "NOT_APPLICABLE",
       "G-15": "FAIL"
     },
@@ -785,14 +785,14 @@
     },
     {
       "source_id": "SRC-INT-003",
-      "kind": "internal",
+      "kind": "task_input",
       "identifier": "issue-2",
       "title": "GitHub issue #2",
-      "version_label": "snapshot 2026-08-21",
+      "version_label": "task snapshot supplied to the agent",
       "version_date": "2026-08-21",
-      "access": "PUBLIC",
+      "access": "INTERNAL_TASK_INPUT",
       "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/issues/2",
-      "sufficient_for": ["existence", "citation"]
+      "sufficient_for": ["task_scope", "acceptance_criteria"]
     }
   ],
   "evidence": [

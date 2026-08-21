@@ -161,6 +161,54 @@
       "agent": "mechanical-checker",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T17:24:57Z"
+    },
+    {
+      "finding_id": "F-254-011",
+      "target_type": "run",
+      "target_id": "R-2026-08-21-254-01",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW",
+      "kind": "UNLEDGERED_CASE_ASSERTIONS",
+      "statement": "The expanded case tables contain material working assertions not yet decomposed into atomic Claims and rendered mappings.",
+      "severity": "BLOCKING",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "G-13 is now NOT_EVALUATED and the report and release summary explicitly state the remaining mapping work.",
+      "remediation_class": "AUTO_SOFTENABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:04:27Z"
+    },
+    {
+      "finding_id": "F-254-012",
+      "target_type": "source",
+      "target_id": "SRC-INT-003",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW",
+      "kind": "PROVENANCE_VIEW_MISMATCH",
+      "statement": "The source manifest recorded supplied task-input provenance while the semantic ledger still described the issue as a public internal source.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "The ledger source record now matches task_input and INTERNAL_TASK_INPUT, and tests compare both views.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:04:27Z"
+    },
+    {
+      "finding_id": "F-254-013",
+      "target_type": "artifact",
+      "target_id": "artifact_manifest.json",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW",
+      "kind": "REQUIRED_ARTIFACTS_OMITTED_FROM_MANIFEST",
+      "statement": "The manifest did not record every protocol-minimum artifact as produced or omitted.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "Every protocol-minimum artifact name is now represented, and a regression test enforces the complete set.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:04:27Z"
     }
   ]
 }

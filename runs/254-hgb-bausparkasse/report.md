@@ -91,7 +91,7 @@ Mandatory distinction enforced:
 
 ## 5) Bausparkasse use cases (case-specific, legally unverified)
 
-The tables below are a control-oriented assessment plan, not verified legal advice. `UNESTABLISHED` means that the current authoritative rule was not retrieved. A proposed test or record is labelled `[CONTROL]`; it is not presented as a statutory requirement (C-0505, C-0602).
+The tables below are a control-oriented assessment plan, not verified legal advice. `UNESTABLISHED` means that the current authoritative rule was not retrieved. A proposed test or record is labelled `[CONTROL]`; it is not presented as a statutory requirement (C-0505, C-0602). The new case-specific working assertions have not yet been decomposed into atomic Claims and RenderedSpan mappings, so G-13 is `NOT_EVALUATED`.
 
 ### 5.1 Fixed-rate Bauspardarlehen portfolio + standard IRS (C-0501)
 

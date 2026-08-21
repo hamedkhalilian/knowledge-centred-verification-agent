@@ -66,12 +66,36 @@ def test_gate_states_do_not_overclaim_missing_artifacts() -> None:
     assert by_name["rendered_locations.json"]["status"] == "NOT_PRODUCED"
     for gate in ("G-02", "G-04", "G-06", "G-07"):
         assert gates[gate] == "NOT_EVALUATED"
+    assert gates["G-13"] == "NOT_EVALUATED"
 
     assert any(
         artifact["status"] in {"NOT_PRODUCED", "FAILED"}
         for artifact in manifest["artifacts"]
     )
     assert gates["G-15"] == "FAIL"
+
+    protocol_minimum = {
+        "artifact_manifest.json",
+        "master_claim_ledger.json",
+        "assumptions.json",
+        "decisions.json",
+        "quantities.json",
+        "dependency_graph.json",
+        "rendered_locations.json",
+        "source_register.json",
+        "evidence_register.json",
+        "currency_log.json",
+        "requires_licensed_source.json",
+        "findings.json",
+        "audit_report.json",
+        "entailment_report.json",
+        "mechanical_checks.json",
+        "gate_report.json",
+        "change_log.json",
+        "regenerated_spans.json",
+        "unresolved_human_actions.json",
+    }
+    assert protocol_minimum <= set(by_name)
 
 
 def test_issue_provenance_and_closure_actions_are_explicit() -> None:
@@ -92,6 +116,12 @@ def test_issue_provenance_and_closure_actions_are_explicit() -> None:
     assert issue_source["kind"] == "task_input"
     assert issue_source["status"] == "SUPPLIED"
     assert issue_evidence["retrieval_method"] == "internal_task_input"
+    ledger_source = next(
+        source for source in ledger["sources"]
+        if source["source_id"] == "SRC-INT-003"
+    )
+    assert ledger_source["kind"] == issue_source["kind"]
+    assert ledger_source["access"] == issue_source["access"]
     assert "D-0001" in report
     assert "D-0001" in release_summary
 
