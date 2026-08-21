@@ -256,6 +256,7 @@ class LedgerValidator:
                 )
 
         evidence_id_values: list[str] = []
+        evidence_methods: dict[str, set[Any]] = {}
         for index, item in enumerate(evidence):
             evidence_id = item.get("evidence_id")
             if not _non_empty_string(evidence_id):
@@ -268,6 +269,9 @@ class LedgerValidator:
                 )
                 continue
             evidence_id_values.append(evidence_id)
+            evidence_methods.setdefault(evidence_id, set()).add(
+                item.get("retrieval_method")
+            )
         evidence_ids = set(evidence_id_values)
         for evidence_id, count in sorted(Counter(evidence_id_values).items()):
             if count > 1:
@@ -332,6 +336,19 @@ class LedgerValidator:
                             claim_id,
                         )
                     )
+                elif (
+                    evidence_id in evidence_ids
+                    and "none" in evidence_methods.get(evidence_id, set())
+                    and stance != "SILENT"
+                ):
+                    findings.append(
+                        Finding(
+                            "V-025",
+                            "RELEASE_BLOCKING",
+                            f"Negative-retrieval Evidence {evidence_id} requires stance=SILENT.",
+                            claim_id,
+                        )
+                    )
                 continue
             if edge_type != "RETRIEVED_FROM":
                 continue
@@ -368,6 +385,14 @@ class LedgerValidator:
             evidence_id = item.get("evidence_id")
             if not _non_empty_string(evidence_id):
                 continue
+            if "stance" in item:
+                findings.append(
+                    Finding(
+                        "V-025",
+                        "RELEASE_BLOCKING",
+                        f"Evidence {evidence_id} stores stance globally instead of on an EVIDENCED_BY edge.",
+                    )
+                )
             method = item.get("retrieval_method")
             source_id = item.get("source_id")
             linked_sources = retrieved_from.get(evidence_id, [])

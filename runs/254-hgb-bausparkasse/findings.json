@@ -384,6 +384,38 @@
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T18:55:47Z"
+    },
+    {
+      "finding_id": "F-254-025",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#negative-evidence-stance",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_9",
+      "kind": "NEGATIVE_EVIDENCE_NON_SILENT_STANCE",
+      "statement": "EVIDENCED_BY accepted affirmative, qualifying or contradicting stance for Evidence whose retrieval_method was none.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "Runtime V-025 now requires stance SILENT whenever an EVIDENCED_BY target is negative-retrieval Evidence; tests cover the failing and passing variants.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T19:02:43Z"
+    },
+    {
+      "finding_id": "F-254-026",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#evidence-stance",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_9",
+      "kind": "GLOBAL_EVIDENCE_STANCE_ACCEPTED",
+      "statement": "kcv-validate accepted a stance property stored directly on Evidence instead of on a Claim-to-Evidence edge.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "Runtime V-025 now rejects any Evidence object carrying a global stance property; a malformed-ledger unit test preserves the invariant.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T19:02:43Z"
     }
   ]
 }

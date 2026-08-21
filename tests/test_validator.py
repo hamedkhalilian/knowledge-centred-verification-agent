@@ -248,6 +248,28 @@ class LedgerValidatorTests(unittest.TestCase):
         self.assertIn("V-000", rule_ids(duplicate_evidence))
         self.assertIn("V-003", rule_ids(duplicate_evidence))
 
+    def test_negative_retrieval_edges_require_silent_stance(self) -> None:
+        payload = ledger_with_evidence()
+        payload["evidence"][0]["retrieval_method"] = "none"
+        payload["evidence"][0]["source_id"] = None
+        payload["edges"] = [
+            {
+                "from": "C-001",
+                "to": "EV-001",
+                "type": "EVIDENCED_BY",
+                "stance": "AFFIRMS",
+            }
+        ]
+        self.assertIn("V-025", rule_ids(payload))
+
+        payload["edges"][0]["stance"] = "SILENT"
+        self.assertTrue(validate_ledger(payload).ok)
+
+    def test_evidence_must_not_store_global_stance(self) -> None:
+        payload = ledger_with_evidence()
+        payload["evidence"][0]["stance"] = "AFFIRMS"
+        self.assertIn("V-025", rule_ids(payload))
+
     def test_run_required_fields_are_enforced(self) -> None:
         payload = ledger(claim("C-001"))
         payload["run"] = {"run_id": "R-INCOMPLETE"}
