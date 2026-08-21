@@ -272,6 +272,38 @@
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T18:23:48Z"
+    },
+    {
+      "finding_id": "F-254-018",
+      "target_type": "graph",
+      "target_id": "claim-ledger.json#edges",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_4",
+      "kind": "NON_CLAIM_EVIDENCE_EDGE",
+      "statement": "The ledger used Claim-scoped EVIDENCED_BY relations from a Finding node that is not part of the semantic ledger graph.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "The invalid Finding-to-Evidence edges were removed. F-254-014 retains explicit EV-0004 and EV-0005 references in resolution_reason, and a regression test requires every EVIDENCED_BY source to be a Claim ID.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:31:34Z"
+    },
+    {
+      "finding_id": "F-254-019",
+      "target_type": "schema",
+      "target_id": "schemas/protocol-finding.schema.json",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_4",
+      "kind": "ACTIONABLE_REMEDIATION_CLASS_OPTIONAL",
+      "statement": "The schema constrained remediation_class values but did not require the field for actionable Finding resolutions.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "Conditional schema rules now require remediation_class for ACCEPTED, PARTIAL, OPEN and ESCALATED findings and prohibit it for REJECTED findings; negative regression tests enforce both branches.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:31:34Z"
     }
   ]
 }

@@ -169,6 +169,33 @@ def test_rejected_review_finding_has_persisted_internal_evidence() -> None:
     assert "EV-0005" in action_finding["resolution_reason"]
 
 
+def test_evidenced_by_edges_remain_claim_scoped() -> None:
+    ledger = load_json(RUN_DIR / "claim-ledger.json")
+    claim_ids = {claim["claim_id"] for claim in ledger["claims"]}
+
+    for edge in ledger["edges"]:
+        if edge["type"] == "EVIDENCED_BY":
+            assert edge["from"] in claim_ids
+
+
+def test_actionable_findings_require_exactly_one_remediation_class() -> None:
+    findings = load_json(RUN_DIR / "findings.json")["findings"]
+    schema = load_json(SCHEMA_DIR / "protocol-finding.schema.json")
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+
+    actionable = dict(next(
+        finding for finding in findings if finding["resolution"] == "ACCEPTED"
+    ))
+    actionable.pop("remediation_class")
+    assert list(validator.iter_errors(actionable))
+
+    rejected = dict(next(
+        finding for finding in findings if finding["resolution"] == "REJECTED"
+    ))
+    rejected["remediation_class"] = "AUTO_FIXABLE"
+    assert list(validator.iter_errors(rejected))
+
+
 def test_each_use_case_has_a_separate_eight_dimension_analysis() -> None:
     report = (RUN_DIR / "report.md").read_text(encoding="utf-8")
     headings = (

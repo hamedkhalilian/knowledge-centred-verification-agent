@@ -79,5 +79,35 @@
       "format": "date-time"
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "resolution": {
+            "enum": ["ACCEPTED", "PARTIAL", "OPEN", "ESCALATED"]
+          }
+        },
+        "required": ["resolution"]
+      },
+      "then": {
+        "required": ["remediation_class"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "resolution": {
+            "const": "REJECTED"
+          }
+        },
+        "required": ["resolution"]
+      },
+      "then": {
+        "not": {
+          "required": ["remediation_class"]
+        }
+      }
+    }
+  ],
   "additionalProperties": false
 }

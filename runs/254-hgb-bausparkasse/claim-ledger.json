@@ -978,8 +978,6 @@
     { "from": "EV-0003", "to": "SRC-INT-003", "type": "RETRIEVED_FROM" },
     { "from": "EV-0004", "to": "SRC-INT-004", "type": "RETRIEVED_FROM" },
     { "from": "EV-0005", "to": "SRC-INT-005", "type": "RETRIEVED_FROM" },
-    { "from": "F-254-014", "to": "EV-0004", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
-    { "from": "F-254-014", "to": "EV-0005", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0001", "to": "EV-0001", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0002", "to": "EV-0001", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0002", "to": "EV-0002", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
