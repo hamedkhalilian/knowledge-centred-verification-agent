@@ -48,6 +48,36 @@
       "relevant_span": "research questions, mandatory distinctions, acceptance criteria"
     },
     {
+      "source_id": "SRC-INT-004",
+      "kind": "internal",
+      "issuer": "GitHub pull-request review",
+      "title": "PR #4 review thread: action-version finding and owner response",
+      "identifier": "pr-4-review-thread-actions-v7",
+      "canonical_url": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/pull/4#discussion_r3832594050",
+      "version_label": "review-thread snapshot",
+      "version_date": "2026-08-21",
+      "retrieval_date": "2026-08-21",
+      "access": "INTERNAL",
+      "status": "RETRIEVED",
+      "provenance_note": "Read through the connected GitHub review API after the initial legal-research run; it records the review assertion, the supplied references, and the owner's response. Official release pages named in the response were not independently treated as verified legal-research sources.",
+      "relevant_span": "F-254-014 review assertion, response, and supplied references"
+    },
+    {
+      "source_id": "SRC-INT-005",
+      "kind": "internal",
+      "issuer": "GitHub Actions",
+      "title": "Validation workflow run 32511718595",
+      "identifier": "github-actions-run-32511718595",
+      "canonical_url": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/actions/runs/32511718595",
+      "version_label": "completed run snapshot",
+      "version_date": "2026-08-21",
+      "retrieval_date": "2026-08-21",
+      "access": "INTERNAL",
+      "status": "RETRIEVED",
+      "provenance_note": "Read through the connected GitHub Actions API after the initial legal-research run; this is repository workflow evidence, not external legal research.",
+      "relevant_span": "successful resolution and execution of actions/checkout@v7 and actions/setup-python@v7, tests, and ledger validations"
+    },
+    {
       "source_id": "SRC-EXT-001",
       "kind": "statute",
       "issuer": "Bundesministerium der Justiz / Gesetze im Internet",

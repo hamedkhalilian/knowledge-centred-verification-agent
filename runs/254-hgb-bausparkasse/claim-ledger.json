@@ -794,6 +794,30 @@
       "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/issues/2",
       "provenance_note": "Supplied as task input and read through internal_source; not independently retrieved as external legal authority.",
       "sufficient_for": ["task_scope", "acceptance_criteria"]
+    },
+    {
+      "source_id": "SRC-INT-004",
+      "kind": "internal",
+      "identifier": "pr-4-review-thread-actions-v7",
+      "title": "PR #4 review thread: action-version finding and owner response",
+      "version_label": "review-thread snapshot",
+      "version_date": "2026-08-21",
+      "access": "INTERNAL",
+      "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/pull/4#discussion_r3832594050",
+      "provenance_note": "Read through the connected GitHub review API after the initial run. It preserves the review assertion, supplied references, and response; the named official release pages are not independently relied upon as verified external evidence.",
+      "sufficient_for": ["review_provenance", "finding_resolution_context"]
+    },
+    {
+      "source_id": "SRC-INT-005",
+      "kind": "internal",
+      "identifier": "github-actions-run-32511718595",
+      "title": "GitHub Actions validation run 32511718595",
+      "version_label": "completed run snapshot",
+      "version_date": "2026-08-21",
+      "access": "INTERNAL",
+      "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/actions/runs/32511718595",
+      "provenance_note": "Read through the connected GitHub Actions API after the initial run; repository workflow evidence, not external legal research.",
+      "sufficient_for": ["workflow_execution", "action_resolution", "test_result"]
     }
   ],
   "evidence": [
@@ -837,6 +861,34 @@
       "queries_attempted": [],
       "search_scope": null,
       "agent": "VO",
+      "prompt_version": "v2.2"
+    },
+    {
+      "evidence_id": "EV-0004",
+      "source_id": "SRC-INT-004",
+      "retrieved_at": "2026-08-21",
+      "retrieval_method": "internal_source",
+      "fragment": "P1 action-version review comment and owner reply",
+      "extract": "The thread preserves the rejected assertion, the response, and the references supplied with that response; official release-page publication is not independently asserted by this evidence record.",
+      "supersession_checked": false,
+      "superseded_by": [],
+      "queries_attempted": [],
+      "search_scope": null,
+      "agent": "CR",
+      "prompt_version": "v2.2"
+    },
+    {
+      "evidence_id": "EV-0005",
+      "source_id": "SRC-INT-005",
+      "retrieved_at": "2026-08-21",
+      "retrieval_method": "internal_source",
+      "fragment": "workflow run 32511718595 status, job steps, and validation outcome",
+      "extract": "GitHub Actions resolved and executed actions/checkout@v7 and actions/setup-python@v7; the run completed successfully with 22 tests and both ledger validations passing.",
+      "supersession_checked": false,
+      "superseded_by": [],
+      "queries_attempted": [],
+      "search_scope": null,
+      "agent": "CR",
       "prompt_version": "v2.2"
     },
     {
@@ -924,6 +976,10 @@
     { "from": "EV-0001", "to": "SRC-INT-001", "type": "RETRIEVED_FROM" },
     { "from": "EV-0002", "to": "SRC-INT-002", "type": "RETRIEVED_FROM" },
     { "from": "EV-0003", "to": "SRC-INT-003", "type": "RETRIEVED_FROM" },
+    { "from": "EV-0004", "to": "SRC-INT-004", "type": "RETRIEVED_FROM" },
+    { "from": "EV-0005", "to": "SRC-INT-005", "type": "RETRIEVED_FROM" },
+    { "from": "F-254-014", "to": "EV-0004", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
+    { "from": "F-254-014", "to": "EV-0005", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0001", "to": "EV-0001", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0002", "to": "EV-0001", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0002", "to": "EV-0002", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },

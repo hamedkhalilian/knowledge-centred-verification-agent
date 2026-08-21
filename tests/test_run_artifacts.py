@@ -133,6 +133,42 @@ def test_issue_provenance_and_closure_actions_are_explicit() -> None:
     assert "D-0001" in release_summary
 
 
+def test_rejected_review_finding_has_persisted_internal_evidence() -> None:
+    ledger = load_json(RUN_DIR / "claim-ledger.json")
+    source_manifest = load_json(RUN_DIR / "source-manifest.json")
+    findings = load_json(RUN_DIR / "findings.json")
+
+    ledger_sources = {source["source_id"]: source for source in ledger["sources"]}
+    manifest_sources = {
+        source["source_id"]: source for source in source_manifest["sources"]
+    }
+    evidence = {
+        item["evidence_id"]: item for item in ledger["evidence"]
+    }
+
+    for source_id in ("SRC-INT-004", "SRC-INT-005"):
+        assert ledger_sources[source_id]["kind"] == "internal"
+        assert ledger_sources[source_id]["access"] == "INTERNAL"
+        assert manifest_sources[source_id]["status"] == "RETRIEVED"
+        assert "connected github" in (
+            ledger_sources[source_id]["provenance_note"].lower()
+        )
+
+    assert evidence["EV-0004"]["source_id"] == "SRC-INT-004"
+    assert evidence["EV-0004"]["retrieval_method"] == "internal_source"
+    assert "not independently" in evidence["EV-0004"]["extract"].lower()
+    assert evidence["EV-0005"]["source_id"] == "SRC-INT-005"
+    assert evidence["EV-0005"]["retrieval_method"] == "internal_source"
+    assert "resolved and executed" in evidence["EV-0005"]["extract"].lower()
+
+    action_finding = next(
+        finding for finding in findings["findings"]
+        if finding["finding_id"] == "F-254-014"
+    )
+    assert action_finding["resolution"] == "REJECTED"
+    assert "EV-0005" in action_finding["resolution_reason"]
+
+
 def test_each_use_case_has_a_separate_eight_dimension_analysis() -> None:
     report = (RUN_DIR / "report.md").read_text(encoding="utf-8")
     headings = (

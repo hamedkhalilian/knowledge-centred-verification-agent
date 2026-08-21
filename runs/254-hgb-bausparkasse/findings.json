@@ -220,7 +220,7 @@
       "statement": "The review claimed that actions/checkout@v7 and actions/setup-python@v7 were unpublished and would fail CI.",
       "severity": "BLOCKING",
       "resolution": "REJECTED",
-      "resolution_reason": "GitHub Actions run 32511718595 successfully resolved and executed both v7 actions; the official action repositories also publish v7. No workflow downgrade was made.",
+      "resolution_reason": "Evidence EV-0005 records that GitHub Actions run 32511718595 successfully resolved and executed both v7 actions, directly disproving that the workflow stops before validation. EV-0004 preserves the review thread and supplied release references without treating the referenced release pages as independently verified external evidence. No workflow downgrade was made.",
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T18:12:06Z"
@@ -256,6 +256,22 @@
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T18:12:06Z"
+    },
+    {
+      "finding_id": "F-254-017",
+      "target_type": "finding",
+      "target_id": "F-254-014",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_3",
+      "kind": "REJECTION_EVIDENCE_NOT_PERSISTED",
+      "statement": "The evidence behind the rejected action-version finding was linked in the PR thread but not persisted in the run's Source/Evidence records.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "SRC-INT-004/EV-0004 now preserve the review thread and supplied references; SRC-INT-005/EV-0005 preserve the successful GitHub Actions execution. F-254-014 relies on the direct CI evidence and does not overstate independent verification of the named release pages.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:23:48Z"
     }
   ]
 }
