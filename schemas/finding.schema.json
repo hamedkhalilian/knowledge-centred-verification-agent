@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/kcv/finding.schema.json",
+  "title": "KCV Finding",
+  "type": "object",
+  "required": ["rule_id", "severity", "message"],
+  "properties": {
+    "rule_id": {
+      "type": "string",
+      "pattern": "^V-[0-9]{3}[A-Z]?$"
+    },
+    "severity": {
+      "enum": ["INFO", "WARNING", "ERROR", "RELEASE_BLOCKING"]
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claim_id": {
+      "type": ["string", "null"]
+    },
+    "remediation_status": {
+      "enum": ["OPEN", "FIXED", "HUMAN_REQUIRED", "NOT_APPLICABLE"]
+    }
+  },
+  "additionalProperties": false
+}

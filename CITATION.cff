@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software or its verification architecture, please cite it
+  using the metadata in this file.
+title: Knowledge-Centred Verification Agent
+type: software
+authors:
+  - family-names: Khalilian
+    given-names: Hamed
+repository-code: https://github.com/hamedkhalilian/knowledge-centred-verification-agent
+url: https://github.com/hamedkhalilian/knowledge-centred-verification-agent
+version: 0.1.0
+date-released: 2026-08-21
+license: Apache-2.0
+keywords:
+  - claim ledger
+  - deterministic validation
+  - legal research
+  - knowledge verification
+  - GitHub Copilot custom agent
+abstract: >-
+  A claim-ledger-centred architecture combining deterministic validation with
+  evidence-aware LLM research and adversarial review for auditable documents.

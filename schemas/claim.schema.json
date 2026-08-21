@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/kcv/claim.schema.json",
+  "title": "KCV Claim",
+  "type": "object",
+  "required": [
+    "claim_id",
+    "normalised_claim",
+    "claim_type",
+    "claim_status",
+    "evidence_status",
+    "depends_on"
+  ],
+  "properties": {
+    "claim_id": {
+      "type": "string",
+      "pattern": "^C-?[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "normalised_claim": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claim_type": {
+      "enum": [
+        "SOURCE",
+        "DERIVED",
+        "INTERPRETIVE",
+        "DEFINITION"
+      ]
+    },
+    "claim_status": {
+      "enum": [
+        "PENDING",
+        "SUPPORTED",
+        "SUPPORTED_CONDITIONAL",
+        "UNESTABLISHED",
+        "UNSUPPORTED",
+        "CONTRADICTED",
+        "OUTDATED",
+        "UNRESOLVED"
+      ]
+    },
+    "evidence_status": {
+      "enum": [
+        "PRIMARY_VERIFIED",
+        "AUTHORITATIVE_SECONDARY",
+        "SECONDARY_ONLY",
+        "LICENSE_REQUIRED",
+        "NOT_RETRIEVED",
+        "SOURCE_CONFLICT"
+      ]
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^C-?[A-Za-z0-9][A-Za-z0-9._-]*$"
+      },
+      "uniqueItems": true,
+      "default": []
+    },
+    "class": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "time_sensitive": { "type": "boolean" },
+    "source_statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "conditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "decision_conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["decision_id", "equals"],
+        "properties": {
+          "decision_id": { "type": "string", "minLength": 1 },
+          "equals": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "blocked_by": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "derivation_rule": {
+      "type": ["string", "null"]
+    },
+    "appears_in": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "severity_if_wrong": {
+      "enum": ["BLOCKING", "HIGH", "MEDIUM", "LOW"]
+    },
+    "last_checked": {
+      "type": ["string", "null"],
+      "format": "date"
+    },
+    "last_successfully_verified": {
+      "type": ["string", "null"],
+      "format": "date"
+    },
+    "reopened": { "type": "boolean" },
+    "qualification": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "claim_type": { "const": "DERIVED" } },
+        "required": ["claim_type"]
+      },
+      "then": {
+        "required": ["derivation_rule"],
+        "properties": {
+          "derivation_rule": { "type": "string", "minLength": 1 },
+          "depends_on": { "minItems": 1 }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

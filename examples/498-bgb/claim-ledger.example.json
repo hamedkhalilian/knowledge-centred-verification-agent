@@ -1,0 +1,57 @@
+{
+  "run": {
+    "run_id": "R-EXAMPLE-498-01",
+    "as_of_date": "2026-08-21",
+    "document_manifest": ["examples/498-bgb/README.md"],
+    "requested_output_formats": ["claim-ledger-json"],
+    "strict_blind_audit_required": false,
+    "model_id": null,
+    "prompt_version": "v2.2",
+    "inherited_from_run": null,
+    "capabilities": {
+      "input_file_access": true,
+      "external_retrieval": false,
+      "code_execution": true,
+      "file_output": true,
+      "document_compile": false,
+      "image_render": false,
+      "isolated_audit_context": false
+    }
+  },
+  "claims": [
+    {
+      "claim_id": "C-498-SCOPE",
+      "normalised_claim": "The scope conclusion depends on the classification of the credit agreement and the statutory preconditions selected for analysis.",
+      "claim_type": "INTERPRETIVE",
+      "claim_status": "SUPPORTED_CONDITIONAL",
+      "evidence_status": "SECONDARY_ONLY",
+      "depends_on": [],
+      "qualification": "Illustrative research-planning claim only; current primary law was not externally retrieved.",
+      "last_checked": "2026-08-21",
+      "last_successfully_verified": null
+    },
+    {
+      "claim_id": "C-498-NOTICE",
+      "normalised_claim": "A complete notice analysis must identify the content, timing, and cure-period propositions separately.",
+      "claim_type": "DEFINITION",
+      "claim_status": "SUPPORTED_CONDITIONAL",
+      "evidence_status": "SECONDARY_ONLY",
+      "depends_on": [],
+      "qualification": "Illustrative research-planning claim only; current primary law was not externally retrieved.",
+      "last_checked": "2026-08-21",
+      "last_successfully_verified": null
+    },
+    {
+      "claim_id": "C-498-REPORT-PLAN",
+      "normalised_claim": "The report plan must contain distinct scope and notice sections before it can derive a product-specific conclusion.",
+      "claim_type": "DERIVED",
+      "claim_status": "SUPPORTED_CONDITIONAL",
+      "evidence_status": "SECONDARY_ONLY",
+      "depends_on": ["C-498-SCOPE", "C-498-NOTICE"],
+      "derivation_rule": "Conjunction: both named prerequisite analyses are necessary inputs to the product-specific conclusion.",
+      "qualification": "Illustrative research-planning conclusion qualified by the same retrieval limits as both premises.",
+      "last_checked": "2026-08-21",
+      "last_successfully_verified": null
+    }
+  ]
+}
