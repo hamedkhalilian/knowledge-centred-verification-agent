@@ -1,0 +1,70 @@
+{
+  "run_id": "R-2026-08-21-254-01",
+  "as_of_date": "2026-08-21",
+  "findings": [
+    {
+      "finding_id": "F-254-001",
+      "target_type": "run",
+      "target_id": "R-2026-08-21-254-01",
+      "raised_by": "VO",
+      "phase": "S3",
+      "kind": "SOURCE_GAP_PUBLIC",
+      "statement": "Authoritative external retrieval was unavailable; current statutory and supervisory texts were not retrieved.",
+      "severity": "BLOCKING",
+      "resolution": "OPEN",
+      "resolution_reason": "Requires a run with authoritative external retrieval capability.",
+      "remediation_class": "AUTO_SOFTENABLE",
+      "agent": "verification-officer",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T16:17:52Z"
+    },
+    {
+      "finding_id": "F-254-002",
+      "target_type": "claim",
+      "target_id": "C-0304",
+      "raised_by": "R1",
+      "phase": "S4",
+      "kind": "LICENSED_SOURCE_REQUIRED",
+      "statement": "Paragraph-level reconciliation against IDW RS HFA 35 cannot be completed without licensed text.",
+      "severity": "HIGH",
+      "resolution": "OPEN",
+      "resolution_reason": "Awaiting licensed source access.",
+      "remediation_class": "HUMAN_LICENSED_SOURCE",
+      "agent": "stale-law-reviewer",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T16:17:52Z"
+    },
+    {
+      "finding_id": "F-254-003",
+      "target_type": "run",
+      "target_id": "R-2026-08-21-254-01",
+      "raised_by": "ADV",
+      "phase": "S7",
+      "kind": "OVERASSERTION_GUARD",
+      "statement": "All legal conclusions were held at UNESTABLISHED where primary retrieval was unavailable; no exact-correlation claim was made.",
+      "severity": "MEDIUM",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "Constraint preserved and reflected in report language.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "adversary",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T16:17:52Z"
+    },
+    {
+      "finding_id": "F-254-004",
+      "target_type": "run",
+      "target_id": "R-2026-08-21-254-01",
+      "raised_by": "MECH",
+      "phase": "S24",
+      "kind": "DETERMINISTIC_VALIDATION",
+      "statement": "kcv-validate returned zero deterministic findings after remediation.",
+      "severity": "LOW",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "No V-000/V-001/V-003/V-004/V-005/V-006D/V-008/V-024 violations remained.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "mechanical-checker",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T16:17:52Z"
+    }
+  ]
+}
