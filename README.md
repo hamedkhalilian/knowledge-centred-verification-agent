@@ -95,6 +95,16 @@ and examples implement its field names and vocabularies:
 Assumptions and Decisions are separate protocol entities; they are not Claim
 types.
 
+The two Finding producers intentionally use separate contracts:
+
+- `schemas/finding.schema.json` models compact deterministic-validator findings
+  (`V-000`, `V-001`, and related executable rules).
+- `schemas/protocol-finding.schema.json` models the richer v2.2 review/audit
+  Finding object with target, phase, resolution, agent, and provenance fields.
+
+Run-artifact tests validate both models and verify produced paths recorded in
+`artifact_manifest.json`.
+
 ## Deterministic rules in the first release
 
 | Rule | Check |

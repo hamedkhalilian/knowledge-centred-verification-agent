@@ -89,27 +89,63 @@ Mandatory distinction enforced:
 
 ---
 
-## 5) Bausparkasse use cases (structured but legally unverified)
+## 5) Bausparkasse use cases (case-specific, legally unverified)
 
-Use cases included (C-0501..C-0504):
+The tables below are a control-oriented assessment plan, not verified legal advice. `UNESTABLISHED` means that the current authoritative rule was not retrieved. A proposed test or record is labelled `[CONTROL]`; it is not presented as a statutory requirement (C-0505, C-0602).
 
-1. fixed-rate Bauspardarlehen portfolio + standard IRS
-2. single fixed-rate Bauspardarlehen + off-market swap
-3. customer optionality + swaption/option strategy
-4. macro/portfolio hedge for collective Bauspar business
+### 5.1 Fixed-rate Bauspardarlehen portfolio + standard IRS (C-0501)
 
-Per-case analysis dimensions required (C-0505):
+| Dimension | Case-specific assessment |
+|---|---|
+| Economic risk reduction | `[CONTROL] NOT EVALUATED.` Compare the designated loan cash flows with the IRS cash flows by risk factor, curve, repricing bucket, DV01 and time horizon. Notional matching alone is not evidence of offset. |
+| Legal eligibility | `UNESTABLISHED` (C-0511). Retrieve §254 HGB and applicable professional interpretation before concluding that the portfolio and instruments qualify. |
+| Designation/documentation | `[CONTROL]` Record portfolio inclusion rules, designated risk, hedge ratio, start/end dates, permitted churn, valuation curves and responsibility for rebalancing (C-0206, C-0601). |
+| Effectiveness | `[CONTROL] NOT EVALUATED.` Test prospective expectation and retrospective results. Analyse loan prepayment, tariff behaviour, timing mismatch and curve/basis mismatch (C-0204, C-0207). |
+| Risk inventory | `[CONTROL]` Prepayment/optionality, basis, collateral/liquidity, counterparty, model, data-lineage and operational risks require separate owners and limits. |
+| Accounting | `UNESTABLISHED.` Treatment of effective offset, ineffectiveness, discontinuation and the applicable method requires authoritative and licensed evidence (C-0209..C-0212). |
+| Prudential/IRRBB | `UNESTABLISHED.` Measure IRRBB separately; do not infer a capital consequence from the HGB result (C-0405..C-0407). |
+| Assumptions/decisions | Confirm behavioural cash-flow assumptions and portfolio stability. Resolve D-0001 before production designation. |
 
-- economic risk reduction
-- legal eligibility under §254
-- designation/documentation
-- effectiveness + ineffectiveness drivers
-- liquidity/collateral/basis/model/operational risks
-- accounting consequences
-- prudential/IRRBB consequences
-- assumptions and decisions
+### 5.2 Single Bauspardarlehen + coupon-matching off-market swap (C-0502)
 
-Current legal eligibility verdict for all four cases: **UNESTABLISHED in this run** (C-0511..C-0514).
+| Dimension | Case-specific assessment |
+|---|---|
+| Economic risk reduction | `[CONTROL] NOT EVALUATED.` Coupon equality does not by itself establish value or cash-flow offset. Compare payment dates, amortisation, reset conventions, day-count rules and optionality. |
+| Legal eligibility | `UNESTABLISHED` (C-0512). Do not infer eligibility merely because the fixed swap leg equals the loan coupon. |
+| Designation/documentation | `[CONTROL]` Document inception fair value, any upfront payment or embedded financing, the designated risk, valuation method and exit treatment. |
+| Effectiveness | `[CONTROL] NOT EVALUATED.` Perform instrument-level prospective and retrospective testing; quantify timing, curve, basis and option mismatch. |
+| Risk inventory | `[CONTROL]` Upfront funding, collateral/margin, counterparty, liquidity, valuation-model and bespoke-contract operational risks require explicit assessment. |
+| Accounting | `UNESTABLISHED.` The accounting effect of an off-market initial value and subsequent ineffectiveness must be supported by current authority. |
+| Prudential/IRRBB | `UNESTABLISHED.` Liquidity and IRRBB effects must be measured independently of the HGB designation (C-0406, C-0407). |
+| Assumptions/decisions | Confirm that the loan cash-flow schedule and customer options are modelled. Resolve D-0001 and the policy for inception value before production use. |
+
+### 5.3 Customer optionality + swaption or option strategy (C-0503)
+
+| Dimension | Case-specific assessment |
+|---|---|
+| Economic risk reduction | `[CONTROL] NOT EVALUATED.` Map the customer's contractual exercise right and behavioural exercise rule to the option payoff. A par call driven by the loan coupon must not be treated automatically as a swap-rate option. |
+| Legal eligibility | `UNESTABLISHED` (C-0513). Eligibility of the host exposure, designated option risk and hedge instrument requires current legal and professional evidence. |
+| Designation/documentation | `[CONTROL]` Record the option population, strike/exercise rule, exercise window, model, volatility surface, designated risk and treatment of partial exercise. |
+| Effectiveness | `[CONTROL] NOT EVALUATED.` Test delta, gamma/convexity, vega, basis, timing and behavioural mismatch under relevant scenarios. |
+| Risk inventory | `[CONTROL]` Model, volatility, basis, liquidity, collateral, counterparty, behavioural and operational risks are material candidates for testing. |
+| Accounting | `UNESTABLISHED.` Premium, time value, ineffectiveness and termination treatment require source-backed policy analysis. |
+| Prudential/IRRBB | `UNESTABLISHED.` Non-linear optionality must be included in IRRBB independently from any HGB hedge-accounting conclusion. |
+| Assumptions/decisions | Validate exercise behaviour and model governance assumptions. Resolve the designation method and option-component policy under D-0001. |
+
+### 5.4 Macro/portfolio hedge for collective Bauspar business (C-0504)
+
+| Dimension | Case-specific assessment |
+|---|---|
+| Economic risk reduction | `[CONTROL] NOT EVALUATED.` Define the dynamic collective exposure, behavioural cash flows, aggregation level and hedge objective before measuring offset. |
+| Legal eligibility | `UNESTABLISHED` (C-0514). The permitted portfolio/macro construction and documentation conditions require current authority. |
+| Designation/documentation | `[CONTROL]` Record population rules, forecast horizon, allocation method, hedge ratio, layer or bucket definition, churn limits and rebalancing governance. |
+| Effectiveness | `[CONTROL] NOT EVALUATED.` Back-test stability of behavioural cash flows and quantify basis, model, timing, volume and rebalancing effects. |
+| Risk inventory | `[CONTROL]` Behavioural/model, basis, volume, liquidity/collateral, data, governance and operational risks require separate monitoring. |
+| Accounting | `UNESTABLISHED.` Portfolio eligibility, discontinuation, rebalancing and ineffectiveness treatment require source-backed analysis. |
+| Prudential/IRRBB | `UNESTABLISHED.` Collective-business IRRBB measurement remains a separate process and must not be replaced by the accounting test (C-0406). |
+| Assumptions/decisions | Validate allocation and behavioural assumptions; resolve D-0001 and governance for portfolio entry, exit and rebalancing. |
+
+No legal eligibility conclusion is released for any case; all four remain `UNESTABLISHED` (C-0511..C-0514).
 
 ---
 
@@ -144,4 +180,6 @@ Label classes in implementation artifacts (C-0602):
 1. Retrieve current authoritative statutory texts (HGB + BauSparkG + BausparkV + RechKredV).
 2. Retrieve authoritative supervisory texts only where dependency requires (BaFin/MaRisk/IRRBB).
 3. Provide licensed current professional guidance (IDW RS HFA 35) for paragraph-level reconciliation.
-4. Re-run verification to replace `UNESTABLISHED` claims with source-backed statuses where possible.
+4. Resolve D-0001: the production hedge-designation method and documentation policy, owned by the Accounting policy committee and external auditor.
+5. Create and verify the protocol's split audit/ledger artifacts, including `rendered_locations.json`, before re-evaluating G-02, G-04, G-06, G-07 and G-15.
+6. Re-run verification to replace `UNESTABLISHED` claims with source-backed statuses where possible.

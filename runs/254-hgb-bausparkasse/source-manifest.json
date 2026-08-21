@@ -34,16 +34,16 @@
     },
     {
       "source_id": "SRC-INT-003",
-      "kind": "internal",
-      "issuer": "GitHub",
+      "kind": "task_input",
+      "issuer": "Requester via GitHub",
       "title": "Issue #2: Research §254 HGB implementation requirements for a Bausparkasse",
       "identifier": "issue-2",
       "canonical_url": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/issues/2",
-      "version_label": "open issue snapshot",
+      "version_label": "task snapshot supplied to the agent",
       "version_date": "2026-08-21",
       "retrieval_date": "2026-08-21",
-      "access": "PUBLIC",
-      "status": "RETRIEVED",
+      "access": "INTERNAL_TASK_INPUT",
+      "status": "SUPPLIED",
       "relevant_span": "research questions, mandatory distinctions, acceptance criteria"
     },
     {

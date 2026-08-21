@@ -5,7 +5,7 @@
     "document_manifest": [
       "prompts/master_prompt_v2.2.md",
       "AGENTS.md",
-      "github:issue/2"
+      "task-input:github:issue/2"
     ],
     "requested_output_formats": [
       "capability-declaration.md",
@@ -13,7 +13,8 @@
       "claim-ledger.json",
       "findings.json",
       "report.md",
-      "release-summary.md"
+      "release-summary.md",
+      "artifact_manifest.json"
     ],
     "strict_blind_audit_required": false,
     "model_id": null,
@@ -30,12 +31,12 @@
     },
     "gates": {
       "G-01": "FAIL",
-      "G-02": "PASS",
+      "G-02": "NOT_EVALUATED",
       "G-03": "PASS",
-      "G-04": "PASS",
+      "G-04": "NOT_EVALUATED",
       "G-05": "PASS",
-      "G-06": "PASS",
-      "G-07": "PASS",
+      "G-06": "NOT_EVALUATED",
+      "G-07": "NOT_EVALUATED",
       "G-08": "NOT_APPLICABLE",
       "G-09": "PASS",
       "G-10": "PASS",
@@ -44,7 +45,7 @@
       "G-12": "PASS",
       "G-13": "PASS",
       "G-14": "NOT_APPLICABLE",
-      "G-15": "PASS"
+      "G-15": "FAIL"
     },
     "release_state": "BLOCKED"
   },
@@ -827,7 +828,7 @@
       "evidence_id": "EV-0003",
       "source_id": "SRC-INT-003",
       "retrieved_at": "2026-08-21",
-      "retrieval_method": "official_portal",
+      "retrieval_method": "internal_task_input",
       "fragment": "Issue #2 body",
       "extract": "Research questions, mandatory distinctions, and acceptance criteria.",
       "supersession_checked": false,

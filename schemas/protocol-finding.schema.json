@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/kcv/protocol-finding.schema.json",
+  "title": "KCV Protocol Finding",
+  "type": "object",
+  "required": [
+    "finding_id",
+    "target_type",
+    "target_id",
+    "raised_by",
+    "phase",
+    "kind",
+    "statement",
+    "severity",
+    "resolution",
+    "agent",
+    "prompt_version",
+    "created_at"
+  ],
+  "properties": {
+    "finding_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "raised_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "severity": {
+      "enum": ["BLOCKING", "HIGH", "MEDIUM", "LOW"]
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proposed_status_change": {
+      "type": "object"
+    },
+    "resolution": {
+      "enum": ["ACCEPTED", "REJECTED", "PARTIAL", "OPEN", "ESCALATED"]
+    },
+    "resolution_reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "remediation_class": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prompt_version": {
+      "const": "v2.2"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}
