@@ -1,0 +1,44 @@
+{
+  "run": {
+    "run_id": "R-EXAMPLE-498-01",
+    "as_of_date": "2026-08-21",
+    "prompt_version": "v2.2",
+    "capabilities": {
+      "external_retrieval": false,
+      "code_execution": true
+    }
+  },
+  "claims": [
+    {
+      "id": "C-498-SCOPE",
+      "statement": "The scope conclusion depends on the classification of the credit agreement and the statutory preconditions selected for analysis.",
+      "kind": "INTERPRETIVE",
+      "status": "QUALIFIED",
+      "evidence_status": "SECONDARY",
+      "dependencies": [],
+      "last_checked": "2026-08-21",
+      "last_successfully_verified": null
+    },
+    {
+      "id": "C-498-NOTICE",
+      "statement": "A complete notice analysis must identify the content, timing, and cure-period propositions separately.",
+      "kind": "DEFINITION",
+      "status": "QUALIFIED",
+      "evidence_status": "SECONDARY",
+      "dependencies": [],
+      "last_checked": "2026-08-21",
+      "last_successfully_verified": null
+    },
+    {
+      "id": "C-498-REPORT-PLAN",
+      "statement": "The report plan must contain distinct scope and notice sections before it can derive a product-specific conclusion.",
+      "kind": "DERIVED",
+      "status": "VERIFIED",
+      "evidence_status": "NOT_REQUIRED",
+      "dependencies": ["C-498-SCOPE", "C-498-NOTICE"],
+      "derivation_rule": "Conjunction: both named prerequisite analyses are necessary inputs to the product-specific conclusion.",
+      "last_checked": "2026-08-21",
+      "last_successfully_verified": "2026-08-21"
+    }
+  ]
+}

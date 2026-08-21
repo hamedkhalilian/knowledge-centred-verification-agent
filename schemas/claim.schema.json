@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/kcv/claim.schema.json",
+  "title": "KCV Claim",
+  "type": "object",
+  "required": [
+    "id",
+    "statement",
+    "kind",
+    "status",
+    "evidence_status",
+    "dependencies"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^C-[A-Za-z0-9._-]+$"
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "SOURCE",
+        "INTERPRETIVE",
+        "DEFINITION",
+        "DERIVED",
+        "ASSUMPTION",
+        "DECISION"
+      ]
+    },
+    "status": {
+      "enum": [
+        "VERIFIED",
+        "QUALIFIED",
+        "UNVERIFIED",
+        "CONTRADICTED",
+        "UNRESOLVED"
+      ]
+    },
+    "evidence_status": {
+      "enum": [
+        "PRIMARY",
+        "AUTHORITATIVE_SECONDARY",
+        "SECONDARY",
+        "NOT_RETRIEVED",
+        "SOURCE_CONFLICT",
+        "NOT_REQUIRED"
+      ]
+    },
+    "dependencies": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "default": []
+    },
+    "derivation_rule": {
+      "type": ["string", "null"]
+    },
+    "decision_conditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "last_checked": {
+      "type": ["string", "null"],
+      "format": "date"
+    },
+    "last_successfully_verified": {
+      "type": ["string", "null"],
+      "format": "date"
+    }
+  },
+  "additionalProperties": true
+}
+

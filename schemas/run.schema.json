@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/kcv/run.schema.json",
+  "title": "KCV Run",
+  "type": "object",
+  "required": [
+    "run_id",
+    "as_of_date",
+    "document_manifest",
+    "requested_output_formats",
+    "strict_blind_audit_required",
+    "prompt_version"
+  ],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "as_of_date": { "type": "string", "format": "date" },
+    "document_manifest": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "requested_output_formats": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "strict_blind_audit_required": { "type": "boolean" },
+    "model_id": { "type": ["string", "null"] },
+    "prompt_version": { "const": "v2.2" },
+    "inherited_from_run": { "type": ["string", "null"] },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "input_file_access": { "type": "boolean" },
+        "external_retrieval": { "type": "boolean" },
+        "code_execution": { "type": "boolean" },
+        "file_output": { "type": "boolean" },
+        "document_compile": { "type": "boolean" },
+        "image_render": { "type": "boolean" },
+        "isolated_audit_context": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": ["PASS", "FAIL", "NOT_EVALUATED", "NOT_APPLICABLE"]
+      }
+    }
+  },
+  "additionalProperties": true
+}
+
