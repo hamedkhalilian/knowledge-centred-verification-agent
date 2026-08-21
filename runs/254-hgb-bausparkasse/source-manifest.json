@@ -1,0 +1,180 @@
+{
+  "run_id": "R-2026-08-21-254-01",
+  "as_of_date": "2026-08-21",
+  "jurisdiction": "DE",
+  "external_retrieval": "NO",
+  "sources": [
+    {
+      "source_id": "SRC-INT-001",
+      "kind": "internal",
+      "issuer": "Repository",
+      "title": "prompts/master_prompt_v2.2.md",
+      "identifier": "master_prompt_v2.2",
+      "canonical_url": null,
+      "version_label": "v2.2",
+      "version_date": null,
+      "retrieval_date": "2026-08-21",
+      "access": "INTERNAL",
+      "status": "RETRIEVED",
+      "relevant_span": "capability declaration, status matrix, state machine, release gates"
+    },
+    {
+      "source_id": "SRC-INT-002",
+      "kind": "internal",
+      "issuer": "Repository",
+      "title": "AGENTS.md",
+      "identifier": "AGENTS",
+      "canonical_url": null,
+      "version_label": "HEAD",
+      "version_date": null,
+      "retrieval_date": "2026-08-21",
+      "access": "INTERNAL",
+      "status": "RETRIEVED",
+      "relevant_span": "capability discipline and source-of-truth constraints"
+    },
+    {
+      "source_id": "SRC-INT-003",
+      "kind": "internal",
+      "issuer": "GitHub",
+      "title": "Issue #2: Research §254 HGB implementation requirements for a Bausparkasse",
+      "identifier": "issue-2",
+      "canonical_url": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/issues/2",
+      "version_label": "open issue snapshot",
+      "version_date": "2026-08-21",
+      "retrieval_date": "2026-08-21",
+      "access": "PUBLIC",
+      "status": "RETRIEVED",
+      "relevant_span": "research questions, mandatory distinctions, acceptance criteria"
+    },
+    {
+      "source_id": "SRC-EXT-001",
+      "kind": "statute",
+      "issuer": "Bundesministerium der Justiz / Gesetze im Internet",
+      "title": "Handelsgesetzbuch (HGB) § 254",
+      "identifier": "§ 254 HGB",
+      "canonical_url": "https://www.gesetze-im-internet.de/hgb/__254.html",
+      "version_label": "current consolidated text (to be verified)",
+      "version_date": null,
+      "retrieval_date": null,
+      "access": "PUBLIC",
+      "status": "NOT_RETRIEVED",
+      "relevant_span": "core statutory basis for Bewertungseinheiten"
+    },
+    {
+      "source_id": "SRC-EXT-002",
+      "kind": "statute",
+      "issuer": "Bundesministerium der Justiz / Gesetze im Internet",
+      "title": "Handelsgesetzbuch (HGB) §§ 249, 252, 253, 285 Nr. 23, 340a",
+      "identifier": "related HGB provisions",
+      "canonical_url": "https://www.gesetze-im-internet.de/hgb/",
+      "version_label": "current consolidated text (to be verified)",
+      "version_date": null,
+      "retrieval_date": null,
+      "access": "PUBLIC",
+      "status": "NOT_RETRIEVED",
+      "relevant_span": "interaction rules, disclosure rules, credit-institution relevance"
+    },
+    {
+      "source_id": "SRC-EXT-003",
+      "kind": "statute",
+      "issuer": "Bundesministerium der Justiz / Gesetze im Internet",
+      "title": "Bausparkassengesetz (BauSparkG)",
+      "identifier": "BauSparkG",
+      "canonical_url": "https://www.gesetze-im-internet.de/bauspkg/",
+      "version_label": "current consolidated text (to be verified)",
+      "version_date": null,
+      "retrieval_date": null,
+      "access": "PUBLIC",
+      "status": "NOT_RETRIEVED",
+      "relevant_span": "Bausparkasse legal boundary"
+    },
+    {
+      "source_id": "SRC-EXT-004",
+      "kind": "regulation",
+      "issuer": "Bundesministerium der Justiz / Gesetze im Internet",
+      "title": "Verordnung zum Gesetz über Bausparkassen (Bausparkassen-Verordnung)",
+      "identifier": "BausparkV",
+      "canonical_url": "https://www.gesetze-im-internet.de/bauspkv/",
+      "version_label": "current consolidated text (to be verified)",
+      "version_date": null,
+      "retrieval_date": null,
+      "access": "PUBLIC",
+      "status": "NOT_RETRIEVED",
+      "relevant_span": "Bausparkasse regulatory boundary and accounting perimeter"
+    },
+    {
+      "source_id": "SRC-EXT-005",
+      "kind": "regulation",
+      "issuer": "Bundesministerium der Justiz / Gesetze im Internet",
+      "title": "Verordnung über die Rechnungslegung der Kreditinstitute und Finanzdienstleistungsinstitute",
+      "identifier": "RechKredV",
+      "canonical_url": "https://www.gesetze-im-internet.de/rechkredv/",
+      "version_label": "current consolidated text (to be verified)",
+      "version_date": null,
+      "retrieval_date": null,
+      "access": "PUBLIC",
+      "status": "NOT_RETRIEVED",
+      "relevant_span": "disclosure and bank-format reporting requirements"
+    },
+    {
+      "source_id": "SRC-EXT-006",
+      "kind": "professional_standard",
+      "issuer": "IDW",
+      "title": "IDW RS HFA 35 (and related professional guidance)",
+      "identifier": "IDW RS HFA 35",
+      "canonical_url": null,
+      "version_label": "current licensed text required",
+      "version_date": null,
+      "retrieval_date": null,
+      "access": "LICENSED",
+      "status": "LICENSE_REQUIRED",
+      "relevant_span": "professional interpretation of § 254 practice and disclosures"
+    },
+    {
+      "source_id": "SRC-EXT-007",
+      "kind": "regulator_guidance",
+      "issuer": "BaFin / Bundesbank / EBA / ECB",
+      "title": "MaRisk and IRRBB-related supervisory material",
+      "identifier": "MaRisk+IRRBB supervisory corpus",
+      "canonical_url": null,
+      "version_label": "current supervisory corpus (to be verified)",
+      "version_date": null,
+      "retrieval_date": null,
+      "access": "PUBLIC",
+      "status": "NOT_RETRIEVED",
+      "relevant_span": "prudential boundary and non-identity with HGB accounting outcomes"
+    }
+  ],
+  "source_gaps": [
+    {
+      "gap_id": "GAP-001",
+      "status": "OPEN",
+      "severity": "BLOCKING",
+      "reason": "Authoritative external retrieval capability unavailable in this run.",
+      "impacted_claims": [
+        "C-0101",
+        "C-0102",
+        "C-0103",
+        "C-0301",
+        "C-0302",
+        "C-0401",
+        "C-0402",
+        "C-0403",
+        "C-0404",
+        "C-0405"
+      ],
+      "closure_requirement": "Retrieve current primary texts and authoritative supervisory material; then re-verify these claims."
+    },
+    {
+      "gap_id": "GAP-002",
+      "status": "OPEN",
+      "severity": "HIGH",
+      "reason": "Licensed professional guidance not accessible.",
+      "impacted_claims": [
+        "C-0004",
+        "C-0304"
+      ],
+      "closure_requirement": "Provide licensed current text of IDW RS HFA 35 and map paragraph-level requirements to claims."
+    }
+  ]
+}
