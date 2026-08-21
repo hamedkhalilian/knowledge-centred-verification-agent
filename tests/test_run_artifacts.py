@@ -196,6 +196,24 @@ def test_actionable_findings_require_exactly_one_remediation_class() -> None:
     assert list(validator.iter_errors(rejected))
 
 
+def test_evidence_source_links_match_retrieval_method() -> None:
+    evidence = load_json(RUN_DIR / "claim-ledger.json")["evidence"]
+    schema = load_json(SCHEMA_DIR / "evidence.schema.json")
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+
+    positive = dict(next(
+        item for item in evidence if item["retrieval_method"] != "none"
+    ))
+    positive["source_id"] = None
+    assert list(validator.iter_errors(positive))
+
+    not_retrieved = dict(next(
+        item for item in evidence if item["retrieval_method"] == "none"
+    ))
+    not_retrieved["source_id"] = "SRC-INT-001"
+    assert list(validator.iter_errors(not_retrieved))
+
+
 def test_each_use_case_has_a_separate_eight_dimension_analysis() -> None:
     report = (RUN_DIR / "report.md").read_text(encoding="utf-8")
     headings = (

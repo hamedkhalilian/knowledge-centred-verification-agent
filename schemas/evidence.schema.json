@@ -72,5 +72,32 @@
       "const": "v2.2"
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "retrieval_method": {
+            "const": "none"
+          }
+        },
+        "required": ["retrieval_method"]
+      },
+      "then": {
+        "properties": {
+          "source_id": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ],
   "additionalProperties": false
 }
