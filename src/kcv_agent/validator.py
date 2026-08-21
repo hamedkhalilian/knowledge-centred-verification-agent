@@ -256,7 +256,7 @@ class LedgerValidator:
                 )
 
         evidence_id_values: list[str] = []
-        evidence_methods: dict[str, set[Any]] = {}
+        evidence_methods: dict[str, list[Any]] = {}
         for index, item in enumerate(evidence):
             evidence_id = item.get("evidence_id")
             if not _non_empty_string(evidence_id):
@@ -269,7 +269,7 @@ class LedgerValidator:
                 )
                 continue
             evidence_id_values.append(evidence_id)
-            evidence_methods.setdefault(evidence_id, set()).add(
+            evidence_methods.setdefault(evidence_id, []).append(
                 item.get("retrieval_method")
             )
         evidence_ids = set(evidence_id_values)
@@ -327,7 +327,7 @@ class LedgerValidator:
                             claim_id,
                         )
                     )
-                if stance not in EVIDENCE_STANCES:
+                if not isinstance(stance, str) or stance not in EVIDENCE_STANCES:
                     findings.append(
                         Finding(
                             "V-000",
@@ -338,7 +338,7 @@ class LedgerValidator:
                     )
                 elif (
                     evidence_id in evidence_ids
-                    and "none" in evidence_methods.get(evidence_id, set())
+                    and "none" in evidence_methods.get(evidence_id, [])
                     and stance != "SILENT"
                 ):
                     findings.append(
@@ -396,7 +396,7 @@ class LedgerValidator:
             method = item.get("retrieval_method")
             source_id = item.get("source_id")
             linked_sources = retrieved_from.get(evidence_id, [])
-            if method not in EVIDENCE_RETRIEVAL_METHODS:
+            if not isinstance(method, str) or method not in EVIDENCE_RETRIEVAL_METHODS:
                 findings.append(
                     Finding(
                         "V-000",

@@ -270,6 +270,22 @@ class LedgerValidatorTests(unittest.TestCase):
         payload["evidence"][0]["stance"] = "AFFIRMS"
         self.assertIn("V-025", rule_ids(payload))
 
+    def test_non_scalar_evidence_enums_are_blocking_not_crashing(self) -> None:
+        bad_method = ledger_with_evidence()
+        bad_method["evidence"][0]["retrieval_method"] = ["internal_source"]
+        self.assertIn("V-000", rule_ids(bad_method))
+
+        bad_stance = ledger_with_evidence()
+        bad_stance["edges"].append(
+            {
+                "from": "C-001",
+                "to": "EV-001",
+                "type": "EVIDENCED_BY",
+                "stance": {"value": "AFFIRMS"},
+            }
+        )
+        self.assertIn("V-000", rule_ids(bad_stance))
+
     def test_run_required_fields_are_enforced(self) -> None:
         payload = ledger(claim("C-001"))
         payload["run"] = {"run_id": "R-INCOMPLETE"}

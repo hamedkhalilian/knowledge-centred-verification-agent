@@ -416,6 +416,22 @@
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T19:02:43Z"
+    },
+    {
+      "finding_id": "F-254-027",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#evidence-enums",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_10",
+      "kind": "NON_SCALAR_EVIDENCE_ENUM_CRASH",
+      "statement": "Array or object values for retrieval_method or stance could reach hash-based membership checks and raise TypeError instead of returning a Finding.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "Runtime validation now type-checks both fields before vocabulary membership and stores raw retrieval methods in a list; malformed array/object unit cases return release-blocking V-000 without crashing.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T19:09:01Z"
     }
   ]
 }
