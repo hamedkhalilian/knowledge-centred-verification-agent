@@ -52,6 +52,53 @@ EVIDENCE_RETRIEVAL_METHODS = frozenset(
     }
 )
 EVIDENCE_STANCES = frozenset({"AFFIRMS", "QUALIFIES", "CONTRADICTS", "SILENT"})
+SOURCE_KINDS = frozenset(
+    {
+        "statute",
+        "regulation",
+        "judgment",
+        "regulator_guidance",
+        "professional_standard",
+        "official_guidance",
+        "commentary",
+        "academic",
+        "secondary",
+        "data",
+        "internal",
+    }
+)
+SOURCE_ACCESS_VALUES = frozenset({"PUBLIC", "LICENSED", "PAYWALLED", "INTERNAL"})
+SOURCE_REQUIRED_FIELDS = frozenset(
+    {
+        "source_id",
+        "kind",
+        "identifier",
+        "title",
+        "version_label",
+        "version_date",
+        "access",
+        "locator",
+        "sufficient_for",
+    }
+)
+SOURCE_FIELDS = frozenset({*SOURCE_REQUIRED_FIELDS, "evidence_level", "provenance_note"})
+EVIDENCE_REQUIRED_FIELDS = frozenset(
+    {
+        "evidence_id",
+        "source_id",
+        "retrieved_at",
+        "retrieval_method",
+        "fragment",
+        "extract",
+        "supersession_checked",
+        "superseded_by",
+        "queries_attempted",
+        "search_scope",
+        "agent",
+        "prompt_version",
+    }
+)
+EVIDENCE_FIELDS = EVIDENCE_REQUIRED_FIELDS
 
 # Exact transcription of the normative §3.5 matrix. Missing cells are illegal.
 # FLAG cells are legal only when the Claim carries an explicit qualification.
@@ -233,6 +280,7 @@ class LedgerValidator:
 
         source_id_values: list[str] = []
         for index, source in enumerate(sources):
+            LedgerValidator._validate_source_structure(source, index, findings)
             source_id = source.get("source_id")
             if not _non_empty_string(source_id):
                 findings.append(
@@ -258,6 +306,7 @@ class LedgerValidator:
         evidence_id_values: list[str] = []
         evidence_methods: dict[str, list[Any]] = {}
         for index, item in enumerate(evidence):
+            LedgerValidator._validate_evidence_structure(item, index, findings)
             evidence_id = item.get("evidence_id")
             if not _non_empty_string(evidence_id):
                 findings.append(
@@ -435,6 +484,188 @@ class LedgerValidator:
                 )
 
         return findings
+
+    @staticmethod
+    def _validate_source_structure(
+        source: Mapping[str, Any], index: int, findings: list[Finding]
+    ) -> None:
+        source_id = source.get("source_id")
+        for field in sorted(SOURCE_REQUIRED_FIELDS - source.keys()):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source at index {index} is missing required field '{field}'.",
+                )
+            )
+        for field in sorted(source.keys() - SOURCE_FIELDS):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} has unknown field '{field}'.",
+                )
+            )
+
+        kind = source.get("kind")
+        if "kind" in source and (
+            not isinstance(kind, str) or kind not in SOURCE_KINDS
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} has invalid kind={kind!s}.",
+                )
+            )
+        access = source.get("access")
+        if "access" in source and (
+            not isinstance(access, str) or access not in SOURCE_ACCESS_VALUES
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} has invalid access={access!s}.",
+                )
+            )
+        for field in ("identifier", "title"):
+            if field in source and not _non_empty_string(source[field]):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Source {source_id!s} field '{field}' must be a non-empty string.",
+                    )
+                )
+        for field in ("version_label", "locator"):
+            if field in source and source[field] is not None and not isinstance(
+                source[field], str
+            ):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Source {source_id!s} field '{field}' must be a string or null.",
+                    )
+                )
+        if "version_date" in source and source["version_date"] is not None and not _iso_date(
+            source["version_date"]
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} field 'version_date' must be an ISO date or null.",
+                )
+            )
+        if "sufficient_for" in source and not _string_list(source["sufficient_for"]):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} field 'sufficient_for' must be a list of strings.",
+                )
+            )
+        if "evidence_level" in source:
+            level = source["evidence_level"]
+            if level is not None and (
+                isinstance(level, bool) or not isinstance(level, int) or level < 1
+            ):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Source {source_id!s} field 'evidence_level' must be a positive integer or null.",
+                    )
+                )
+        if "provenance_note" in source and not _non_empty_string(
+            source["provenance_note"]
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Source {source_id!s} field 'provenance_note' must be a non-empty string.",
+                )
+            )
+
+    @staticmethod
+    def _validate_evidence_structure(
+        evidence: Mapping[str, Any], index: int, findings: list[Finding]
+    ) -> None:
+        evidence_id = evidence.get("evidence_id")
+        for field in sorted(EVIDENCE_REQUIRED_FIELDS - evidence.keys()):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence at index {index} is missing required field '{field}'.",
+                )
+            )
+        for field in sorted(evidence.keys() - EVIDENCE_FIELDS):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} has unknown field '{field}'.",
+                )
+            )
+
+        if "retrieved_at" in evidence and not _iso_date(evidence["retrieved_at"]):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} field 'retrieved_at' must be an ISO date.",
+                )
+            )
+        for field in ("fragment", "extract", "search_scope"):
+            if field in evidence and evidence[field] is not None and not isinstance(
+                evidence[field], str
+            ):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Evidence {evidence_id!s} field '{field}' must be a string or null.",
+                    )
+                )
+        if "supersession_checked" in evidence and not isinstance(
+            evidence["supersession_checked"], bool
+        ):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} field 'supersession_checked' must be boolean.",
+                )
+            )
+        for field in ("superseded_by", "queries_attempted"):
+            if field in evidence and not _string_list(evidence[field]):
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Evidence {evidence_id!s} field '{field}' must be a list of strings.",
+                    )
+                )
+        if "agent" in evidence and not _non_empty_string(evidence["agent"]):
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} field 'agent' must be a non-empty string.",
+                )
+            )
+        if "prompt_version" in evidence and evidence["prompt_version"] != "v2.2":
+            findings.append(
+                Finding(
+                    "V-000",
+                    "RELEASE_BLOCKING",
+                    f"Evidence {evidence_id!s} field 'prompt_version' must equal 'v2.2'.",
+                )
+            )
 
     @staticmethod
     def _validate_run(raw_run: Any, findings: list[Finding]) -> None:
@@ -968,10 +1199,4 @@ def validate_ledger(ledger: Mapping[str, Any]) -> ValidationResult:
                 ),
             )
         )
-    return LedgerValidator().validate(ledger)
-
-
-def validate_ledger(ledger: Mapping[str, Any]) -> ValidationResult:
-    """Convenience entry point for callers that do not need a validator instance."""
-
     return LedgerValidator().validate(ledger)

@@ -432,6 +432,38 @@
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T19:09:01Z"
+    },
+    {
+      "finding_id": "F-254-028",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#source-structure",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_11",
+      "kind": "SOURCE_SCHEMA_RUNTIME_GAP",
+      "statement": "kcv-validate accepted Source kind/access values and required structures that the repository Source schema rejected.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "Runtime V-000 now enforces Source and Evidence required fields, controlled vocabularies, scalar/list/date shapes and unknown-field rejection; schema-sync and malformed-ledger tests cover the contracts.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T19:16:17Z"
+    },
+    {
+      "finding_id": "F-254-029",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#validate_ledger",
+      "raised_by": "MECH",
+      "phase": "FOLLOW_UP_REVIEW_11",
+      "kind": "DUPLICATE_ENTRYPOINT_BYPASSED_ROOT_GUARD",
+      "statement": "A duplicate validate_ledger definition overrode the non-object root guard and could make JSON array input crash before returning V-000.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "The duplicate definition was removed; the surviving entrypoint returns release-blocking V-000 for a non-object ledger root, with regression coverage.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "mechanical-checker",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T19:16:17Z"
     }
   ]
 }

@@ -8,8 +8,13 @@ from kcv_agent.validator import (
     CLAIM_REQUIRED_FIELDS,
     CLAIM_STATUSES,
     CLAIM_TYPES,
+    EVIDENCE_REQUIRED_FIELDS,
+    EVIDENCE_RETRIEVAL_METHODS,
     EVIDENCE_STATUSES,
     RUN_REQUIRED_FIELDS,
+    SOURCE_ACCESS_VALUES,
+    SOURCE_KINDS,
+    SOURCE_REQUIRED_FIELDS,
     STATUS_MATRIX,
 )
 
@@ -59,12 +64,33 @@ def ledger(*claims: dict) -> dict:
 
 def ledger_with_evidence(*, source_id: object = "SRC-001", edge_target: object = "SRC-001") -> dict:
     payload = ledger(claim("C-001"))
-    payload["sources"] = [{"source_id": "SRC-001"}]
+    payload["sources"] = [
+        {
+            "source_id": "SRC-001",
+            "kind": "internal",
+            "identifier": "test-source",
+            "title": "Test source",
+            "version_label": "test snapshot",
+            "version_date": "2026-08-21",
+            "access": "INTERNAL",
+            "locator": "memory",
+            "sufficient_for": ["test"],
+        }
+    ]
     payload["evidence"] = [
         {
             "evidence_id": "EV-001",
             "source_id": source_id,
+            "retrieved_at": "2026-08-21",
             "retrieval_method": "internal_source",
+            "fragment": "test fragment",
+            "extract": "test extract",
+            "supersession_checked": False,
+            "superseded_by": [],
+            "queries_attempted": [],
+            "search_scope": None,
+            "agent": "TEST",
+            "prompt_version": "v2.2",
         }
     ]
     payload["edges"] = [
@@ -286,6 +312,30 @@ class LedgerValidatorTests(unittest.TestCase):
         )
         self.assertIn("V-000", rule_ids(bad_stance))
 
+    def test_source_structure_and_vocabularies_are_runtime_validated(self) -> None:
+        bad_kind = ledger_with_evidence()
+        bad_kind["sources"][0]["kind"] = ["internal"]
+        self.assertIn("V-000", rule_ids(bad_kind))
+
+        bad_access = ledger_with_evidence()
+        bad_access["sources"][0]["access"] = {"value": "INTERNAL"}
+        self.assertIn("V-000", rule_ids(bad_access))
+
+        missing_title = ledger_with_evidence()
+        missing_title["sources"][0].pop("title")
+        self.assertIn("V-000", rule_ids(missing_title))
+
+    def test_evidence_required_structure_is_runtime_validated(self) -> None:
+        payload = ledger_with_evidence()
+        payload["evidence"][0].pop("retrieved_at")
+        self.assertIn("V-000", rule_ids(payload))
+
+    def test_non_object_ledger_root_is_blocking_not_crashing(self) -> None:
+        self.assertEqual(
+            {finding.rule_id for finding in validate_ledger([]).findings},
+            {"V-000"},
+        )
+
     def test_run_required_fields_are_enforced(self) -> None:
         payload = ledger(claim("C-001"))
         payload["run"] = {"run_id": "R-INCOMPLETE"}
@@ -321,6 +371,12 @@ class LedgerValidatorTests(unittest.TestCase):
         finding_schema = json.loads(
             (ROOT / "schemas/finding.schema.json").read_text(encoding="utf-8")
         )
+        source_schema = json.loads(
+            (ROOT / "schemas/source.schema.json").read_text(encoding="utf-8")
+        )
+        evidence_schema = json.loads(
+            (ROOT / "schemas/evidence.schema.json").read_text(encoding="utf-8")
+        )
 
         properties = claim_schema["properties"]
         self.assertEqual(set(properties["claim_type"]["enum"]), CLAIM_TYPES)
@@ -330,6 +386,19 @@ class LedgerValidatorTests(unittest.TestCase):
         )
         self.assertEqual(set(claim_schema["required"]), CLAIM_REQUIRED_FIELDS)
         self.assertEqual(set(run_schema["required"]), RUN_REQUIRED_FIELDS)
+        self.assertEqual(
+            set(source_schema["properties"]["kind"]["enum"]), SOURCE_KINDS
+        )
+        self.assertEqual(
+            set(source_schema["properties"]["access"]["enum"]),
+            SOURCE_ACCESS_VALUES,
+        )
+        self.assertEqual(set(source_schema["required"]), SOURCE_REQUIRED_FIELDS)
+        self.assertEqual(
+            set(evidence_schema["properties"]["retrieval_method"]["enum"]),
+            EVIDENCE_RETRIEVAL_METHODS,
+        )
+        self.assertEqual(set(evidence_schema["required"]), EVIDENCE_REQUIRED_FIELDS)
         self.assertIsNotNone(
             re.fullmatch(finding_schema["properties"]["rule_id"]["pattern"], "V-006D")
         )
