@@ -496,6 +496,38 @@
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T19:25:15Z"
+    },
+    {
+      "finding_id": "F-254-032",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#V-006",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_13",
+      "kind": "SUPPORTED_CLAIM_WITHOUT_POSITIVE_EVIDENCE",
+      "statement": "Runtime validation allowed SUPPORTED SOURCE, INTERPRETIVE and DEFINITION Claims without Claim-specific AFFIRMS or QUALIFIES Evidence.",
+      "severity": "BLOCKING",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "LedgerValidator now enforces V-006 for every supported external Claim; unit tests reject missing and SILENT-only support, the §254 ledger gained three missing Issue-evidence edges, and the illustrative §498 claims were softened to UNESTABLISHED.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T19:32:03Z"
+    },
+    {
+      "finding_id": "F-254-033",
+      "target_type": "run",
+      "target_id": "R-2026-08-21-254-01",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_13",
+      "kind": "POST_RUN_INPUT_CAPABILITY_AMBIGUITY",
+      "statement": "Post-run GitHub review/workflow provenance was described as API retrieval while the S0 legal-research capability declared external_retrieval false.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "SRC-INT-004/005 now identify PR/workflow records as supplied repository-internal post-run review inputs, not independent legal-research API/web retrieval; the capability declaration records the phase boundary and tests enforce the wording.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T19:32:03Z"
     }
   ]
 }

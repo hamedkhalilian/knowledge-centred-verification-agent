@@ -59,7 +59,57 @@ def claim(
 
 
 def ledger(*claims: dict) -> dict:
-    return {"run": run(), "claims": list(claims)}
+    payload = {
+        "run": run(),
+        "claims": list(claims),
+        "sources": [
+            {
+                "source_id": "SRC-TEST",
+                "kind": "internal",
+                "identifier": "test-fixture",
+                "title": "Validator test fixture",
+                "version_label": "test",
+                "version_date": "2026-08-21",
+                "access": "INTERNAL",
+                "locator": "tests/test_validator.py",
+                "sufficient_for": ["validator_test"],
+            }
+        ],
+        "evidence": [
+            {
+                "evidence_id": "EV-TEST",
+                "source_id": "SRC-TEST",
+                "retrieved_at": "2026-08-21",
+                "retrieval_method": "internal_source",
+                "fragment": "test fixture",
+                "extract": "Synthetic evidence for deterministic validator tests.",
+                "supersession_checked": False,
+                "superseded_by": [],
+                "queries_attempted": [],
+                "search_scope": None,
+                "agent": "TEST",
+                "prompt_version": "v2.2",
+            }
+        ],
+        "edges": [
+            {"from": "EV-TEST", "to": "SRC-TEST", "type": "RETRIEVED_FROM"}
+        ],
+    }
+    for item in claims:
+        if (
+            item.get("claim_type") in {"SOURCE", "INTERPRETIVE", "DEFINITION"}
+            and item.get("claim_status") in {"SUPPORTED", "SUPPORTED_CONDITIONAL"}
+            and isinstance(item.get("claim_id"), str)
+        ):
+            payload["edges"].append(
+                {
+                    "from": item["claim_id"],
+                    "to": "EV-TEST",
+                    "type": "EVIDENCED_BY",
+                    "stance": "AFFIRMS",
+                }
+            )
+    return payload
 
 
 def ledger_with_evidence(*, source_id: object = "SRC-001", edge_target: object = "SRC-001") -> dict:
@@ -98,6 +148,12 @@ def ledger_with_evidence(*, source_id: object = "SRC-001", edge_target: object =
             "from": "EV-001",
             "to": edge_target,
             "type": "RETRIEVED_FROM",
+        },
+        {
+            "from": "C-001",
+            "to": "EV-001",
+            "type": "EVIDENCED_BY",
+            "stance": "AFFIRMS",
         }
     ]
     return payload
@@ -228,8 +284,26 @@ class LedgerValidatorTests(unittest.TestCase):
             rule_ids(ledger_with_evidence(edge_target="SRC-DOES-NOT-EXIST")),
         )
 
+    def test_supported_external_claim_requires_positive_claim_evidence(self) -> None:
+        missing_edge = ledger_with_evidence()
+        missing_edge["edges"] = [
+            edge for edge in missing_edge["edges"]
+            if edge["type"] != "EVIDENCED_BY"
+        ]
+        self.assertIn("V-006", rule_ids(missing_edge))
+
+        silent_only = ledger_with_evidence()
+        evidenced_by = next(
+            edge for edge in silent_only["edges"]
+            if edge["type"] == "EVIDENCED_BY"
+        )
+        evidenced_by["stance"] = "SILENT"
+        self.assertIn("V-006", rule_ids(silent_only))
+
     def test_negative_retrieval_must_not_claim_a_source_or_edge(self) -> None:
         payload = ledger_with_evidence()
+        payload["claims"][0]["claim_status"] = "UNESTABLISHED"
+        payload["claims"][0]["evidence_status"] = "NOT_RETRIEVED"
         payload["evidence"][0]["retrieval_method"] = "none"
         self.assertIn("V-003", rule_ids(payload))
 
@@ -276,6 +350,8 @@ class LedgerValidatorTests(unittest.TestCase):
 
     def test_negative_retrieval_edges_require_silent_stance(self) -> None:
         payload = ledger_with_evidence()
+        payload["claims"][0]["claim_status"] = "UNESTABLISHED"
+        payload["claims"][0]["evidence_status"] = "NOT_RETRIEVED"
         payload["evidence"][0]["retrieval_method"] = "none"
         payload["evidence"][0]["source_id"] = None
         payload["edges"] = [

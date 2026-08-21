@@ -150,9 +150,11 @@ def test_rejected_review_finding_has_persisted_internal_evidence() -> None:
         assert ledger_sources[source_id]["kind"] == "internal"
         assert ledger_sources[source_id]["access"] == "INTERNAL"
         assert manifest_sources[source_id]["status"] == "RETRIEVED"
-        assert "connected github" in (
-            ledger_sources[source_id]["provenance_note"].lower()
-        )
+        provenance = ledger_sources[source_id]["provenance_note"].lower()
+        assert "supplied" in provenance
+        assert "post-run" in provenance
+        assert "attributed" in provenance
+        assert "no independent" in provenance
 
     assert evidence["EV-0004"]["source_id"] == "SRC-INT-004"
     assert evidence["EV-0004"]["retrieval_method"] == "internal_source"
@@ -167,6 +169,12 @@ def test_rejected_review_finding_has_persisted_internal_evidence() -> None:
     )
     assert action_finding["resolution"] == "REJECTED"
     assert "EV-0005" in action_finding["resolution_reason"]
+
+    capability_declaration = (
+        RUN_DIR / "capability-declaration.md"
+    ).read_text(encoding="utf-8")
+    assert "## Post-run review inputs" in capability_declaration
+    assert "do not change\nthe S0 capability declaration" in capability_declaration
 
 
 def test_evidenced_by_edges_remain_claim_scoped() -> None:

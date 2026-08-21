@@ -59,7 +59,7 @@
       "retrieval_date": "2026-08-21",
       "access": "INTERNAL",
       "status": "RETRIEVED",
-      "provenance_note": "Read through the connected GitHub review API after the initial legal-research run; it records the review assertion, the supplied references, and the owner's response. Official release pages named in the response were not independently treated as verified legal-research sources.",
+      "provenance_note": "Supplied to the post-run reviewer as repository-internal PR review input after the legal-research phase; no independent API or web retrieval is attributed to the legal-research run. Official release pages named in the response were not treated as verified legal sources.",
       "relevant_span": "F-254-014 review assertion, response, and supplied references"
     },
     {
@@ -74,7 +74,7 @@
       "retrieval_date": "2026-08-21",
       "access": "INTERNAL",
       "status": "RETRIEVED",
-      "provenance_note": "Read through the connected GitHub Actions API after the initial legal-research run; this is repository workflow evidence, not external legal research.",
+      "provenance_note": "Supplied to the post-run reviewer as repository-internal workflow result input after the legal-research phase; no independent API or web retrieval is attributed to the legal-research run.",
       "relevant_span": "successful resolution and execution of actions/checkout@v7 and actions/setup-python@v7, tests, and ledger validations"
     },
     {

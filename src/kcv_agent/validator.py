@@ -215,6 +215,7 @@ class LedgerValidator:
 
         for index, claim in enumerate(claims):
             self._validate_claim_structure(claim, index, findings)
+        findings.extend(self._supported_claim_evidence(claims, ledger))
 
         ids = [
             claim["claim_id"]
@@ -236,6 +237,63 @@ class LedgerValidator:
         findings.extend(self._derived_claims(claims, by_id))
 
         return ValidationResult(tuple(findings))
+
+    @staticmethod
+    def _supported_claim_evidence(
+        claims: list[Mapping[str, Any]], ledger: Mapping[str, Any]
+    ) -> list[Finding]:
+        """Enforce V-006 Claim-specific positive Evidence for supported Claims."""
+        raw_evidence = ledger.get("evidence")
+        raw_edges = ledger.get("edges")
+        evidence_methods: dict[str, str] = {}
+        if isinstance(raw_evidence, Sequence) and not isinstance(
+            raw_evidence, (str, bytes)
+        ):
+            for item in raw_evidence:
+                if not isinstance(item, Mapping):
+                    continue
+                evidence_id = item.get("evidence_id")
+                method = item.get("retrieval_method")
+                if _non_empty_string(evidence_id) and isinstance(method, str):
+                    evidence_methods[evidence_id] = method
+
+        supported_claim_ids: set[str] = set()
+        if isinstance(raw_edges, Sequence) and not isinstance(raw_edges, (str, bytes)):
+            for edge in raw_edges:
+                if not isinstance(edge, Mapping) or edge.get("type") != "EVIDENCED_BY":
+                    continue
+                claim_id = edge.get("from")
+                evidence_id = edge.get("to")
+                stance = edge.get("stance")
+                if (
+                    _non_empty_string(claim_id)
+                    and _non_empty_string(evidence_id)
+                    and isinstance(stance, str)
+                    and stance in {"AFFIRMS", "QUALIFIES"}
+                    and evidence_methods.get(evidence_id) in (
+                        EVIDENCE_RETRIEVAL_METHODS - {"none"}
+                    )
+                ):
+                    supported_claim_ids.add(claim_id)
+
+        findings: list[Finding] = []
+        for claim in claims:
+            claim_id = claim.get("claim_id")
+            if (
+                claim.get("claim_type") in {"SOURCE", "INTERPRETIVE", "DEFINITION"}
+                and claim.get("claim_status") in {"SUPPORTED", "SUPPORTED_CONDITIONAL"}
+                and _non_empty_string(claim_id)
+                and claim_id not in supported_claim_ids
+            ):
+                findings.append(
+                    Finding(
+                        "V-006",
+                        "RELEASE_BLOCKING",
+                        f"Supported Claim {claim_id} requires Claim-specific AFFIRMS or QUALIFIES Evidence.",
+                        claim_id,
+                    )
+                )
+        return findings
 
     @staticmethod
     def _evidence_source_links(ledger: Mapping[str, Any]) -> list[Finding]:

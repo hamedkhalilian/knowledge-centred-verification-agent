@@ -804,7 +804,7 @@
       "version_date": "2026-08-21",
       "access": "INTERNAL",
       "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/pull/4#discussion_r3832594050",
-      "provenance_note": "Read through the connected GitHub review API after the initial run. It preserves the review assertion, supplied references, and response; the named official release pages are not independently relied upon as verified external evidence.",
+      "provenance_note": "Supplied to the post-run reviewer as repository-internal PR review input after the legal-research phase. No independent API/web retrieval is attributed to that phase; named release pages are not relied upon as verified external evidence.",
       "sufficient_for": ["review_provenance", "finding_resolution_context"]
     },
     {
@@ -816,7 +816,7 @@
       "version_date": "2026-08-21",
       "access": "INTERNAL",
       "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/actions/runs/32511718595",
-      "provenance_note": "Read through the connected GitHub Actions API after the initial run; repository workflow evidence, not external legal research.",
+      "provenance_note": "Supplied to the post-run reviewer as repository-internal workflow result input after the legal-research phase; no independent API/web retrieval is attributed to external legal retrieval.",
       "sufficient_for": ["workflow_execution", "action_resolution", "test_result"]
     }
   ],
@@ -987,6 +987,7 @@
     { "from": "C-0101", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0102", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0103", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
+    { "from": "C-0104", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0301", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0302", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0401", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
@@ -994,6 +995,8 @@
     { "from": "C-0403", "to": "EV-0101", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0404", "to": "EV-0102", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0405", "to": "EV-0102", "type": "EVIDENCED_BY", "stance": "SILENT" },
+    { "from": "C-0406", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
+    { "from": "C-0407", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0304", "to": "EV-0103", "type": "EVIDENCED_BY", "stance": "SILENT" },
     { "from": "C-0201", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },
     { "from": "C-0202", "to": "EV-0003", "type": "EVIDENCED_BY", "stance": "AFFIRMS" },

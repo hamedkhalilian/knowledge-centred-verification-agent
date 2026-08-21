@@ -21,3 +21,12 @@ STRICT_BLIND_AUDIT_REQUIRED: false
 3. Accessible licensed professional guidance remains `LICENSE_REQUIRED`.
 4. Deliverables are produced as qualified/blocked run artifacts, not a fully verified legal conclusion.
 5. The supplied Issue #2 body is recorded as internal task-input provenance; reading it is not classified as authoritative external legal retrieval.
+
+## Post-run review inputs
+
+After the legal-research phase, GitHub PR comments and completed workflow results
+were supplied to the reviewer as repository-internal inputs. They are recorded
+as `internal_source` Evidence for review remediation only. They do not change
+the S0 capability declaration, do not establish external legal currentness, and
+are not represented as independent API or web retrieval by the legal-research
+run.
