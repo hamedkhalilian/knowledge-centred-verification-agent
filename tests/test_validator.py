@@ -1,84 +1,248 @@
+import json
+from pathlib import Path
+import re
 import unittest
 
 from kcv_agent import validate_ledger
+from kcv_agent.validator import (
+    CLAIM_REQUIRED_FIELDS,
+    CLAIM_STATUSES,
+    CLAIM_TYPES,
+    EVIDENCE_STATUSES,
+    RUN_REQUIRED_FIELDS,
+    STATUS_MATRIX,
+)
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def run() -> dict:
+    return {
+        "run_id": "R-TEST-01",
+        "as_of_date": "2026-08-21",
+        "document_manifest": [],
+        "requested_output_formats": ["claim-ledger-json"],
+        "strict_blind_audit_required": False,
+        "prompt_version": "v2.2",
+    }
 
 
 def claim(
     claim_id: str,
     *,
-    kind: str = "SOURCE",
-    status: str = "VERIFIED",
-    evidence_status: str = "PRIMARY",
-    dependencies: list[str] | None = None,
+    claim_type: str = "SOURCE",
+    claim_status: str = "SUPPORTED",
+    evidence_status: str = "PRIMARY_VERIFIED",
+    depends_on: object | None = None,
     derivation_rule: str | None = None,
+    qualification: str | None = None,
 ) -> dict:
-    return {
-        "id": claim_id,
-        "statement": f"Statement for {claim_id}",
-        "kind": kind,
-        "status": status,
+    payload = {
+        "claim_id": claim_id,
+        "normalised_claim": f"Statement for {claim_id}",
+        "claim_type": claim_type,
+        "claim_status": claim_status,
         "evidence_status": evidence_status,
-        "dependencies": dependencies or [],
-        "derivation_rule": derivation_rule,
+        "depends_on": [] if depends_on is None else depends_on,
     }
+    if derivation_rule is not None:
+        payload["derivation_rule"] = derivation_rule
+    if qualification is not None:
+        payload["qualification"] = qualification
+    return payload
 
 
-def rule_ids(ledger: dict) -> set[str]:
-    return {finding.rule_id for finding in validate_ledger(ledger).findings}
+def ledger(*claims: dict) -> dict:
+    return {"run": run(), "claims": list(claims)}
+
+
+def rule_ids(payload: dict) -> set[str]:
+    return {finding.rule_id for finding in validate_ledger(payload).findings}
 
 
 class LedgerValidatorTests(unittest.TestCase):
     def test_valid_ledger_passes(self) -> None:
-        ledger = {
-            "claims": [
-                claim("C-001"),
-                claim(
-                    "C-002",
-                    kind="DERIVED",
-                    evidence_status="NOT_REQUIRED",
-                    dependencies=["C-001"],
-                    derivation_rule="C-001 and the stated condition imply C-002.",
-                ),
-            ]
-        }
-        self.assertTrue(validate_ledger(ledger).ok)
+        payload = ledger(
+            claim("C-001"),
+            claim(
+                "C-002",
+                claim_type="DERIVED",
+                depends_on=["C-001"],
+                derivation_rule="C-001 implies C-002.",
+            ),
+        )
+        self.assertTrue(validate_ledger(payload).ok)
 
     def test_duplicate_and_dangling_ids_are_detected(self) -> None:
-        ledger = {
-            "claims": [
-                claim("C-001", dependencies=["C-404"]),
-                claim("C-001"),
-            ]
-        }
-        self.assertEqual(rule_ids(ledger), {"V-001", "V-003"})
+        payload = ledger(
+            claim("C-001", depends_on=["C-404"]),
+            claim("C-001"),
+        )
+        self.assertEqual(rule_ids(payload), {"V-001", "V-003"})
 
     def test_cycle_and_illegal_status_are_detected(self) -> None:
-        ledger = {
-            "claims": [
-                claim("C-001", dependencies=["C-002"]),
-                claim(
-                    "C-002",
-                    status="VERIFIED",
-                    evidence_status="NOT_RETRIEVED",
-                    dependencies=["C-001"],
-                ),
-            ]
-        }
-        self.assertEqual(rule_ids(ledger), {"V-004", "V-005"})
+        payload = ledger(
+            claim("C-001", depends_on=["C-002"]),
+            claim(
+                "C-002",
+                claim_status="SUPPORTED",
+                evidence_status="NOT_RETRIEVED",
+                depends_on=["C-001"],
+            ),
+        )
+        self.assertEqual(rule_ids(payload), {"V-004", "V-005"})
 
-    def test_derived_claim_requires_derivation_rule(self) -> None:
-        ledger = {
-            "claims": [
-                claim("C-001"),
-                claim(
-                    "C-002",
-                    kind="DERIVED",
-                    evidence_status="NOT_REQUIRED",
-                    dependencies=["C-001"],
-                ),
-            ]
+    def test_flag_cell_requires_qualification(self) -> None:
+        payload = ledger(
+            claim(
+                "C-001",
+                claim_status="SUPPORTED_CONDITIONAL",
+                evidence_status="SECONDARY_ONLY",
+            )
+        )
+        self.assertEqual(rule_ids(payload), {"V-024"})
+
+    def test_qualified_flag_cell_passes(self) -> None:
+        payload = ledger(
+            claim(
+                "C-001",
+                claim_status="SUPPORTED_CONDITIONAL",
+                evidence_status="SECONDARY_ONLY",
+                qualification="Working position based on secondary material only.",
+            )
+        )
+        self.assertTrue(validate_ledger(payload).ok)
+
+    def test_derived_claim_requires_rule_and_premise(self) -> None:
+        payload = ledger(
+            claim("C-001", claim_type="DERIVED", derivation_rule="Non-empty rule.")
+        )
+        self.assertEqual(rule_ids(payload), {"V-008"})
+
+    def test_supported_derived_claim_cannot_outrank_premise(self) -> None:
+        payload = ledger(
+            claim(
+                "C-001",
+                claim_status="UNESTABLISHED",
+                evidence_status="NOT_RETRIEVED",
+            ),
+            claim(
+                "C-002",
+                claim_type="DERIVED",
+                depends_on=["C-001"],
+                derivation_rule="C-001 implies C-002.",
+            ),
+        )
+        self.assertEqual(rule_ids(payload), {"V-006D"})
+
+    def test_conditional_derived_claim_accepts_conditional_premise(self) -> None:
+        payload = ledger(
+            claim(
+                "C-001",
+                claim_status="SUPPORTED_CONDITIONAL",
+                evidence_status="SECONDARY_ONLY",
+                qualification="Premise is conditional and secondary-only.",
+            ),
+            claim(
+                "C-002",
+                claim_type="DERIVED",
+                claim_status="SUPPORTED_CONDITIONAL",
+                evidence_status="SECONDARY_ONLY",
+                depends_on=["C-001"],
+                derivation_rule="C-001 implies C-002 under the same condition.",
+                qualification="Conclusion preserves the premise qualification.",
+            ),
+        )
+        self.assertTrue(validate_ledger(payload).ok)
+
+    def test_missing_or_non_string_claim_id_is_blocking(self) -> None:
+        missing = claim("C-001")
+        missing.pop("claim_id")
+        non_string = claim("C-002")
+        non_string["claim_id"] = 2
+        self.assertIn("V-000", rule_ids(ledger(missing)))
+        self.assertIn("V-000", rule_ids(ledger(non_string)))
+
+    def test_string_dependency_field_is_not_silently_ignored(self) -> None:
+        payload = ledger(claim("C-001", depends_on="C-002"), claim("C-002"))
+        self.assertEqual(rule_ids(payload), {"V-000"})
+
+    def test_empty_ledger_is_blocking(self) -> None:
+        self.assertEqual(rule_ids({"run": run(), "claims": []}), {"V-000"})
+
+    def test_run_required_fields_are_enforced(self) -> None:
+        payload = ledger(claim("C-001"))
+        payload["run"] = {"run_id": "R-INCOMPLETE"}
+        self.assertEqual(rule_ids(payload), {"V-000"})
+
+    def test_assumption_is_not_a_claim_type(self) -> None:
+        payload = ledger(claim("C-001", claim_type="ASSUMPTION"))
+        self.assertEqual(rule_ids(payload), {"V-000"})
+
+    def test_deep_dependency_chain_does_not_recurse(self) -> None:
+        claims = []
+        for index in range(3000):
+            claim_id = f"C-{index:04d}"
+            dependency = [] if index == 0 else [f"C-{index - 1:04d}"]
+            claims.append(claim(claim_id, depends_on=dependency))
+        self.assertTrue(validate_ledger(ledger(*claims)).ok)
+
+    def test_example_ledger_passes(self) -> None:
+        payload = json.loads(
+            (ROOT / "examples/498-bgb/claim-ledger.example.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertTrue(validate_ledger(payload).ok)
+
+    def test_schema_vocabularies_match_validator_constants(self) -> None:
+        claim_schema = json.loads(
+            (ROOT / "schemas/claim.schema.json").read_text(encoding="utf-8")
+        )
+        run_schema = json.loads(
+            (ROOT / "schemas/run.schema.json").read_text(encoding="utf-8")
+        )
+        finding_schema = json.loads(
+            (ROOT / "schemas/finding.schema.json").read_text(encoding="utf-8")
+        )
+
+        properties = claim_schema["properties"]
+        self.assertEqual(set(properties["claim_type"]["enum"]), CLAIM_TYPES)
+        self.assertEqual(set(properties["claim_status"]["enum"]), CLAIM_STATUSES)
+        self.assertEqual(
+            set(properties["evidence_status"]["enum"]), EVIDENCE_STATUSES
+        )
+        self.assertEqual(set(claim_schema["required"]), CLAIM_REQUIRED_FIELDS)
+        self.assertEqual(set(run_schema["required"]), RUN_REQUIRED_FIELDS)
+        self.assertIsNotNone(
+            re.fullmatch(finding_schema["properties"]["rule_id"]["pattern"], "V-006D")
+        )
+
+    def test_status_matrix_is_exact_protocol_transcription(self) -> None:
+        columns = [
+            "PRIMARY_VERIFIED",
+            "AUTHORITATIVE_SECONDARY",
+            "SECONDARY_ONLY",
+            "LICENSE_REQUIRED",
+            "NOT_RETRIEVED",
+            "SOURCE_CONFLICT",
+        ]
+        rows = {
+            "SUPPORTED": ["OK", "OK", "FLAG", None, None, None],
+            "SUPPORTED_CONDITIONAL": ["OK", "OK", "FLAG", None, None, None],
+            "UNESTABLISHED": ["FLAG", "FLAG", "OK", "OK", "OK", None],
+            "UNSUPPORTED": ["OK", "OK", "FLAG", None, None, None],
+            "CONTRADICTED": ["OK", "OK", "FLAG", None, None, None],
+            "OUTDATED": ["OK", "OK", "FLAG", None, None, None],
+            "UNRESOLVED": ["OK", "OK", "OK", None, None, "OK"],
+            "PENDING": [None, None, None, "OK", "OK", "OK"],
         }
-        self.assertEqual(rule_ids(ledger), {"V-008"})
+        actual = {
+            claim_status: [STATUS_MATRIX[claim_status].get(column) for column in columns]
+            for claim_status in rows
+        }
+        self.assertEqual(actual, rows)
 
 
 if __name__ == "__main__":

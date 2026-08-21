@@ -75,10 +75,10 @@ currency and supersession.
 
 ## Evolution path
 
-1. Expand deterministic ledger invariants.
-2. Add JSON Schema validation to the CLI.
+1. Expand structural/schema-aligned validation from Run and Claim objects to
+   Evidence, Assumption, Decision, and RenderedSpan objects.
+2. Expand deterministic graph and propagation invariants.
 3. Implement remediation actions as explicit transformations.
 4. Add authoritative legal-retrieval MCP adapters.
 5. Add reproducible document rendering and visual gates.
 6. Persist runs and evidence hashes for incremental verification.
-

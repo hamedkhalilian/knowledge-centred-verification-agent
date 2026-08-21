@@ -58,18 +58,43 @@ The agent wrapper is intentionally small. GitHub custom-agent prompts are
 limited in size, while the full protocol is a versioned specification that
 should be reviewable through normal Git diffs.
 
+## Normative state model
+
+`prompts/master_prompt_v2.2.md` is authoritative. The schemas, validator, tests,
+and examples implement its field names and vocabularies:
+
+- `claim_status`: `PENDING`, `SUPPORTED`, `SUPPORTED_CONDITIONAL`,
+  `UNESTABLISHED`, `UNSUPPORTED`, `CONTRADICTED`, `OUTDATED`, `UNRESOLVED`
+- `evidence_status`: `PRIMARY_VERIFIED`, `AUTHORITATIVE_SECONDARY`,
+  `SECONDARY_ONLY`, `LICENSE_REQUIRED`, `NOT_RETRIEVED`, `SOURCE_CONFLICT`
+- Claim types: `SOURCE`, `DERIVED`, `INTERPRETIVE`, `DEFINITION`
+
+Assumptions and Decisions are separate protocol entities; they are not Claim
+types.
+
 ## Deterministic rules in the first release
 
 | Rule | Check |
 |---|---|
+| `V-000` | malformed Run/Claim structure and an empty ledger |
 | `V-001` | duplicate Claim IDs |
 | `V-003` | dangling claim dependencies |
 | `V-004` | cyclic claim dependency graph |
-| `V-005` | illegal Claim/Evidence status combination |
-| `V-008` | derived claim without a derivation rule |
+| `V-005` | illegal `claim_status` × `evidence_status` combination |
+| `V-006D` | supported derived conclusion outranks a premise |
+| `V-008` | derived claim lacks a rule or at least one premise |
+| `V-024` | a `FLAG` matrix cell lacks an explicit Claim qualification |
 
 These checks do not ask an LLM to “reason harder.” They run as code and return
 stable, machine-readable findings.
+
+The current executable layer does not yet implement V-010/V-011 because
+Assumptions, Decisions, and rendered spans are not yet modelled as validator
+inputs. V-024 currently checks the Claim-level qualification; verifying its
+presence at every materially assertive rendered occurrence remains future work.
+All findings emitted by this release gate are `RELEASE_BLOCKING`;
+`INFO`/`WARNING`/`ERROR` are reserved in the finding schema for future
+non-gating or layered producers.
 
 ## Install and test
 
@@ -128,4 +153,3 @@ Changes to the protocol, schemas, validators, and rendered examples should be
 made together when they affect the same invariant. Every new deterministic rule
 must have a stable rule ID, documented semantics, and a failing-then-passing
 test fixture.
-

@@ -501,131 +501,16 @@ Legality matrix
 
 OK permitted · FLAG permitted only with explicit document qualification · ✗ rejected
 
-claim_status ↓ / evidence_status →PRIMARYAUTH_SECSEC_ONLYLICENSE_REQNOT_RETRCONFLICT
-
-
-
-
-
-
-
-
-
-
-
-
-
-SUPPORTED
-
-OK
-
-OK
-
-FLAG
-
-✗
-
-✗
-
-✗
-
-SUPPORTED_CONDITIONAL
-
-OK
-
-OK
-
-FLAG
-
-✗
-
-✗
-
-✗
-
-UNESTABLISHED
-
-FLAG
-
-FLAG
-
-OK
-
-OK
-
-OK
-
-✗
-
-UNSUPPORTED
-
-OK
-
-OK
-
-FLAG
-
-✗
-
-✗
-
-✗
-
-CONTRADICTED
-
-OK
-
-OK
-
-FLAG
-
-✗
-
-✗
-
-✗
-
-OUTDATED
-
-OK
-
-OK
-
-FLAG
-
-✗
-
-✗
-
-✗
-
-UNRESOLVED
-
-OK
-
-OK
-
-OK
-
-✗
-
-✗
-
-OK
-
-PENDING
-
-✗
-
-✗
-
-✗
-
-OK
-
-OK
-
-OK
+| claim_status ↓ / evidence_status → | PRIMARY_VERIFIED | AUTHORITATIVE_SECONDARY | SECONDARY_ONLY | LICENSE_REQUIRED | NOT_RETRIEVED | SOURCE_CONFLICT |
+|---|---:|---:|---:|---:|---:|---:|
+| SUPPORTED | OK | OK | FLAG | ✗ | ✗ | ✗ |
+| SUPPORTED_CONDITIONAL | OK | OK | FLAG | ✗ | ✗ | ✗ |
+| UNESTABLISHED | FLAG | FLAG | OK | OK | OK | ✗ |
+| UNSUPPORTED | OK | OK | FLAG | ✗ | ✗ | ✗ |
+| CONTRADICTED | OK | OK | FLAG | ✗ | ✗ | ✗ |
+| OUTDATED | OK | OK | FLAG | ✗ | ✗ | ✗ |
+| UNRESOLVED | OK | OK | OK | ✗ | ✗ | OK |
+| PENDING | ✗ | ✗ | ✗ | OK | OK | OK |
 
 Interpretation rules:
 
