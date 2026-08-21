@@ -34,7 +34,7 @@
     },
     {
       "source_id": "SRC-INT-003",
-      "kind": "task_input",
+      "kind": "internal",
       "issuer": "Requester via GitHub",
       "title": "Issue #2: Research §254 HGB implementation requirements for a Bausparkasse",
       "identifier": "issue-2",
@@ -42,8 +42,9 @@
       "version_label": "task snapshot supplied to the agent",
       "version_date": "2026-08-21",
       "retrieval_date": "2026-08-21",
-      "access": "INTERNAL_TASK_INPUT",
-      "status": "SUPPLIED",
+      "access": "INTERNAL",
+      "status": "RETRIEVED",
+      "provenance_note": "The issue body was supplied to the agent as task input and read internally; no independent external retrieval was performed.",
       "relevant_span": "research questions, mandatory distinctions, acceptance criteria"
     },
     {

@@ -103,7 +103,10 @@ The two Finding producers intentionally use separate contracts:
   Finding object with target, phase, resolution, agent, and provenance fields.
 
 Run-artifact tests validate both models and verify produced paths recorded in
-`artifact_manifest.json`.
+`artifact_manifest.json`. They also validate each semantic-ledger Source and
+Evidence object against `schemas/source.schema.json` and
+`schemas/evidence.schema.json`, including the protocol's controlled
+vocabularies for source kind, access, and retrieval method.
 
 ## Deterministic rules in the first release
 

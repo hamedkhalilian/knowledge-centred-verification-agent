@@ -785,13 +785,14 @@
     },
     {
       "source_id": "SRC-INT-003",
-      "kind": "task_input",
+      "kind": "internal",
       "identifier": "issue-2",
       "title": "GitHub issue #2",
       "version_label": "task snapshot supplied to the agent",
       "version_date": "2026-08-21",
-      "access": "INTERNAL_TASK_INPUT",
+      "access": "INTERNAL",
       "locator": "https://github.com/hamedkhalilian/knowledge-centred-verification-agent/issues/2",
+      "provenance_note": "Supplied as task input and read through internal_source; not independently retrieved as external legal authority.",
       "sufficient_for": ["task_scope", "acceptance_criteria"]
     }
   ],
@@ -828,7 +829,7 @@
       "evidence_id": "EV-0003",
       "source_id": "SRC-INT-003",
       "retrieved_at": "2026-08-21",
-      "retrieval_method": "internal_task_input",
+      "retrieval_method": "internal_source",
       "fragment": "Issue #2 body",
       "extract": "Research questions, mandatory distinctions, and acceptance criteria.",
       "supersession_checked": false,

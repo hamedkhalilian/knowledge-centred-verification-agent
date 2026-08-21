@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/kcv/source.schema.json",
+  "title": "KCV Source",
+  "type": "object",
+  "required": [
+    "source_id",
+    "kind",
+    "identifier",
+    "title",
+    "version_label",
+    "version_date",
+    "access",
+    "locator",
+    "sufficient_for"
+  ],
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "statute",
+        "regulation",
+        "judgment",
+        "regulator_guidance",
+        "professional_standard",
+        "official_guidance",
+        "commentary",
+        "academic",
+        "secondary",
+        "data",
+        "internal"
+      ]
+    },
+    "evidence_level": {
+      "type": ["integer", "null"],
+      "minimum": 1
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version_label": {
+      "type": ["string", "null"]
+    },
+    "version_date": {
+      "type": ["string", "null"],
+      "format": "date"
+    },
+    "access": {
+      "enum": ["PUBLIC", "LICENSED", "PAYWALLED", "INTERNAL"]
+    },
+    "locator": {
+      "type": ["string", "null"]
+    },
+    "sufficient_for": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "provenance_note": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

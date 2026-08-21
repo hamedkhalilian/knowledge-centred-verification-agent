@@ -34,6 +34,10 @@ def test_run_claims_findings_and_manifest_match_their_schemas() -> None:
     assert_valid(ledger["run"], "run.schema.json")
     for claim in ledger["claims"]:
         assert_valid(claim, "claim.schema.json")
+    for source in ledger["sources"]:
+        assert_valid(source, "source.schema.json")
+    for evidence in ledger["evidence"]:
+        assert_valid(evidence, "evidence.schema.json")
     for finding in findings["findings"]:
         assert_valid(finding, "protocol-finding.schema.json")
     assert_valid(manifest, "artifact-manifest.schema.json")
@@ -113,15 +117,18 @@ def test_issue_provenance_and_closure_actions_are_explicit() -> None:
         if evidence["evidence_id"] == "EV-0003"
     )
 
-    assert issue_source["kind"] == "task_input"
-    assert issue_source["status"] == "SUPPLIED"
-    assert issue_evidence["retrieval_method"] == "internal_task_input"
+    assert issue_source["kind"] == "internal"
+    assert issue_source["access"] == "INTERNAL"
+    assert issue_source["status"] == "RETRIEVED"
+    assert "supplied" in issue_source["provenance_note"].lower()
+    assert issue_evidence["retrieval_method"] == "internal_source"
     ledger_source = next(
         source for source in ledger["sources"]
         if source["source_id"] == "SRC-INT-003"
     )
     assert ledger_source["kind"] == issue_source["kind"]
     assert ledger_source["access"] == issue_source["access"]
+    assert "supplied" in ledger_source["provenance_note"].lower()
     assert "D-0001" in report
     assert "D-0001" in release_summary
 
