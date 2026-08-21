@@ -211,6 +211,43 @@ class LedgerValidatorTests(unittest.TestCase):
         payload["edges"] = []
         self.assertTrue(validate_ledger(payload).ok)
 
+    def test_evidenced_by_edges_require_existing_typed_endpoints(self) -> None:
+        payload = ledger_with_evidence()
+        payload["edges"].append(
+            {
+                "from": "C-001",
+                "to": "EV-001",
+                "type": "EVIDENCED_BY",
+                "stance": "AFFIRMS",
+            }
+        )
+        self.assertTrue(validate_ledger(payload).ok)
+
+        payload["edges"][-1]["to"] = "EV-MISSING"
+        self.assertIn("V-003", rule_ids(payload))
+        payload["edges"][-1]["to"] = "EV-001"
+        payload["edges"][-1]["from"] = "C-MISSING"
+        self.assertIn("V-003", rule_ids(payload))
+        payload["edges"][-1]["from"] = "C-001"
+        payload["edges"][-1]["stance"] = "GLOBAL_AFFIRMATION"
+        self.assertIn("V-000", rule_ids(payload))
+
+    def test_duplicate_source_and_evidence_ids_are_blocking(self) -> None:
+        duplicate_source = ledger_with_evidence()
+        duplicate_source["sources"].append({"source_id": "SRC-001"})
+        self.assertIn("V-000", rule_ids(duplicate_source))
+
+        duplicate_evidence = ledger_with_evidence()
+        duplicate_evidence["evidence"].append(
+            {
+                "evidence_id": "EV-001",
+                "source_id": "SRC-MISSING",
+                "retrieval_method": "internal_source",
+            }
+        )
+        self.assertIn("V-000", rule_ids(duplicate_evidence))
+        self.assertIn("V-003", rule_ids(duplicate_evidence))
+
     def test_run_required_fields_are_enforced(self) -> None:
         payload = ledger(claim("C-001"))
         payload["run"] = {"run_id": "R-INCOMPLETE"}

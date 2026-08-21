@@ -352,6 +352,38 @@
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T18:48:58Z"
+    },
+    {
+      "finding_id": "F-254-023",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#EVIDENCED_BY",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_8",
+      "kind": "DANGLING_CLAIM_EVIDENCE_EDGE",
+      "statement": "LedgerValidator validated RETRIEVED_FROM edges but accepted EVIDENCED_BY edges with missing Claim or Evidence endpoints.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "Runtime V-003 now validates both EVIDENCED_BY endpoints, while V-000 validates edge shape and stance; malformed-ledger tests cover missing Claim, missing Evidence and invalid stance.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:55:47Z"
+    },
+    {
+      "finding_id": "F-254-024",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py#evidence_ids",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_8",
+      "kind": "DUPLICATE_EVIDENCE_ID_COLLAPSED",
+      "statement": "Duplicate Evidence IDs were silently collapsed with setdefault, allowing later malformed records to escape validation.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "Every Evidence record is now validated independently and duplicate Evidence IDs are release-blocking V-000 findings; duplicate Source IDs are also blocked and regression-tested.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:55:47Z"
     }
   ]
 }

@@ -51,6 +51,7 @@ EVIDENCE_RETRIEVAL_METHODS = frozenset(
         "none",
     }
 )
+EVIDENCE_STANCES = frozenset({"AFFIRMS", "QUALIFIES", "CONTRADICTS", "SILENT"})
 
 # Exact transcription of the normative §3.5 matrix. Missing cells are illegal.
 # FLAG cells are legal only when the Claim carries an explicit qualification.
@@ -230,7 +231,7 @@ class LedgerValidator:
         evidence = object_list(raw_evidence, "evidence")
         edges = object_list(raw_edges, "edges")
 
-        source_ids: set[str] = set()
+        source_id_values: list[str] = []
         for index, source in enumerate(sources):
             source_id = source.get("source_id")
             if not _non_empty_string(source_id):
@@ -242,9 +243,19 @@ class LedgerValidator:
                     )
                 )
                 continue
-            source_ids.add(source_id)
+            source_id_values.append(source_id)
+        source_ids = set(source_id_values)
+        for source_id, count in sorted(Counter(source_id_values).items()):
+            if count > 1:
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Duplicate Source ID: {source_id}.",
+                    )
+                )
 
-        evidence_by_id: dict[str, Mapping[str, Any]] = {}
+        evidence_id_values: list[str] = []
         for index, item in enumerate(evidence):
             evidence_id = item.get("evidence_id")
             if not _non_empty_string(evidence_id):
@@ -256,11 +267,73 @@ class LedgerValidator:
                     )
                 )
                 continue
-            evidence_by_id.setdefault(evidence_id, item)
+            evidence_id_values.append(evidence_id)
+        evidence_ids = set(evidence_id_values)
+        for evidence_id, count in sorted(Counter(evidence_id_values).items()):
+            if count > 1:
+                findings.append(
+                    Finding(
+                        "V-000",
+                        "RELEASE_BLOCKING",
+                        f"Duplicate Evidence ID: {evidence_id}.",
+                    )
+                )
+
+        raw_claims = ledger.get("claims")
+        claim_ids: set[str] = set()
+        if isinstance(raw_claims, Sequence) and not isinstance(raw_claims, (str, bytes)):
+            claim_ids = {
+                claim.get("claim_id")
+                for claim in raw_claims
+                if isinstance(claim, Mapping)
+                and _non_empty_string(claim.get("claim_id"))
+            }
 
         retrieved_from: dict[str, list[str]] = {}
         for edge in edges:
-            if edge.get("type") != "RETRIEVED_FROM":
+            edge_type = edge.get("type")
+            if edge_type == "EVIDENCED_BY":
+                claim_id = edge.get("from")
+                evidence_id = edge.get("to")
+                stance = edge.get("stance")
+                if not _non_empty_string(claim_id) or not _non_empty_string(evidence_id):
+                    findings.append(
+                        Finding(
+                            "V-000",
+                            "RELEASE_BLOCKING",
+                            "EVIDENCED_BY edges require non-empty 'from' and 'to' IDs.",
+                        )
+                    )
+                    continue
+                if claim_id not in claim_ids:
+                    findings.append(
+                        Finding(
+                            "V-003",
+                            "RELEASE_BLOCKING",
+                            f"EVIDENCED_BY edge references missing Claim {claim_id}.",
+                            claim_id,
+                        )
+                    )
+                if evidence_id not in evidence_ids:
+                    findings.append(
+                        Finding(
+                            "V-003",
+                            "RELEASE_BLOCKING",
+                            f"EVIDENCED_BY edge references missing Evidence {evidence_id}.",
+                            claim_id,
+                        )
+                    )
+                if stance not in EVIDENCE_STANCES:
+                    findings.append(
+                        Finding(
+                            "V-000",
+                            "RELEASE_BLOCKING",
+                            f"EVIDENCED_BY edge has invalid stance={stance!s}.",
+                            claim_id,
+                        )
+                    )
+                continue
+            if edge_type != "RETRIEVED_FROM":
                 continue
             evidence_id = edge.get("from")
             source_id = edge.get("to")
@@ -274,7 +347,7 @@ class LedgerValidator:
                 )
                 continue
             retrieved_from.setdefault(evidence_id, []).append(source_id)
-            if evidence_id not in evidence_by_id:
+            if evidence_id not in evidence_ids:
                 findings.append(
                     Finding(
                         "V-003",
@@ -291,7 +364,10 @@ class LedgerValidator:
                     )
                 )
 
-        for evidence_id, item in evidence_by_id.items():
+        for item in evidence:
+            evidence_id = item.get("evidence_id")
+            if not _non_empty_string(evidence_id):
+                continue
             method = item.get("retrieval_method")
             source_id = item.get("source_id")
             linked_sources = retrieved_from.get(evidence_id, [])
