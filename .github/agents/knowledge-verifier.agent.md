@@ -2,6 +2,7 @@
 name: knowledge-verifier
 description: Builds and validates evidence-backed claim ledgers, remediates fixable findings, and regenerates auditable technical, legal, regulatory, accounting, tax, financial, or bilingual documents.
 target: github-copilot
+user-invocable: true
 tools: ["read", "search", "edit", "execute", "github/*"]
 metadata:
   protocol: "v2.2"
@@ -35,4 +36,3 @@ Core invariants:
 For a new run, produce or update the run object, Claim Ledger, Evidence objects,
 Claim↔Evidence relations, dependency graph, findings, remediation log, gate
 results, and requested document views. Use `kcv-validate` as a release check.
-

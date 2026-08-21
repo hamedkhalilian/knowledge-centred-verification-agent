@@ -1,5 +1,9 @@
 # Knowledge-Centred Verification Agent
 
+[![CI](https://github.com/hamedkhalilian/knowledge-centred-verification-agent/actions/workflows/validate.yml/badge.svg)](https://github.com/hamedkhalilian/knowledge-centred-verification-agent/actions/workflows/validate.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Status: Alpha](https://img.shields.io/badge/status-alpha-orange.svg)](CHANGELOG.md)
+
 A claim-ledger-first verification system for long legal, regulatory, accounting,
 tax, financial, technical, and bilingual documents.
 
@@ -30,6 +34,12 @@ The governing idea is simple:
 > The ledger is the semantic source of truth. Documents are rendered views of
 > the ledger.
 
+> [!IMPORTANT]
+> This is an alpha research and verification framework, not legal advice. A
+> passing deterministic gate establishes internal ledger consistency only; it
+> does not establish that the underlying legal or technical proposition is true,
+> current, or complete.
+
 ## Why this exists
 
 A request such as “prepare a complete report on §498 BGB” should not produce a
@@ -41,6 +51,19 @@ time-sensitive amendments.
 
 Retrieval creates evidence. Agent debate tests reasoning. Neither consensus nor
 fluent prose can replace missing evidence.
+
+## Quick start: use it as a GitHub agent
+
+After `v0.1.0` is on `main`:
+
+1. Open [GitHub Copilot Agents](https://github.com/copilot/agents).
+2. Select this repository and the `main` branch.
+3. Select **knowledge-verifier** from the agent picker.
+4. Start with the smoke-test prompt in [the GitHub agent guide](docs/GITHUB_AGENT.md#first-smoke-test-prompt).
+5. Inspect the agent's capability declaration before trusting its output.
+
+The full guide also covers source-backed runs, issue assignment, Copilot CLI,
+privacy limits, and troubleshooting.
 
 ## Repository map
 
@@ -115,19 +138,13 @@ kcv-validate --json examples/498-bgb/claim-ledger.example.json
 The command exits with status `0` when no error-level finding exists and `1`
 otherwise.
 
-## Use the GitHub custom agent
-
-After the agent profile is merged into the default branch:
-
-1. Open GitHub Copilot Agents for this repository.
-2. Select **knowledge-verifier**.
-3. Give it the source document, requested deliverables, as-of date, and scope.
-4. Inspect the capability declaration before trusting any verification claim.
+## GitHub custom-agent behavior
 
 The profile first reads `prompts/master_prompt_v2.2.md`, declares its actual
 capabilities, builds or updates the claim ledger, runs deterministic validation,
 remediates fixable findings, regenerates affected outputs, and reports the
-release state.
+release state. See [Use the Knowledge Verifier on GitHub](docs/GITHUB_AGENT.md)
+for exact activation steps and reusable prompts.
 
 ## Capability honesty
 
@@ -153,3 +170,9 @@ Changes to the protocol, schemas, validators, and rendered examples should be
 made together when they affect the same invariant. Every new deterministic rule
 must have a stable rule ID, documented semantics, and a failing-then-passing
 test fixture.
+
+## License and citation
+
+Released under the [Apache License 2.0](LICENSE). Citation metadata is available
+in [`CITATION.cff`](CITATION.cff), and release history is recorded in
+[`CHANGELOG.md`](CHANGELOG.md).
