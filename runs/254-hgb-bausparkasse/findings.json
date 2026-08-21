@@ -336,6 +336,22 @@
       "agent": "codex-review",
       "prompt_version": "v2.2",
       "created_at": "2026-08-21T18:44:01Z"
+    },
+    {
+      "finding_id": "F-254-022",
+      "target_type": "validator",
+      "target_id": "src/kcv_agent/validator.py",
+      "raised_by": "CR",
+      "phase": "FOLLOW_UP_REVIEW_7",
+      "kind": "FIXTURE_ONLY_EVIDENCE_LINK_VALIDATION",
+      "statement": "Evidence-to-Source cross-validation ran only against the §254 fixture, so kcv-validate accepted dangling provenance in other ledgers.",
+      "severity": "HIGH",
+      "resolution": "ACCEPTED",
+      "resolution_reason": "LedgerValidator now applies V-003/V-000 Source, Evidence and RETRIEVED_FROM checks to every ledger; malformed-ledger unit tests cover nonexistent Sources, mismatched edges and invalid negative-retrieval links.",
+      "remediation_class": "AUTO_FIXABLE",
+      "agent": "codex-review",
+      "prompt_version": "v2.2",
+      "created_at": "2026-08-21T18:48:58Z"
     }
   ]
 }

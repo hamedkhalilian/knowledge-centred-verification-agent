@@ -57,6 +57,26 @@ def ledger(*claims: dict) -> dict:
     return {"run": run(), "claims": list(claims)}
 
 
+def ledger_with_evidence(*, source_id: object = "SRC-001", edge_target: object = "SRC-001") -> dict:
+    payload = ledger(claim("C-001"))
+    payload["sources"] = [{"source_id": "SRC-001"}]
+    payload["evidence"] = [
+        {
+            "evidence_id": "EV-001",
+            "source_id": source_id,
+            "retrieval_method": "internal_source",
+        }
+    ]
+    payload["edges"] = [
+        {
+            "from": "EV-001",
+            "to": edge_target,
+            "type": "RETRIEVED_FROM",
+        }
+    ]
+    return payload
+
+
 def rule_ids(payload: dict) -> set[str]:
     return {finding.rule_id for finding in validate_ledger(payload).findings}
 
@@ -170,6 +190,26 @@ class LedgerValidatorTests(unittest.TestCase):
 
     def test_empty_ledger_is_blocking(self) -> None:
         self.assertEqual(rule_ids({"run": run(), "claims": []}), {"V-000"})
+
+    def test_positive_evidence_requires_existing_source_and_matching_edge(self) -> None:
+        self.assertTrue(validate_ledger(ledger_with_evidence()).ok)
+        self.assertIn(
+            "V-003",
+            rule_ids(ledger_with_evidence(source_id="SRC-DOES-NOT-EXIST")),
+        )
+        self.assertIn(
+            "V-003",
+            rule_ids(ledger_with_evidence(edge_target="SRC-DOES-NOT-EXIST")),
+        )
+
+    def test_negative_retrieval_must_not_claim_a_source_or_edge(self) -> None:
+        payload = ledger_with_evidence()
+        payload["evidence"][0]["retrieval_method"] = "none"
+        self.assertIn("V-003", rule_ids(payload))
+
+        payload["evidence"][0]["source_id"] = None
+        payload["edges"] = []
+        self.assertTrue(validate_ledger(payload).ok)
 
     def test_run_required_fields_are_enforced(self) -> None:
         payload = ledger(claim("C-001"))
