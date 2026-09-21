@@ -22,6 +22,7 @@
   ],
   "evidence": [
     "loan portfolio of 865,000 contracts",
+    "test run produced byte-identical SHA-256 checkpoint digests between the R and Java implementations",
     "four real defects found in the original R code, none fixed, all documented",
     "threshold sweep grid approximately 70x too narrow, traced to a percent-versus-decimal confusion",
     "backtest triggers entries in percent but prices them in decimal",
@@ -38,5 +39,5 @@
   ],
   "language": "en",
   "harvested_at": "2026-09-21",
-  "notes": "Already published as a LinkedIn post. This record is the primary voice reference for the corpus."
+  "notes": "Already published as a LinkedIn post. This record is the primary voice reference for the corpus. The SHA-256 checkpoint result comes from the CV, not from the published post."
 }
