@@ -410,3 +410,272 @@ def test_post_roundtrips_through_dict() -> None:
         }
     )
     assert Post.from_dict(post.to_dict()) == post
+
+
+# --- Claude.ai export importer ------------------------------------------
+
+from postforge.claude_export import (  # noqa: E402
+    Conversation,
+    import_export,
+    parse_conversations,
+    parse_project_names,
+    render_digest,
+    slugify,
+)
+from postforge.ledger import OPENING_LOOKBACK  # noqa: E402
+
+EXPORT = [
+    {
+        "uuid": "c1",
+        "name": "Survival analysis for §498",
+        "created_at": "2026-09-10T10:00:00Z",
+        "project": {"uuid": "proj-1"},
+        "chat_messages": [
+            {"sender": "human", "text": "Can I model termination as a hazard process?"},
+            {
+                "sender": "assistant",
+                "content": [{"type": "text", "text": "Yes, it is time-to-first-event."}],
+            },
+            {
+                "sender": "human",
+                "text": "Wait, that's wrong. The statute inserts a cure period.",
+            },
+            {"sender": "assistant", "text": "Then the quantity is different."},
+            {"sender": "human", "text": "I thought censoring was a nuisance."},
+        ],
+    },
+    {
+        "uuid": "c2",
+        "name": "quick question",
+        "created_at": "2026-09-01T10:00:00Z",
+        "chat_messages": [
+            {"sender": "human", "text": "hi"},
+            {"sender": "assistant", "text": "hello"},
+        ],
+    },
+]
+
+
+def test_parse_conversations_reads_text_and_content_blocks() -> None:
+    conversations = parse_conversations(EXPORT)
+    assert [c.uuid for c in conversations] == ["c1", "c2"]
+    senders = [sender for sender, _ in conversations[0].turns]
+    assert senders == ["human", "assistant", "human", "assistant", "human"]
+    assert "time-to-first-event" in conversations[0].turns[1][1]
+
+
+def test_parse_conversations_accepts_the_messages_role_shape() -> None:
+    payload = [
+        {
+            "uuid": "c9",
+            "name": "alt",
+            "messages": [
+                {"role": "user", "text": "a question"},
+                {"role": "assistant", "text": "an answer"},
+            ],
+        }
+    ]
+    conversation = parse_conversations(payload)[0]
+    assert [sender for sender, _ in conversation.turns] == ["human", "assistant"]
+
+
+def test_parse_conversations_tolerates_junk() -> None:
+    assert parse_conversations(None) == []
+    assert parse_conversations(["not a dict"]) == []
+    assert parse_conversations({"conversations": EXPORT})[0].uuid == "c1"
+
+
+def test_project_names_group_conversations() -> None:
+    names = parse_project_names([{"uuid": "proj-1", "name": "Hazard models"}])
+    conversation = parse_conversations(EXPORT, names)[0]
+    assert conversation.project == "Hazard models"
+
+
+def test_friction_candidates_take_only_the_authors_turns() -> None:
+    conversation = parse_conversations(EXPORT)[0]
+    candidates = conversation.friction_candidates()
+    assert any("that's wrong" in line for line in candidates)
+    assert any("I thought censoring" in line for line in candidates)
+    assert not any("quantity is different" in line for line in candidates)
+
+
+def test_friction_candidates_match_persian_markers() -> None:
+    conversation = Conversation(
+        uuid="x",
+        name="fa",
+        created_at="",
+        turns=[("human", "صبر کن، این درست نیست و باید دوباره نگاه کنم")],
+    )
+    assert conversation.friction_candidates()
+
+
+def test_short_lines_are_not_friction() -> None:
+    conversation = Conversation(
+        uuid="x", name="y", created_at="", turns=[("human", "wait")]
+    )
+    assert conversation.friction_candidates() == []
+
+
+def test_render_digest_truncates_on_budget() -> None:
+    conversation = parse_conversations(EXPORT)[0]
+    assert "[digest truncated]" in render_digest(conversation, max_chars=10)
+
+
+def test_import_export_skips_short_conversations(tmp_path: Path) -> None:
+    source = tmp_path / "export"
+    source.mkdir()
+    (source / "conversations.json").write_text(json.dumps(EXPORT), "utf-8")
+    (source / "projects.json").write_text(
+        json.dumps([{"uuid": "proj-1", "name": "Hazard models"}]), "utf-8"
+    )
+    written = import_export(source, tmp_path / "drop", min_turns=4)
+    assert len(written) == 1
+    assert written[0].name.startswith("hazard-models--")
+    assert "Friction candidates" in written[0].read_text("utf-8")
+
+
+def test_import_export_reports_a_missing_file(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        import_export(tmp_path, tmp_path / "drop")
+
+
+def test_slugify_falls_back_on_unsluggable_titles() -> None:
+    assert slugify("§§§") == "untitled"
+    assert slugify("Survival analysis for §498").startswith("survival-analysis")
+
+
+# --- P-008 opening rotation ---------------------------------------------
+
+
+def _post(post_id: str, **overrides) -> dict:
+    record = {
+        "post_id": post_id,
+        "archetype": "teaching",
+        "sources": ["a"],
+        "concepts": ["shared-shape"],
+        "status": "candidate",
+        "title": post_id,
+    }
+    record.update(overrides)
+    return record
+
+
+def test_p008_blocks_an_opening_used_by_a_recent_post(tmp_path: Path) -> None:
+    posts = [
+        _post(
+            "P-old",
+            status="published",
+            opening_move="confession",
+            published_at="2026-09-01",
+        ),
+        _post("P-new", opening_move="confession"),
+    ]
+    corpus = build_corpus(tmp_path, [make_project("a")], posts)
+    assert "P-008" in rule_ids(validate(corpus))
+
+
+def test_p008_allows_a_rotated_opening(tmp_path: Path) -> None:
+    posts = [
+        _post(
+            "P-old",
+            status="published",
+            opening_move="confession",
+            published_at="2026-09-01",
+        ),
+        _post("P-new", opening_move="two-facts"),
+    ]
+    corpus = build_corpus(tmp_path, [make_project("a")], posts)
+    assert "P-008" not in rule_ids(validate(corpus))
+
+
+def test_p008_only_looks_back_a_bounded_number_of_posts(tmp_path: Path) -> None:
+    """An opening becomes reusable once it has fallen out of the window."""
+    moves = ["confession", "two-facts", "number-first"]
+    posts = [
+        _post(
+            f"P-{i}",
+            status="published",
+            opening_move=move,
+            published_at=f"2026-09-0{i + 1}",
+        )
+        for i, move in enumerate(moves)
+    ]
+    posts.append(_post("P-new", opening_move="confession"))
+    corpus = build_corpus(tmp_path, [make_project("a")], posts)
+    assert len(moves) > OPENING_LOOKBACK
+    assert "P-008" not in rule_ids(validate(corpus))
+
+
+def test_p008_rejects_an_unknown_opening_move(tmp_path: Path) -> None:
+    corpus = build_corpus(
+        tmp_path, [make_project("a")], [_post("P-1", opening_move="vibes")]
+    )
+    assert "P-008" in rule_ids(validate(corpus))
+
+
+# --- P-009 friction references ------------------------------------------
+
+
+def test_p009_flags_a_malformed_reference(tmp_path: Path) -> None:
+    corpus = build_corpus(
+        tmp_path, [make_project("a")], [_post("P-1", friction_refs=["a"])]
+    )
+    assert "P-009" in rule_ids(validate(corpus))
+
+
+def test_p009_flags_an_unknown_project(tmp_path: Path) -> None:
+    corpus = build_corpus(
+        tmp_path, [make_project("a")], [_post("P-1", friction_refs=["ghost#0"])]
+    )
+    assert "P-009" in rule_ids(validate(corpus))
+
+
+def test_p009_flags_an_out_of_range_index(tmp_path: Path) -> None:
+    corpus = build_corpus(
+        tmp_path,
+        [make_project("a", friction=["one moment"])],
+        [_post("P-1", friction_refs=["a#5"])],
+    )
+    assert "P-009" in rule_ids(validate(corpus))
+
+
+def test_p009_accepts_a_resolving_reference(tmp_path: Path) -> None:
+    corpus = build_corpus(
+        tmp_path,
+        [make_project("a", friction=["one moment"])],
+        [_post("P-1", friction_refs=["a#0"])],
+    )
+    assert "P-009" not in rule_ids(validate(corpus))
+
+
+# --- P-010 friction warning ---------------------------------------------
+
+
+def test_p010_warns_but_does_not_block(tmp_path: Path) -> None:
+    corpus = build_corpus(
+        tmp_path, [make_project("a", friction=["a moment"])], [_post("P-1")]
+    )
+    findings = validate(corpus)
+    assert "P-010" in rule_ids(findings)
+    assert [f for f in blocking(findings) if f.rule_id == "P-010"] == []
+
+
+def test_p010_is_quiet_once_friction_is_cited(tmp_path: Path) -> None:
+    corpus = build_corpus(
+        tmp_path,
+        [make_project("a", friction=["a moment"])],
+        [_post("P-1", friction_refs=["a#0"])],
+    )
+    assert "P-010" not in rule_ids(validate(corpus))
+
+
+def test_project_friction_survives_a_roundtrip() -> None:
+    project = Project.from_dict(make_project("a", friction=["got this wrong"]))
+    assert Project.from_dict(project.to_dict()).friction == ["got this wrong"]
+
+
+def test_shipped_corpus_records_friction_for_every_project() -> None:
+    """Friction is what keeps drafts from reading like status updates."""
+    corpus = Corpus.load(REPO_ROOT / "corpus")
+    without = [p.project_id for p in corpus.projects if not p.friction]
+    assert without == [], f"projects with no recorded friction: {without}"

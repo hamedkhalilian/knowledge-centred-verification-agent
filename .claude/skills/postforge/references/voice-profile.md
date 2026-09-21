@@ -73,6 +73,23 @@ Eight moves, in order. A post may drop move 6, never moves 1, 2 or 7.
   about how hard it was.
 - Allows one aesthetic judgement per post ("choices I'm fond of"), no more.
 
+## Friction is not optional
+
+The reference post works because of four sentences most writers would cut:
+
+> And real data did violate them. […] All documented, none fixed — because
+> changing production logic is a business decision that deserves a human
+> signature, not a silent edit inside a rewrite.
+
+That is the author admitting the work found problems it chose not to solve. It
+is the most quotable passage in the post and the only one that risks anything.
+
+Every draft carries at least one such moment, taken from the ledger's
+`friction` list and cited in the post record's `friction_refs`. Where the
+author's own sentence from a transcript is sharp, quote it rather than
+paraphrasing — a second-language sentence that is blunt and exact reads more
+human than a fluent one that is neither.
+
 ## Banned
 
 These break the voice on contact:

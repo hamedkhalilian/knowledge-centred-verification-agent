@@ -37,6 +37,10 @@
     "Pareto tail exponent a = 3 gives D = 1, the exact form of the skewed law: expected remaining wait equals the wait so far",
     "median survival 182 days in arm A versus 324 days in arm B"
   ],
+  "friction": [
+    "The reader's own critique section, not Efron's: validating on a random slice of a history that has time structure gives a confident and misleadingly good result. Stated there as the familiar trap in this work — such a model has learned the regime of its period, not the mechanism.",
+    "A correlation machine gives no warning when it fails. A structural model can say 'my assumption was violated'; a pure prediction algorithm has nothing to say it with, so concept drift arrives silently."
+  ],
   "language": "fa",
   "harvested_at": "2026-09-21",
   "notes": "Efron's own text names the finance transfer: time to default, time to early repayment, time to contract termination share this structure. That sentence is the seed of the strongest bridge in the corpus."

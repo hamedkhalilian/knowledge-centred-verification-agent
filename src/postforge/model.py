@@ -18,6 +18,19 @@ STAGES = frozenset({"idea", "active", "shipped", "archived"})
 ARCHETYPES = frozenset({"showcase", "teaching", "autopsy", "bridge"})
 POST_STATUSES = frozenset({"candidate", "draft", "approved", "published"})
 
+# How a post opens. Repeating an opening is the fastest way to sound
+# machine-made, so the vocabulary is closed and ``P-008`` enforces rotation.
+OPENING_MOVES = frozenset(
+    {
+        "confession",    # a result, then the admission that reverses it
+        "misconception", # a plausible wrong belief, stated then broken
+        "two-facts",     # two unrelated facts, flat, no connective
+        "number-first",  # a figure that does not fit what the reader expects
+        "scene",         # a concrete moment, one place, one time
+        "refusal",       # the answer was "I do not know", and why that is the result
+    }
+)
+
 SEVERITY_BLOCKING = "RELEASE_BLOCKING"
 SEVERITY_WARNING = "WARNING"
 
@@ -54,6 +67,11 @@ class Project:
     ``evidence`` carries the hard, checkable specifics a post can stand on:
     counts, magnitudes, named protocols, measured outcomes. A project with an
     empty evidence list can still teach, but it cannot carry a showcase post.
+
+    ``friction`` carries the other half, and it is the half that keeps a post
+    from reading like a report: moments where the author was stuck, wrong, or
+    surprised, and what changed. Evidence is what the work produced; friction
+    is what it cost. A post built only from evidence is a status update.
     """
 
     project_id: str
@@ -65,6 +83,7 @@ class Project:
     summary: str
     concepts: list[str]
     evidence: list[str] = field(default_factory=list)
+    friction: list[str] = field(default_factory=list)
     language: str = "en"
     harvested_at: str = ""
     notes: str = ""
@@ -81,6 +100,7 @@ class Project:
             summary=data.get("summary", ""),
             concepts=list(data.get("concepts", [])),
             evidence=list(data.get("evidence", [])),
+            friction=list(data.get("friction", [])),
             language=data.get("language", "en"),
             harvested_at=data.get("harvested_at", ""),
             notes=data.get("notes", ""),
@@ -97,6 +117,7 @@ class Project:
             "summary": self.summary,
             "concepts": self.concepts,
             "evidence": self.evidence,
+            "friction": self.friction,
             "language": self.language,
             "harvested_at": self.harvested_at,
             "notes": self.notes,
@@ -137,6 +158,8 @@ class Post:
     concepts: list[str]
     status: str
     title: str
+    opening_move: str = ""
+    friction_refs: list[str] = field(default_factory=list)
     language: str = "en"
     body_path: str = ""
     created: str = ""
@@ -151,6 +174,8 @@ class Post:
             concepts=list(data.get("concepts", [])),
             status=data.get("status", ""),
             title=data.get("title", ""),
+            opening_move=data.get("opening_move", ""),
+            friction_refs=list(data.get("friction_refs", [])),
             language=data.get("language", "en"),
             body_path=data.get("body_path", ""),
             created=data.get("created", ""),
@@ -165,6 +190,8 @@ class Post:
             "concepts": self.concepts,
             "status": self.status,
             "title": self.title,
+            "opening_move": self.opening_move,
+            "friction_refs": self.friction_refs,
             "language": self.language,
             "body_path": self.body_path,
             "created": self.created,

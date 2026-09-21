@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Sequence
 
 from postforge.bridge import concept_document_frequency, detect_bridges, rank_single_projects
+from postforge.claude_export import DEFAULT_MAX_CHARS, import_export
 from postforge.ledger import Corpus, blocking, validate
 from postforge.model import ARCHETYPES
 
@@ -57,6 +58,31 @@ def build_parser() -> argparse.ArgumentParser:
         "--archetype", choices=sorted(ARCHETYPES - {"bridge"}), default="showcase"
     )
     candidates.add_argument("--top", type=int, default=10)
+
+    imp = sub.add_parser(
+        "import-claude",
+        help="Unpack a Claude.ai data export into corpus/drop/ as digests",
+    )
+    imp.add_argument(
+        "source",
+        type=Path,
+        help="The unzipped export directory, or conversations.json itself",
+    )
+    imp.add_argument(
+        "--min-turns",
+        type=int,
+        default=4,
+        help="Skip conversations shorter than this (default: 4)",
+    )
+    imp.add_argument(
+        "--max-chars",
+        type=int,
+        default=DEFAULT_MAX_CHARS,
+        help="Transcript budget per digest",
+    )
+    imp.add_argument(
+        "--limit", type=int, default=None, help="Keep only the N most recent"
+    )
 
     return parser
 
@@ -135,6 +161,38 @@ def main(argv: Sequence[str] | None = None) -> int:
             lines.append(f"          shared: {', '.join(bridge.shared_concepts)}")
         if not lines:
             lines = ["no bridges found"]
+        _emit(payload, lines, args.as_json)
+        return 0
+
+    if args.command == "import-claude":
+        destination = args.corpus / "drop"
+        try:
+            written = import_export(
+                args.source,
+                destination,
+                min_turns=args.min_turns,
+                max_chars=args.max_chars,
+                limit=args.limit,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            if args.as_json:
+                print(json.dumps({"ok": False, "error": str(exc)}, indent=2))
+            else:
+                print(f"ERROR: {exc}")
+            return 2
+        payload = {
+            "ok": True,
+            "written": len(written),
+            "destination": str(destination),
+            "files": [str(path) for path in written],
+        }
+        lines = [
+            f"wrote {len(written)} digests to {destination}",
+            "",
+            "These are raw exported chats, not project records, and they are",
+            "git-ignored on purpose. Harvest them, then cite each digest in a",
+            "project record's source_ref.",
+        ]
         _emit(payload, lines, args.as_json)
         return 0
 

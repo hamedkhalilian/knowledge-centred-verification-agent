@@ -20,6 +20,17 @@ and releases use [Semantic Versioning](https://semver.org/).
 - `postforge` Claude Code skill with a voice profile and four post archetypes.
 - Thirty-two tests for the new rules and the scorer.
 - `postforge lint` added to the CI gate.
+- `postforge import-claude`, which unpacks a Claude.ai data export into
+  per-conversation digests. This is the only route to Claude.ai chats and
+  Projects, which no connector reads.
+- A `friction` field on project records, recording where the work went wrong,
+  alongside `evidence`, which records what it produced.
+- Anti-formula rules P-008 (opening-move rotation across recent posts), P-009
+  (cited friction must resolve), and P-010 (a warning when a post cites none).
+- A de-mechanise phase in the skill, and a closed vocabulary of six opening
+  moves.
+- `corpus/drop/` git-ignored apart from its README: this repository is public
+  and the digests are verbatim transcripts.
 
 ## [0.1.0] - 2026-08-21
 

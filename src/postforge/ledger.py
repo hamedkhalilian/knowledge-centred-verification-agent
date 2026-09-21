@@ -15,7 +15,16 @@ return stable findings with fixed identifiers, in the same spirit as the
 | ``P-005``| a bridge between projects that share every domain         |
 | ``P-006``| a concept or identifier that is not a lowercase slug      |
 | ``P-007``| a post body outside the voice profile's length band       |
+| ``P-008``| a post opening the same way as a recently published one   |
+| ``P-009``| a post citing a friction moment that does not exist       |
+| ``P-010``| a post that cites no friction at all (warning)            |
 +---------+------------------------------------------------------------+
+
+``P-008`` through ``P-010`` exist for one reason: an automated pipeline drifts
+toward the mechanical, and the drift is not visible from inside a single post.
+It shows up across a run of them, as a repeated opening and an absence of
+anything the author got wrong. Both of those are decidable, so both are rules
+rather than advice.
 
 ``P-005`` is a warning: a same-domain overlap is a real connection, it is just
 not the cross-domain transfer the bridge archetype is built to surface.
@@ -29,6 +38,7 @@ from pathlib import Path
 
 from postforge.model import (
     ARCHETYPES,
+    OPENING_MOVES,
     POST_STATUSES,
     SEVERITY_BLOCKING,
     SEVERITY_WARNING,
@@ -123,6 +133,9 @@ def validate(corpus: Corpus) -> list[Finding]:
     findings.extend(_p004_showcase_without_evidence(corpus))
     findings.extend(_p006_slugs(corpus))
     findings.extend(_p007_length(corpus))
+    findings.extend(_p008_opening_rotation(corpus))
+    findings.extend(_p009_friction_refs(corpus))
+    findings.extend(_p010_no_friction(corpus))
     return findings
 
 
@@ -360,6 +373,139 @@ def _p007_length(corpus: Corpus) -> list[Finding]:
     return findings
 
 
+OPENING_LOOKBACK = 2
+
+
+def _published_in_order(corpus: Corpus) -> list[Post]:
+    return sorted(
+        corpus.published(), key=lambda p: (p.published_at, p.post_id), reverse=True
+    )
+
+
+def _p008_opening_rotation(corpus: Corpus) -> list[Finding]:
+    """An unpublished post may not open like either of the last two published.
+
+    This is the single strongest guard against sounding automated. A reader
+    forgives a repeated subject; they stop reading when the third post in a
+    row opens with the same trick.
+    """
+    findings: list[Finding] = []
+    recent = [
+        post.opening_move
+        for post in _published_in_order(corpus)[:OPENING_LOOKBACK]
+        if post.opening_move
+    ]
+    for post in corpus.posts:
+        if post.status == "published":
+            continue
+        if post.opening_move and post.opening_move not in OPENING_MOVES:
+            findings.append(
+                Finding(
+                    "P-008",
+                    SEVERITY_BLOCKING,
+                    f"Unknown opening move {post.opening_move!r}; expected one "
+                    f"of {sorted(OPENING_MOVES)}.",
+                    post.post_id,
+                )
+            )
+            continue
+        if post.opening_move and post.opening_move in recent:
+            findings.append(
+                Finding(
+                    "P-008",
+                    SEVERITY_BLOCKING,
+                    f"Opening move {post.opening_move!r} was used by one of the "
+                    f"last {OPENING_LOOKBACK} published posts; rotate it.",
+                    post.post_id,
+                )
+            )
+    return findings
+
+
+def _parse_friction_ref(ref: str) -> tuple[str, int] | None:
+    project_id, _, index = ref.partition("#")
+    if not project_id or not index.isdigit():
+        return None
+    return project_id, int(index)
+
+
+def _p009_friction_refs(corpus: Corpus) -> list[Finding]:
+    """Every cited friction moment must resolve to a real ledger entry.
+
+    Same constraint as evidence, for the same reason: a post may not stand on
+    a human moment that was invented for the post.
+    """
+    findings: list[Finding] = []
+    for post in corpus.posts:
+        for ref in post.friction_refs:
+            parsed = _parse_friction_ref(ref)
+            if parsed is None:
+                findings.append(
+                    Finding(
+                        "P-009",
+                        SEVERITY_BLOCKING,
+                        f"Friction reference {ref!r} is malformed; expected "
+                        "'<project_id>#<index>'.",
+                        post.post_id,
+                    )
+                )
+                continue
+            project_id, index = parsed
+            project = corpus.by_id(project_id)
+            if project is None:
+                findings.append(
+                    Finding(
+                        "P-009",
+                        SEVERITY_BLOCKING,
+                        f"Friction reference {ref!r} names unknown project "
+                        f"{project_id!r}.",
+                        post.post_id,
+                    )
+                )
+            elif index >= len(project.friction):
+                findings.append(
+                    Finding(
+                        "P-009",
+                        SEVERITY_BLOCKING,
+                        f"Friction reference {ref!r} is out of range; "
+                        f"{project_id!r} records {len(project.friction)} "
+                        "friction entries.",
+                        post.post_id,
+                    )
+                )
+    return findings
+
+
+def _p010_no_friction(corpus: Corpus) -> list[Finding]:
+    """Warn when a post carries nothing the author got wrong.
+
+    A warning, not an error: some posts legitimately have none, and the
+    judgment is the author's. But a run of posts with no friction in any of
+    them is what "it reads like a machine wrote it" actually means.
+    """
+    findings: list[Finding] = []
+    for post in corpus.posts:
+        if post.status == "published" or post.friction_refs:
+            continue
+        available = sum(
+            len(project.friction)
+            for project in (corpus.by_id(s) for s in post.sources)
+            if project is not None
+        )
+        if available:
+            message = (
+                f"Post cites no friction although its sources record "
+                f"{available}; without one it will read as a report."
+            )
+        else:
+            message = (
+                "Neither the post nor its source projects record any friction; "
+                "harvest a moment the work went wrong before drafting."
+            )
+        findings.append(Finding("P-010", SEVERITY_WARNING, message, post.post_id))
+    return findings
+
+
 def blocking(findings: list[Finding]) -> list[Finding]:
     return [f for f in findings if f.severity == SEVERITY_BLOCKING]
 
@@ -371,4 +517,5 @@ __all__ = [
     "SEVERITY_WARNING",
     "MIN_POST_CHARS",
     "MAX_POST_CHARS",
+    "OPENING_LOOKBACK",
 ]

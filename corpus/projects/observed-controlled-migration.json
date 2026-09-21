@@ -32,6 +32,10 @@
     "IEEE-754 doubles throughout to match R's numeric semantics",
     "self-tests verify by inversion: bootstrap the curve, re-price the instruments, recover the inputs"
   ],
+  "friction": [
+    "Four real defects surfaced and the instinct was to fix them. Fixing them would have destroyed the ability to tell migration errors from defects that were always there, so they were documented and deliberately left in place.",
+    "The threshold sweep grid being roughly 70x too narrow read as a bug in the new code first. It turned out to be a percent-versus-decimal confusion that had always been in the original."
+  ],
   "language": "en",
   "harvested_at": "2026-09-21",
   "notes": "Already published as a LinkedIn post. This record is the primary voice reference for the corpus."

@@ -10,7 +10,7 @@ It reuses this repository's governing idea rather than inventing a new one:
 > ledger.
 
 ```text
-Drive · GitHub · sessions · drop folder
+Drive · GitHub · sessions · Claude.ai export
                  │
                  ▼  harvest (agent judgment)
           concept ledger  ──  corpus/projects/*.json
@@ -41,6 +41,60 @@ Those three questions are decidable, so they are code:
 | Have I already posted this? | `P-003`, plus candidate filtering |
 | Does this claim have evidence? | `P-004`, plus the `evidence` list |
 | Which two projects secretly connect? | `postforge bridges` |
+| Am I starting to sound like a machine? | `P-008`, `P-010` |
+
+## Reading Claude.ai chats, and why
+
+No connector reads Claude.ai conversations or Projects. The route is the
+account's own data export — Settings, Privacy, Export data — and then:
+
+```bash
+postforge import-claude ~/Downloads/claude-export
+```
+
+That writes one digest per substantial conversation into `corpus/drop/`,
+grouped by Project where the export has them.
+
+The reason to read chats is not that they hold results. Drive already holds
+the polished summary and the repository holds the finished code. Chats hold
+the thing nothing else does: **friction** — the question asked before the
+answer was known, the turn where the author said "wait, that's wrong", the
+approach that failed.
+
+That matters for a specific, practical reason. Generated writing reads as
+generated because it contains only outcomes. Nothing in it cost the author
+anything. So the ledger records friction beside evidence:
+
+> `evidence` is what the work produced. `friction` is what it cost.
+
+The importer pre-flags candidate lines from the author's own turns, in English
+and Persian. It flags; a human judges. Most candidates are noise and the two
+that are not are worth the import.
+
+### Privacy
+
+`corpus/drop/` is git-ignored apart from its README. This repository is
+public and the digests are verbatim transcripts. They stay on disk.
+
+## Not sounding automated
+
+A pipeline drifts toward the mechanical, and the drift is invisible from
+inside any one post — it shows up across a run of them. Three of those drifts
+are decidable, so they are rules rather than advice:
+
+| Drift | Rule |
+|---|---|
+| Every post opens the same way | `P-008` blocks an opening used by either of the last two published posts |
+| A post stands on invented human colour | `P-009` requires every cited friction moment to resolve to a ledger entry |
+| Nothing in the post cost anything | `P-010` warns when a post cites no friction |
+
+`P-008` closes the opening vocabulary to six moves: `confession`,
+`misconception`, `two-facts`, `number-first`, `scene`, `refusal`.
+
+The rest is editorial and lives in the skill's de-mechanise phase: read the
+last three published posts before writing; cut structural signposting; at most
+one post in three uses a numbered body; leave one thing unresolved; and do not
+smooth a blunt, exact second-language sentence into fluent LinkedIn English.
 
 ## The interesting part: bridge scoring
 
@@ -89,6 +143,7 @@ postforge bridges --cross-domain-only --top 5
 postforge candidates --archetype showcase
 postforge candidates --archetype teaching
 postforge --json bridges                        # machine-readable
+postforge import-claude <unzipped-export>       # Claude.ai chats and Projects
 ```
 
 `postforge lint` runs in CI alongside `kcv-validate`.
@@ -104,6 +159,9 @@ postforge --json bridges                        # machine-readable
 | `P-004` | a `showcase` or `autopsy` post whose sources record no evidence |
 | `P-006` | a concept or domain that is not a lowercase hyphen slug |
 | `P-007` | a post body that is missing, or outside 2,000–2,950 characters |
+| `P-008` | a post opening the same way as one of the last two published |
+| `P-009` | a post citing a friction moment that does not resolve |
+| `P-010` | a post that cites no friction — **warning**, not a gate |
 
 `P-005` is reserved for a same-domain bridge warning and is not yet emitted;
 the `cross_domain` flag on each bridge already carries that information.
@@ -117,7 +175,7 @@ The length band in `P-007` is calibrated on the reference post, which runs
 corpus/
 ├── projects/*.json     one harvested body of work each
 ├── posts/*.json        post records; *.md are the bodies
-├── drop/               raw material no connector can reach
+├── drop/               importer output and hand-dropped material (git-ignored)
 └── SOURCES.md          the harvest queue: known but not yet read
 ```
 
@@ -125,9 +183,9 @@ corpus/
 
 The same discipline this repository applies to legal claims applies here.
 
-- There is **no connector for Claude.ai chat Projects.** Anything living only
-  there reaches the ledger through `corpus/drop/`, never through automated
-  harvest.
+- There is **no connector for Claude.ai chats or Projects.** They reach the
+  ledger only through the account's data export and `postforge import-claude`,
+  never through live harvest.
 - `list_sessions` returns Claude Code session titles and post-turn summaries.
   It does not return transcripts. A session's project record may only record
   what that metadata supports.
@@ -156,5 +214,8 @@ phases that request needs.
   of published posts grows.
 - Bridge scoring only sees concepts that a human actually wrote down. A
   connection nobody tagged is a connection nobody finds.
+- Friction flagging is a keyword shortlist, not a classifier. It will miss a
+  reversal phrased calmly, and it will flag turns that were nothing.
+- A data export is a snapshot. Re-export to pick up newer conversations.
 - A bridge is a hypothesis about shared structure, never a proof that a method
   transfers. Drafts are required to say so in the post itself.

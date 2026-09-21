@@ -28,6 +28,10 @@
     "V-010 and V-011 are declared unimplemented because Assumptions, Decisions and rendered spans are not yet validator inputs",
     "the agent must declare external_retrieval = NO when authoritative retrieval is unavailable"
   ],
+  "friction": [
+    "V-010 and V-011 were specified but could not be implemented, because Assumptions, Decisions and rendered spans are not yet modelled as validator inputs. Declaring them unimplemented was chosen over shipping a rule that appears to run and does not.",
+    "V-024 checks the Claim-level qualification only. Verifying it at every materially assertive rendered occurrence is what the protocol actually asks for, and that gap is recorded rather than glossed."
+  ],
   "language": "en",
   "harvested_at": "2026-09-21",
   "notes": ""

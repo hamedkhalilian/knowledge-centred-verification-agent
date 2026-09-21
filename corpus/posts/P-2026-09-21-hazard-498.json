@@ -1,7 +1,10 @@
 {
   "post_id": "P-2026-09-21-hazard-498",
   "archetype": "bridge",
-  "sources": ["efron-survival-prediction", "bgb-498-consumer-credit"],
+  "sources": [
+    "efron-survival-prediction",
+    "bgb-498-consumer-credit"
+  ],
   "concepts": [
     "hazard-rate",
     "censored-data",
@@ -16,6 +19,10 @@
   ],
   "status": "candidate",
   "title": "A loan is a survival process",
+  "opening_move": "two-facts",
+  "friction_refs": [
+    "efron-survival-prediction#0"
+  ],
   "language": "en",
   "body_path": "corpus/posts/P-2026-09-21-hazard-498.md",
   "created": "2026-09-21",

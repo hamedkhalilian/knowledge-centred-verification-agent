@@ -30,6 +30,11 @@
     "German tax guidance treats a lease base term of 40-90% of useful life as leaving the asset with the lessor",
     "§246(2) forbids offsetting, which is why a valuation unit under §254 works in measurement only, never in presentation"
   ],
+  "friction": [
+    "The source video could not be opened and no transcript existed. The narrative was rebuilt from the companion article plus the statutory text, so the skeleton is right but any example the professor gave only on video is missing. The document says so in its first paragraph rather than presenting itself as complete.",
+    "The article calls the second asset test 'independent usability'. The settled commercial-law formulation is Einzelverwertbarkeit, separate realisability. Following the article would have hidden why the test exists at all: the creditor is asking what can be sold off separately if the company fails.",
+    "Expected the statute to define 'asset' and 'liability'. It does not. From a mathematics background that reads as a theorem with two undefined symbols; in law the text is the axiom and decades of judgments supply the meaning."
+  ],
   "language": "fa",
   "harvested_at": "2026-09-21",
   "notes": "Section eight of this document connects §246(2) to the §254 valuation-unit work directly."

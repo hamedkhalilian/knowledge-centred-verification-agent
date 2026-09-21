@@ -25,6 +25,10 @@
     "the derived claim C-498-REPORT-PLAN names both premises and its derivation rule",
     "the example asserts a research plan, explicitly not a current or complete legal analysis"
   ],
+  "friction": [
+    "The first instinct for 'a complete report on §498' was to gather sources broadly. The dependency-led approach forces the opposite: expand only where a claim genuinely depends on other material, which makes the map smaller and the gaps visible.",
+    "All three example claims came out UNESTABLISHED, which looked like a failed example until it became the point. A research plan is not a legal conclusion, and the example had to stop pretending otherwise."
+  ],
   "language": "en",
   "harvested_at": "2026-09-21",
   "notes": "The lender's right to terminate on default is an option written into the contract. Pairs directly with hazard-rate modelling."

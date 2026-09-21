@@ -199,6 +199,11 @@ against the §498 BGB research map first, and by a wide margin: a consumer loan
 is a time-to-first-event process, the lender's termination right is an option,
 and a live loan book is almost entirely right-censored data.
 
+The ledger records `friction` — where the work went wrong — beside `evidence`,
+and deterministic rules rotate post openings and require every human moment a
+draft leans on to resolve to a ledger entry. Generated writing reads as
+generated because it contains only outcomes.
+
 See [Post-Forge](docs/POSTFORGE.md).
 
 ## Contributing
