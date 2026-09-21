@@ -33,6 +33,8 @@ test = [
 
 [project.scripts]
 kcv-validate = "kcv_agent.cli:main"
+postforge = "postforge.cli:main"
+termination = "termination.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

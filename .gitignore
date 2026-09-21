@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+
+# Raw material dropped for harvesting. This repository is public and these
+# files are verbatim chat exports, so they stay local. Only the folder's
+# README is tracked.
+corpus/drop/*
+!corpus/drop/README.md

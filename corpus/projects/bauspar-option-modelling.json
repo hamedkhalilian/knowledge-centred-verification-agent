@@ -1,0 +1,34 @@
+{
+  "project_id": "bauspar-option-modelling",
+  "title": "Behavioural exercise model for §489 and Bauspar optionality",
+  "source": "drop",
+  "source_ref": "drop:project--behavioral-model.md",
+  "domains": [
+    "quant-finance",
+    "behavioural-finance"
+  ],
+  "stage": "idea",
+  "summary": "An open project: replace the deterministic exercise boundary in the hedge model with a conditional exercise intensity, without discarding the rational frontier. The target architecture runs curve, rational exercise value, behavioural hazard, survival, expected cash flows, PV and DV01, hedge — in place of the current curve, threshold, terminate or stay, hedge. The threshold is not removed; it becomes the incentive variable that drives the hazard.",
+  "concepts": [
+    "behavioural-deviation",
+    "conservative-bound",
+    "discrete-time-survival",
+    "early-repayment",
+    "exercise-intensity",
+    "hazard-rate",
+    "measure-mismatch",
+    "optimal-stopping",
+    "optionality",
+    "refinancing-behaviour",
+    "right-censoring",
+    "statutory-termination-right"
+  ],
+  "evidence": [],
+  "friction": [
+    "Review of the first draft surfaced the obstacle that decides whether this project is tractable: a hazard fitted to observed borrower behaviour is a real-world probability, while the swaption valuation is risk-neutral. Substituting the first into the second is not automatic, and no correction has been chosen.",
+    "The first framing treated behavioural deviation as replacing the rational-exercise rule. That was too strong. §489 is the borrower's right, so failure to exercise costs the lender less; optimal exercise is the conservative bound and the threshold survives as the main explanatory variable of exercise intensity rather than as the exercise law."
+  ],
+  "language": "en",
+  "harvested_at": "2026-09-21",
+  "notes": "The exported project carries a description and no documents; nothing has been built, so evidence stays empty. Design decisions recorded from review of the draft post, not from work done:\n- Model the exercise time as a conditional intensity P(tau = t | tau >= t, F_t) rather than as the stopping time inf{t : F_t < K}.\n- Drive the hazard by the refinancing incentive I = K - F_t, the coupon against the competing forward, plus borrower and contract characteristics.\n- Prefer discrete-time survival for monthly Bauspar and loan data over a continuous-time proportional-hazards fit; a logit link on the period hazard is the natural first form.\n- Treat a contract still running at the observation cut as right-censored, not as a non-event: observed duration is min(T, T_obs) with an indicator for whether the event was seen.\n- Once cash flows depend on the exercise time, the hedge faces a distribution of profiles rather than one profile, so DV01 is an expectation and not a single number.\nThe measure mismatch recorded in friction gates all of this and is unresolved."
+}

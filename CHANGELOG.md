@@ -7,6 +7,34 @@ and releases use [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Post-Forge: a concept-ledger-first generator for LinkedIn drafts, applying
+  the repository's ledger-and-rendered-view model to a second problem domain.
+- `postforge` CLI with `lint`, `status`, `bridges`, and `candidates`.
+- Deterministic rules P-000, P-001, P-002, P-003, P-004, P-006, P-007.
+- Cross-project bridge scoring over concept rarity, domain distance, and
+  evidence density.
+- `corpus/` concept ledger seeded with six harvested projects, one published
+  post, and one bridge draft.
+- `postforge` Claude Code skill with a voice profile and four post archetypes.
+- Thirty-two tests for the new rules and the scorer.
+- `postforge lint` added to the CI gate.
+- `postforge import-claude`, which unpacks a Claude.ai data export into
+  per-conversation and per-Project digests. This is the only route to
+  Claude.ai chats and Projects, which no connector reads. It accepts the
+  export's per-category ZIP archives, a single archive, or an unzipped tree,
+  and extracts to a temporary directory so transcripts never land in the
+  repository.
+- A `friction` field on project records, recording where the work went wrong,
+  alongside `evidence`, which records what it produced.
+- Anti-formula rules P-008 (opening-move rotation across recent posts), P-009
+  (cited friction must resolve), and P-010 (a warning when a post cites none).
+- A de-mechanise phase in the skill, and a closed vocabulary of six opening
+  moves.
+- `corpus/drop/` git-ignored apart from its README: this repository is public
+  and the digests are verbatim transcripts.
+
 ## [0.1.0] - 2026-08-21
 
 ### Added

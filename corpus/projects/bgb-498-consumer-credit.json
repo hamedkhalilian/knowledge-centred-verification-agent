@@ -1,0 +1,35 @@
+{
+  "project_id": "bgb-498-consumer-credit",
+  "title": "§498 BGB — termination of a consumer loan on default",
+  "source": "github",
+  "source_ref": "github:hamedkhalilian/knowledge-centred-verification-agent#examples/498-bgb",
+  "domains": [
+    "german-law",
+    "consumer-credit"
+  ],
+  "stage": "active",
+  "summary": "A dependency-led research map for §498 BGB rather than a paraphrase of the provision. The research graph expands only where claims genuinely depend on other material: classification and scope, form requirements, default consequences, cost consequences after acceleration, the mandatory-law boundary, case law, legislative history, and EU consumer-credit law.",
+  "concepts": [
+    "default-termination",
+    "optionality",
+    "undefined-legal-term",
+    "dependency-graph",
+    "qualified-notice",
+    "cure-period",
+    "mandatory-law-boundary",
+    "early-repayment"
+  ],
+  "evidence": [
+    "dependency nodes: §491, §492, §497, §501, §512 BGB, plus BGH and OLG interpretation of the qualified notice",
+    "the example ledger carries three claims and all three are UNESTABLISHED with NOT_RETRIEVED evidence",
+    "the derived claim C-498-REPORT-PLAN names both premises and its derivation rule",
+    "the example asserts a research plan, explicitly not a current or complete legal analysis"
+  ],
+  "friction": [
+    "The first instinct for 'a complete report on §498' was to gather sources broadly. The dependency-led approach forces the opposite: expand only where a claim genuinely depends on other material, which makes the map smaller and the gaps visible.",
+    "All three example claims came out UNESTABLISHED, which looked like a failed example until it became the point. A research plan is not a legal conclusion, and the example had to stop pretending otherwise."
+  ],
+  "language": "en",
+  "harvested_at": "2026-09-21",
+  "notes": "The lender's right to terminate on default is an option written into the contract. Pairs directly with hazard-rate modelling."
+}

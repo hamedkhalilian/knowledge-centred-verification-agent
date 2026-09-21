@@ -1,0 +1,34 @@
+{
+  "project_id": "fixed-rate-loan-hedging",
+  "title": "Interest rate hedging of a fixed-rate loan portfolio (R)",
+  "source": "drive",
+  "source_ref": "drive:1HIGNZthHRFGSR9n0Jn1G8KebmgPct367",
+  "domains": [
+    "quant-finance"
+  ],
+  "stage": "shipped",
+  "summary": "A complete R implementation covering rate scenario generation, swap and loan valuation, a bucketed hedging strategy and its validation. The hedge decision is threshold-based rather than automatic: hedge only where the economic spread is positive, with the threshold found by numerical optimisation.",
+  "concepts": [
+    "monte-carlo",
+    "short-rate-model",
+    "duration-hedging",
+    "threshold-decision-rule",
+    "backtesting",
+    "numerical-optimisation",
+    "negative-rates",
+    "early-repayment"
+  ],
+  "evidence": [
+    "short-rate models: CIR, CIR++ and Hull-White one-factor, admitting negative EUR rates",
+    "parallel Monte Carlo simulation of rate scenarios",
+    "vectorised swap pricer covering PV, par rate and MTM",
+    "loan present-value calculator with monthly cash flows and prepayments",
+    "maturity-bucket hedging with duration-matched notional allocation",
+    "full and partial hedges compared, backtested against real historical EUR curves",
+    "threshold-based hedge decision with parameters set by numerical optimisation"
+  ],
+  "friction": [],
+  "language": "en",
+  "harvested_at": "2026-09-21",
+  "notes": "This is the source system of the R-to-Java migration recorded in observed-controlled-migration. Harvested from the CV, which records no friction."
+}

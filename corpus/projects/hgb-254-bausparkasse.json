@@ -1,0 +1,39 @@
+{
+  "project_id": "hgb-254-bausparkasse",
+  "title": "§254 HGB Bewertungseinheiten — a verification run that came back BLOCKED",
+  "source": "github",
+  "source_ref": "github:hamedkhalilian/knowledge-centred-verification-agent#runs/254-hgb-bausparkasse",
+  "domains": [
+    "german-law",
+    "accounting",
+    "verification"
+  ],
+  "stage": "shipped",
+  "summary": "The first real run of the verification agent, on hedge accounting under §254 HGB for a Bausparkasse. The run declared external retrieval unavailable, left the central statutory propositions unestablished, and returned a BLOCKED release state instead of fluent prose. The scope map of a valid Bewertungseinheit survived; the legal conclusions did not.",
+  "concepts": [
+    "claim-ledger",
+    "deterministic-gate",
+    "capability-honesty",
+    "evidence-status",
+    "valuation-unit",
+    "hedge-effectiveness",
+    "offsetting-prohibition",
+    "licensed-source-boundary"
+  ],
+  "evidence": [
+    "45 claims total: 34 supported, 11 unestablished",
+    "34 primary-verified evidence statuses, 10 not retrieved, 1 license required",
+    "6 derived claims, all carrying derivation rules and premises",
+    "13 named elements of a valid Bewertungseinheit, including Einfrierungsmethode versus Durchbuchungsmethode",
+    "release state BLOCKED; G-15 FAIL; G-13 NOT_EVALUATED",
+    "kcv-validate passed with no findings while the release still failed: internal consistency is not truth",
+    "the run refuses to state that §254 requires exact -1 correlation"
+  ],
+  "friction": [
+    "kcv-validate passed with no findings while the release state was still BLOCKED. Internal ledger consistency turned out to say nothing about whether the legal propositions were true, and that distinction had to be built into how the run reports itself.",
+    "Expected the first real run to produce a legal analysis. It produced a refusal: 11 of 45 claims unestablished because authoritative external retrieval was unavailable. Reporting the refusal was chosen over letting the model fill the gap."
+  ],
+  "language": "en",
+  "harvested_at": "2026-09-21",
+  "notes": "The most counterintuitive artefact in the corpus: a tool whose headline result is its own refusal to conclude."
+}

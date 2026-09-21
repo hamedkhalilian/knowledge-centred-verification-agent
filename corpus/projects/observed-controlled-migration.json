@@ -1,0 +1,43 @@
+{
+  "project_id": "observed-controlled-migration",
+  "title": "Observed & Controlled Migration (R to Java financial analytics)",
+  "source": "drive",
+  "source_ref": "drive:1Eu6CFmUi71eay3Iwvw2-TEoPwk9CgzTIE7A2w01AK0I",
+  "domains": [
+    "quant-finance",
+    "software-architecture"
+  ],
+  "stage": "shipped",
+  "summary": "A migration of swap-curve bootstrapping, hedge analytics and a large loan portfolio from R to Java, run as a measurement rather than a rewrite. Two AI agents work behind an information barrier with a controller between them; both sides emit identical machine-readable evidence at every semantic boundary; every assumption is an executable precondition with an ID. Four real defects in the original code were documented and deliberately left unfixed.",
+  "concepts": [
+    "information-barrier",
+    "observation-vs-correction",
+    "neutral-checkpoint",
+    "executable-precondition",
+    "evidence-trail",
+    "unit-confusion",
+    "legacy-migration",
+    "verification-by-inversion",
+    "human-signature-boundary"
+  ],
+  "evidence": [
+    "loan portfolio of 865,000 contracts",
+    "test run produced byte-identical SHA-256 checkpoint digests between the R and Java implementations",
+    "four real defects found in the original R code, none fixed, all documented",
+    "threshold sweep grid approximately 70x too narrow, traced to a percent-versus-decimal confusion",
+    "backtest triggers entries in percent but prices them in decimal",
+    "two decision rules that point in opposite directions",
+    "tenor gaps beyond 30 years silently corrupt discount factors",
+    "preconditions carry stable IDs, e.g. P08 (tenor grid has no gaps), P21 (observed spreads fit inside the sweep grid)",
+    "zero external dependencies: hand-written XLSX reader on the JDK's zip and StAX",
+    "IEEE-754 doubles throughout to match R's numeric semantics",
+    "self-tests verify by inversion: bootstrap the curve, re-price the instruments, recover the inputs"
+  ],
+  "friction": [
+    "Four real defects surfaced and the instinct was to fix them. Fixing them would have destroyed the ability to tell migration errors from defects that were always there, so they were documented and deliberately left in place.",
+    "The threshold sweep grid being roughly 70x too narrow read as a bug in the new code first. It turned out to be a percent-versus-decimal confusion that had always been in the original."
+  ],
+  "language": "en",
+  "harvested_at": "2026-09-21",
+  "notes": "Already published as a LinkedIn post. This record is the primary voice reference for the corpus. The SHA-256 checkpoint result comes from the CV, not from the published post."
+}

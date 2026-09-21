@@ -72,6 +72,9 @@ privacy limits, and troubleshooting.
 prompts/master_prompt_v2.2.md               versioned verification protocol
 schemas/                                    portable JSON Schemas
 src/kcv_agent/                              deterministic validator and CLI
+src/postforge/                              concept ledger rules and bridge scoring
+.claude/skills/postforge/                   the Post-Forge agent, voice profile, archetypes
+corpus/                                     the concept ledger: projects, posts, harvest queue
 tests/                                      executable rule tests
 examples/498-bgb/                           dependency-led research example
 docs/                                       architecture and release model
@@ -176,6 +179,32 @@ This is an early executable foundation, not legal advice and not yet a complete
 legal-retrieval product. The next major component is an MCP retrieval layer for
 authoritative sources such as Gesetze im Internet, EUR-Lex, BaFin, Bundesbank,
 EBA, ECB, and court databases.
+
+## Post-Forge: the same model, a second domain
+
+`corpus/` and `src/postforge/` apply the ledger-and-rendered-view model
+outside legal verification. Projects scattered across Drive, GitHub and agent
+sessions are harvested into a concept ledger; deterministic rules gate what a
+post may claim; and a scorer ranks which two projects share a structure worth
+writing about.
+
+```bash
+postforge --corpus corpus lint
+postforge --corpus corpus bridges --cross-domain-only
+```
+
+The payoff is the part a person cannot do by reading one project at a time.
+On the shipped corpus the scorer ranks a study of Efron's survival chapter
+against the §498 BGB research map first, and by a wide margin: a consumer loan
+is a time-to-first-event process, the lender's termination right is an option,
+and a live loan book is almost entirely right-censored data.
+
+The ledger records `friction` — where the work went wrong — beside `evidence`,
+and deterministic rules rotate post openings and require every human moment a
+draft leans on to resolve to a ledger entry. Generated writing reads as
+generated because it contains only outcomes.
+
+See [Post-Forge](docs/POSTFORGE.md).
 
 ## Contributing
 

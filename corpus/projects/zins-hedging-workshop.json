@@ -1,0 +1,46 @@
+{
+  "project_id": "zins-hedging-workshop",
+  "title": "Zins-Hedging workshop — every displayed number traced to a verification key",
+  "source": "drop",
+  "source_ref": "drop:project--workshop.md",
+  "domains": [
+    "quant-finance",
+    "teaching",
+    "interest-rate-risk"
+  ],
+  "stage": "shipped",
+  "summary": "A two-part interest-rate hedging workshop in German and English, built so that every figure on every slide reproduces from the source curve. A slide map carries slide_id, source_asset, displayed_numbers and verification_key per slide; verify.R and workshop1_numbers.py recompute the figures in base R and Python with no packages. Workshop II rebuilds the §489 termination right from first principles as a Bermudan receiver swaption on a calibrated short-rate tree.",
+  "concepts": [
+    "verification-key",
+    "reproducible-figures",
+    "twin-implementation",
+    "statutory-termination-right",
+    "optionality",
+    "early-repayment",
+    "rational-exercise",
+    "behavioural-deviation",
+    "model-limit-disclosure",
+    "closed-form-versus-simulation"
+  ],
+  "evidence": [
+    "slide_map_en.csv binds each slide to source_asset, displayed_numbers and a verification_key",
+    "§489 indifference point at −36 BP: the borrower terminates iff the 5-year par rate for years 10–15 implied by today's curve falls below the 3.2840% loan coupon; today that forward is 3.6454%, exactly 36 BP above",
+    "the hedged book's loss equals what the termination right is worth to the borrower, to the cent: −23,842.58 at −100 BP and −69,504.41 at −200 BP, computed two independent ways",
+    "Workshop I valued the §489 right at €27,645.52 (Bachelier); Workshop II rebuilt it at 28,395.58 on a calibrated Ho–Lee tree, +2.71%",
+    "Bermudan exercise over years 10–14 adds €907, +3.2%, and is the closer proxy for §489 than the European version",
+    "forward induction with Arrow–Debreu prices reproduces P(1..15) to 3e-16 and the tree-implied forward swap rate equals F(10,15)=3.6454% exactly",
+    "Samuelson block: exact binomial closed form gives P(loss)=1 in 2,289 and P(loss>€1,000)=1 in 62,189; Monte Carlo is the check, not the source",
+    "at loss aversion λ=2.25 the same 100-flip package is worth −€1,250 judged flip by flip and +€5,000 judged once at the end; the sign flips at a block of two"
+  ],
+  "friction": [
+    "The Exercise 11 audit opens by conceding the opposite of what an audit usually finds: every number reproduces to the cent, and the exercise still does not work. What was wrong was arrangement — the punchline arrived 45 slides before the exercise meant to discover it, and the key threshold was never derived anywhere in the deck.",
+    "S38's 'Loan' column silently meant the 15-year loan in two rows and the terminated loan in the others. The slide's whole claim — that the loss comes from the termination and not from the hedge — could not be checked from the table it was printed on.",
+    "The refined tree did not close the gap to the Workshop I figure. Finer steps left it at +2.3 to +3.7%, so the 2.7% is structural — short-rate volatility against swap-rate volatility, money-market against annuity measure — and the notes say plainly: do not claim it shrinks.",
+    "min(i, ii) is intrinsic value, not option value. The deck moved on to option pricing as though the picture already showed an option, and the assumption had to be stated rather than quietly carried.",
+    "Panels A and B of the Samuelson block teach the fallacy without the correction. Panels C and D exist so the deck says the limit out loud rather than being corrected from the third row.",
+    "The behavioural counterpoint to rational exercise — Keys, Pope and Pope find roughly 20% of households fail to exercise optimally — is drafted at slide P11 and commented out. The deck currently teaches §489 as a deterministic rule."
+  ],
+  "language": "en",
+  "harvested_at": "2026-09-21",
+  "notes": "Slide P11 is the open seam: the deck models §489 as rational exercise while its own draft material says a fifth of borrowers do not follow the rule."
+}
