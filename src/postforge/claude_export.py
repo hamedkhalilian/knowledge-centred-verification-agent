@@ -298,7 +298,14 @@ def unpacked(source: Path) -> Iterator[Path]:
 
 
 def locate(source: Path) -> tuple[Path | None, Path | None]:
-    """Find the two files of interest inside an already-unpacked tree."""
+    """Find the conversations file and the projects source in a tree.
+
+    The projects side ships two ways. Older exports carry a single
+    ``projects.json`` holding every project; the current one carries a
+    ``projects/`` directory with one JSON file per project. Both are returned
+    as a single path, and :func:`load_projects_payload` resolves whichever it
+    turns out to be.
+    """
     if source.is_file():
         if source.name == "projects.json":
             return None, source
@@ -307,8 +314,32 @@ def locate(source: Path) -> tuple[Path | None, Path | None]:
     if not source.is_dir():
         return None, None
     conversations = next(iter(sorted(source.rglob("conversations.json"))), None)
-    projects = next(iter(sorted(source.rglob("projects.json"))), None)
+    projects: Path | None = next(iter(sorted(source.rglob("projects.json"))), None)
+    if projects is None:
+        for directory in sorted(source.rglob("projects")):
+            if directory.is_dir() and any(directory.glob("*.json")):
+                projects = directory
+                break
     return conversations, projects
+
+
+def load_projects_payload(path: Path | None) -> Any:
+    """Read the projects source, whether a single file or a directory.
+
+    A directory yields the same list a single ``projects.json`` would, so
+    everything downstream stays unaware of which layout the export used.
+    """
+    if path is None:
+        return []
+    if path.is_dir():
+        records: list[Any] = []
+        for entry in sorted(path.glob("*.json")):
+            try:
+                records.append(json.loads(entry.read_text("utf-8")))
+            except json.JSONDecodeError:
+                continue
+        return records
+    return _read_json(path)
 
 
 def render_digest(conversation: Conversation, max_chars: int = DEFAULT_MAX_CHARS) -> str:
@@ -383,7 +414,7 @@ def import_export(
         conversations_payload = (
             _read_json(conversations_path) if conversations_path else []
         )
-        projects_payload = _read_json(projects_path) if projects_path else []
+        projects_payload = load_projects_payload(projects_path)
 
     projects = parse_projects(projects_payload)
     project_names = {p["uuid"]: p["name"] for p in projects if p["uuid"]}
@@ -400,6 +431,8 @@ def import_export(
 
     for project in projects:
         if not project["docs"] and not project["description"]:
+            continue
+        if not project["name"]:
             continue
         stem = f"project--{slugify(project['name'])}"
         used.add(stem)
@@ -427,6 +460,7 @@ __all__ = [
     "Conversation",
     "parse_conversations",
     "parse_projects",
+    "load_projects_payload",
     "parse_project_names",
     "render_project_digest",
     "unpacked",

@@ -10,22 +10,26 @@
   "stage": "active",
   "summary": "Ongoing quantitative modelling and management of interest rate risk in a fixed-income portfolio and in building-society savings products. Valuation and hedging models for mortgage loans, Bauspar contracts and interest rate swaps, ALM-based hedging strategies, and scenario analysis for regulatory and internal reporting. Includes modelling the statutory early-termination right under §489 BGB as economic refinancing behaviour of customers under interest rate shocks.",
   "concepts": [
-    "optionality",
-    "early-repayment",
-    "statutory-termination-right",
-    "refinancing-behaviour",
-    "scenario-analysis",
-    "duration-hedging",
     "alm",
-    "regulatory-reporting"
+    "behavioural-deviation",
+    "duration-hedging",
+    "early-repayment",
+    "optionality",
+    "rational-exercise",
+    "refinancing-behaviour",
+    "regulatory-reporting",
+    "scenario-analysis",
+    "statutory-termination-right"
   ],
   "evidence": [
     "§489 BGB grants the borrower, not the lender, a statutory right to terminate a fixed-rate loan; it is modelled as customer refinancing behaviour under rate shocks",
     "valuation and hedging models cover mortgage loans, Bauspar contracts and interest rate swaps",
-    "ALM-based hedging strategies feed both regulatory and internal risk reporting"
+    "ALM-based hedging strategies feed both regulatory and internal risk reporting",
+    "the rational-exercise rule and the forward-par-rate rule agree at every shock tested, with indifference at −36.17 BP",
+    "at a −50 BP shock the customer already terminates, four-fifths of the way from no shock to −100 BP"
   ],
   "friction": [],
   "language": "en",
   "harvested_at": "2026-09-21",
-  "notes": "Harvested from the CV, which records outcomes and no friction. Distinct from bgb-498-consumer-credit: §489 is the borrower's option, §498 the lender's remedy on default. The CV does not claim a hazard-rate formulation, so none is recorded here; that gap is what the Efron bridge proposes, not something already done."
+  "notes": "Harvested from the CV, which records outcomes and no friction. Distinct from bgb-498-consumer-credit: §489 is the borrower's option, §498 the lender's remedy on default. The CV does not claim a hazard-rate formulation, so none is recorded here; that gap is what the Efron bridge proposes, not something already done. The workshop record establishes the rational-exercise threshold; what remains unmodelled is the roughly 20% of borrowers who do not follow it."
 }

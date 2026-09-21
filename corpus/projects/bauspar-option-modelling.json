@@ -1,0 +1,24 @@
+{
+  "project_id": "bauspar-option-modelling",
+  "title": "Modelling the options embedded in a German Bauspar contract",
+  "source": "drop",
+  "source_ref": "drop:project--behavioral-model.md",
+  "domains": [
+    "quant-finance",
+    "behavioural-finance"
+  ],
+  "stage": "idea",
+  "summary": "An open project, stated as an intention and not yet worked: to model the options a German building-society savings contract contains. It sits between the workshop's rational-exercise treatment of §489 and the behavioural evidence that borrowers do not follow that rule.",
+  "concepts": [
+    "optionality",
+    "early-repayment",
+    "behavioural-deviation",
+    "statutory-termination-right",
+    "refinancing-behaviour"
+  ],
+  "evidence": [],
+  "friction": [],
+  "language": "en",
+  "harvested_at": "2026-09-21",
+  "notes": "The exported project carries a description and no documents. Recorded because an empty project with a clear question is a real position in the corpus, and because it names the gap the Efron bridge proposes to fill. No evidence and no friction: nothing has been done yet, and the record must not suggest otherwise."
+}

@@ -1,0 +1,42 @@
+{
+  "project_id": "ocm-v44-run2",
+  "title": "Observed & Controlled Migration v4.4 — run 2, R pipeline to Java",
+  "source": "drop",
+  "source_ref": "drop:project--test-of-migrent-framwork-2.md",
+  "domains": [
+    "software-architecture",
+    "quant-finance",
+    "verification"
+  ],
+  "stage": "shipped",
+  "summary": "A second full test of the migration protocol: regenerate an 11-file R hedging pipeline as an Eclipse-importable Java project, given only the protocol and the R source. Three roles in three contexts — controller, source agent that saw only R, target agent that saw only the neutral specification and never a line of R. Source checkpoint values were withheld from the target until after its first independent emission.",
+  "concepts": [
+    "information-barrier",
+    "observation-vs-correction",
+    "neutral-checkpoint",
+    "executable-precondition",
+    "evidence-trail",
+    "structural-barrier",
+    "provisional-verdict",
+    "capability-honesty",
+    "detector-calibration"
+  ],
+  "evidence": [
+    "first independent comparison 392 of 393 byte-identical digests; 393 of 393 after one specification amendment",
+    "the single divergence was kobra_factor_cols, where the spec gave a 13-name list as a count plus constraints instead of the values, and the hint it did give was itself wrong",
+    "target output: 73 Java files, roughly 10,450 lines, zero external dependencies",
+    "SelfTest 24 of 24 by inversion; 78 checkpoint objects and 24 figures across 12 units",
+    "865,000-row heap gate passed under -Xmx2g in about 70 seconds",
+    "source executed twice, by agent and by controller, byte-identical",
+    "verdict recorded as PROVISIONAL because real inputs do not exist in the environment; synthetic stand-ins carried the true Bloomberg pathologies, including a blank column A, a #NAME? column and gapped maturities"
+  ],
+  "friction": [
+    "The one place the run diverged was the one place the protocol had been violated inside its own specification: a name list crossed as a count instead of as values. The rule that the barrier is only as good as the spec was learned from the single failure rather than argued for.",
+    "The protocol archive said 'everything you need is here' and did not contain the controller definition, the six schemas, the precondition register, the canonicalisation contract or the previous run's state. All were reconstructed during the run.",
+    "The source agent reported its result as 'byte-identical' when its check was sound but its sentence overclaimed. Two other detector calibrations fired the same way, including a scan pattern that triggered on a Java variable named 'in'.",
+    "Real Debeka inputs cannot exist in a cloud environment, so the verdict is capped at PROVISIONAL by construction. The run ships the emitter and a procedure for closing the verdict on real data rather than presenting the synthetic result as final."
+  ],
+  "language": "en",
+  "harvested_at": "2026-09-21",
+  "notes": "Distinct from the published post, which described the protocol rather than this run. The 393/393 figure and the single-divergence finding are the strongest evidence the method has produced."
+}
