@@ -1,22 +1,30 @@
 {
   "post_id": "P-2026-09-21-p11",
   "archetype": "bridge",
-  "sources": ["zins-hedging-workshop", "debeka-irr-489", "efron-survival-prediction"],
+  "sources": [
+    "zins-hedging-workshop",
+    "debeka-irr-489",
+    "efron-survival-prediction"
+  ],
   "concepts": [
-    "statutory-termination-right",
-    "rational-exercise",
     "behavioural-deviation",
-    "optionality",
+    "censored-data",
+    "conditional-probability",
+    "conservative-bound",
     "early-repayment",
     "hazard-rate",
-    "censored-data",
-    "time-to-first-event",
-    "conditional-probability"
+    "measure-mismatch",
+    "optionality",
+    "rational-exercise",
+    "statutory-termination-right",
+    "time-to-first-event"
   ],
   "status": "candidate",
   "title": "The slide I commented out",
   "opening_move": "scene",
-  "friction_refs": ["zins-hedging-workshop#5"],
+  "friction_refs": [
+    "zins-hedging-workshop#5"
+  ],
   "language": "en",
   "body_path": "corpus/posts/P-2026-09-21-p11.md",
   "created": "2026-09-21",

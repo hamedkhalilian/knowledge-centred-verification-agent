@@ -10,15 +10,21 @@
   "stage": "idea",
   "summary": "An open project, stated as an intention and not yet worked: to model the options a German building-society savings contract contains. It sits between the workshop's rational-exercise treatment of §489 and the behavioural evidence that borrowers do not follow that rule.",
   "concepts": [
-    "optionality",
-    "early-repayment",
     "behavioural-deviation",
-    "statutory-termination-right",
-    "refinancing-behaviour"
+    "conservative-bound",
+    "early-repayment",
+    "hazard-rate",
+    "measure-mismatch",
+    "optionality",
+    "refinancing-behaviour",
+    "statutory-termination-right"
   ],
   "evidence": [],
-  "friction": [],
+  "friction": [
+    "Review of the first draft surfaced the obstacle that decides whether this project is tractable: a hazard fitted to observed borrower behaviour is a real-world probability, while the swaption valuation is risk-neutral. Substituting the first into the second is not automatic, and no correction has been chosen.",
+    "The first framing treated behavioural deviation as replacing the rational-exercise rule. That was too strong. §489 is the borrower's right, so failure to exercise costs the lender less; optimal exercise is the conservative bound and the threshold survives as the main explanatory variable of exercise intensity rather than as the exercise law."
+  ],
   "language": "en",
   "harvested_at": "2026-09-21",
-  "notes": "The exported project carries a description and no documents. Recorded because an empty project with a clear question is a real position in the corpus, and because it names the gap the Efron bridge proposes to fill. No evidence and no friction: nothing has been done yet, and the record must not suggest otherwise."
+  "notes": "The exported project carries a description and no documents. Recorded because an empty project with a clear question is a real position in the corpus, and because it names the gap the Efron bridge proposes to fill. No evidence and no friction: nothing has been done yet, and the record must not suggest otherwise. Friction here comes from review of the draft post rather than from building the model; the record says so rather than implying work that has not happened."
 }
