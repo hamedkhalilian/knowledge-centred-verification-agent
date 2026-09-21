@@ -674,11 +674,27 @@ def test_project_friction_survives_a_roundtrip() -> None:
     assert Project.from_dict(project.to_dict()).friction == ["got this wrong"]
 
 
-def test_shipped_corpus_records_friction_for_every_project() -> None:
+def test_shipped_corpus_carries_friction() -> None:
     """Friction is what keeps drafts from reading like status updates."""
     corpus = Corpus.load(REPO_ROOT / "corpus")
-    without = [p.project_id for p in corpus.projects if not p.friction]
-    assert without == [], f"projects with no recorded friction: {without}"
+    assert any(p.friction for p in corpus.projects)
+
+
+def test_a_project_without_friction_accounts_for_its_absence() -> None:
+    """Empty friction is allowed, but never silent.
+
+    Some sources genuinely contain none — a CV records outcomes and nothing
+    that went wrong. That is a fact about the source, so the record has to say
+    so in its notes rather than leave the gap unexplained.
+    """
+    corpus = Corpus.load(REPO_ROOT / "corpus")
+    unexplained = [
+        p.project_id for p in corpus.projects if not p.friction and not p.notes
+    ]
+    assert unexplained == [], (
+        "projects with neither friction nor a note explaining its absence: "
+        f"{unexplained}"
+    )
 
 
 # --- the export arrives as ZIP archives --------------------------------
