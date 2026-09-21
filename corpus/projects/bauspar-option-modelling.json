@@ -1,6 +1,6 @@
 {
   "project_id": "bauspar-option-modelling",
-  "title": "Modelling the options embedded in a German Bauspar contract",
+  "title": "Behavioural exercise model for §489 and Bauspar optionality",
   "source": "drop",
   "source_ref": "drop:project--behavioral-model.md",
   "domains": [
@@ -8,15 +8,19 @@
     "behavioural-finance"
   ],
   "stage": "idea",
-  "summary": "An open project, stated as an intention and not yet worked: to model the options a German building-society savings contract contains. It sits between the workshop's rational-exercise treatment of §489 and the behavioural evidence that borrowers do not follow that rule.",
+  "summary": "An open project: replace the deterministic exercise boundary in the hedge model with a conditional exercise intensity, without discarding the rational frontier. The target architecture runs curve, rational exercise value, behavioural hazard, survival, expected cash flows, PV and DV01, hedge — in place of the current curve, threshold, terminate or stay, hedge. The threshold is not removed; it becomes the incentive variable that drives the hazard.",
   "concepts": [
     "behavioural-deviation",
     "conservative-bound",
+    "discrete-time-survival",
     "early-repayment",
+    "exercise-intensity",
     "hazard-rate",
     "measure-mismatch",
+    "optimal-stopping",
     "optionality",
     "refinancing-behaviour",
+    "right-censoring",
     "statutory-termination-right"
   ],
   "evidence": [],
@@ -26,5 +30,5 @@
   ],
   "language": "en",
   "harvested_at": "2026-09-21",
-  "notes": "The exported project carries a description and no documents. Recorded because an empty project with a clear question is a real position in the corpus, and because it names the gap the Efron bridge proposes to fill. No evidence and no friction: nothing has been done yet, and the record must not suggest otherwise. Friction here comes from review of the draft post rather than from building the model; the record says so rather than implying work that has not happened."
+  "notes": "The exported project carries a description and no documents; nothing has been built, so evidence stays empty. Design decisions recorded from review of the draft post, not from work done:\n- Model the exercise time as a conditional intensity P(tau = t | tau >= t, F_t) rather than as the stopping time inf{t : F_t < K}.\n- Drive the hazard by the refinancing incentive I = K - F_t, the coupon against the competing forward, plus borrower and contract characteristics.\n- Prefer discrete-time survival for monthly Bauspar and loan data over a continuous-time proportional-hazards fit; a logit link on the period hazard is the natural first form.\n- Treat a contract still running at the observation cut as right-censored, not as a non-event: observed duration is min(T, T_obs) with an indicator for whether the event was seen.\n- Once cash flows depend on the exercise time, the hedge faces a distribution of profiles rather than one profile, so DV01 is an expectation and not a single number.\nThe measure mismatch recorded in friction gates all of this and is unresolved."
 }
