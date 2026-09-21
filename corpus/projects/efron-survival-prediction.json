@@ -1,0 +1,43 @@
+{
+  "project_id": "efron-survival-prediction",
+  "title": "Efron on survival, prediction, and the skewed law of expectation",
+  "source": "drive",
+  "source_ref": "drive:1x1iOvRxTEoysUyf5O3Ox4CF99xvv6C0SbhRpRbuRgEU",
+  "domains": [
+    "statistics",
+    "prediction"
+  ],
+  "stage": "idea",
+  "summary": "A study of chapter nine of Efron's 'Thinking Like a Statistician'. Survival analysis is really time-to-first-event analysis with right censoring, and the hazard-rate reformulation neutralises censoring by asking a question that only needs the data actually in hand. The chapter ends on pure prediction algorithms and the cost of deleting the mechanism from the model.",
+  "concepts": [
+    "hazard-rate",
+    "censored-data",
+    "conditional-probability",
+    "survival-curve",
+    "time-to-first-event",
+    "memorylessness",
+    "lindy-effect",
+    "temporal-validation",
+    "concept-drift",
+    "correlation-vs-mechanism",
+    "weak-learner-ensemble",
+    "denominator-error",
+    "at-risk-denominator",
+    "default-termination",
+    "early-repayment",
+    "optionality"
+  ],
+  "evidence": [
+    "2.5% of men die in their 91st year, but 16% of 90-year-olds die before 91: the denominator error",
+    "hazard rate at 90 is roughly 80x the hazard rate at 30 (0.16 vs 0.002 for men)",
+    "a 90-year-old carries about 438 micromorts per day, versus 1.5 for a healthy young adult",
+    "censoring was 31% in the treatment arm versus 14% in the control arm, so the better arm produced more missing data",
+    "random train/test split gave 2% test error; splitting by enrolment time gave 24% on the same data and algorithm",
+    "prostate study: 6,033 genes measured across 102 men",
+    "Pareto tail exponent a = 3 gives D = 1, the exact form of the skewed law: expected remaining wait equals the wait so far",
+    "median survival 182 days in arm A versus 324 days in arm B"
+  ],
+  "language": "fa",
+  "harvested_at": "2026-09-21",
+  "notes": "Efron's own text names the finance transfer: time to default, time to early repayment, time to contract termination share this structure. That sentence is the seed of the strongest bridge in the corpus."
+}

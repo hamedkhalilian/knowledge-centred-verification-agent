@@ -1,0 +1,36 @@
+{
+  "project_id": "handelsbilanz-ansatz",
+  "title": "Recognition of assets and liabilities under §246 HGB",
+  "source": "drive",
+  "source_ref": "drive:1tPFjVzlucESnemTjm62pp2qrnze_N030yOliD2qWwGw",
+  "domains": [
+    "german-law",
+    "accounting"
+  ],
+  "stage": "active",
+  "summary": "Lesson two of a ten-part commercial balance sheet course, worked through in depth. Recognition, presentation and measurement are three ordered steps and the order is load-bearing. The statute commands completeness but never defines what an asset or a liability is; case law supplies the three tests for each, and economic ownership decides whose balance sheet an item lands on.",
+  "concepts": [
+    "recognition-order",
+    "undefined-legal-term",
+    "economic-ownership",
+    "substance-over-form",
+    "creditor-protection",
+    "offsetting-prohibition",
+    "valuation-unit",
+    "legal-fiction",
+    "separability-test"
+  ],
+  "evidence": [
+    "§246(1) HGB has four sentences, each doing one job; the completeness command is Vollständigkeitsgebot",
+    "three asset tests: future economic benefit, independent usability, independent valuability",
+    "purchased goodwill 'counts as' an asset by legal fiction: 10 million paid for 8 million of net assets leaves 2 million",
+    "movable assets: above 50% business use is mandatory business property, below 10% is mandatory private, between the two it is elective",
+    "a 40,000 EUR car at 60% business use enters the balance sheet in full, not at 60%",
+    "warranty provision example: 1,000 units sold, 5% return rate, 200 EUR per repair, 10,000 EUR provision",
+    "German tax guidance treats a lease base term of 40-90% of useful life as leaving the asset with the lessor",
+    "§246(2) forbids offsetting, which is why a valuation unit under §254 works in measurement only, never in presentation"
+  ],
+  "language": "fa",
+  "harvested_at": "2026-09-21",
+  "notes": "Section eight of this document connects §246(2) to the §254 valuation-unit work directly."
+}

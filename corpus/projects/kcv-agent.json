@@ -1,0 +1,34 @@
+{
+  "project_id": "kcv-agent",
+  "title": "Knowledge-Centred Verification Agent",
+  "source": "github",
+  "source_ref": "github:hamedkhalilian/knowledge-centred-verification-agent",
+  "domains": [
+    "verification",
+    "software-architecture",
+    "german-law"
+  ],
+  "stage": "active",
+  "summary": "A claim-ledger-first verification framework for long legal, regulatory and financial documents. The ledger is the semantic source of truth and documents are rendered views of it. Work that needs judgment is separated from rules software can enforce, so a release gate is executable code rather than a model asked to reason harder.",
+  "concepts": [
+    "claim-ledger",
+    "deterministic-gate",
+    "rendered-view",
+    "capability-honesty",
+    "adversarial-review",
+    "dependency-graph",
+    "evidence-status",
+    "separation-of-judgment-and-rule"
+  ],
+  "evidence": [
+    "eight executable rules in the first release: V-000, V-001, V-003, V-004, V-005, V-006D, V-008, V-024",
+    "claim_status vocabulary of eight states, from PENDING to UNRESOLVED",
+    "evidence_status vocabulary of six states, including LICENSE_REQUIRED and SOURCE_CONFLICT",
+    "two separate Finding contracts: compact validator findings and the richer protocol review Finding",
+    "V-010 and V-011 are declared unimplemented because Assumptions, Decisions and rendered spans are not yet validator inputs",
+    "the agent must declare external_retrieval = NO when authoritative retrieval is unavailable"
+  ],
+  "language": "en",
+  "harvested_at": "2026-09-21",
+  "notes": ""
+}

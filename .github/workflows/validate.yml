@@ -25,3 +25,5 @@ jobs:
         run: kcv-validate examples/498-bgb/claim-ledger.example.json
       - name: Validate §254 run ledger
         run: kcv-validate runs/254-hgb-bausparkasse/claim-ledger.json
+      - name: Validate Post-Forge concept ledger
+        run: postforge --corpus corpus lint

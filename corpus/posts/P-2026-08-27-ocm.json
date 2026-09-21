@@ -1,0 +1,22 @@
+{
+  "post_id": "P-2026-08-27-ocm",
+  "archetype": "showcase",
+  "sources": ["observed-controlled-migration"],
+  "concepts": [
+    "information-barrier",
+    "observation-vs-correction",
+    "neutral-checkpoint",
+    "executable-precondition",
+    "evidence-trail",
+    "unit-confusion",
+    "legacy-migration",
+    "verification-by-inversion",
+    "human-signature-boundary"
+  ],
+  "status": "published",
+  "title": "Observed & Controlled Migration",
+  "language": "en",
+  "body_path": "corpus/posts/P-2026-08-27-ocm.md",
+  "created": "2026-08-27",
+  "published_at": "2026-08-27"
+}
