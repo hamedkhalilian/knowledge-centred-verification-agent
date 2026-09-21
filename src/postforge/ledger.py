@@ -14,7 +14,7 @@ return stable findings with fixed identifiers, in the same spirit as the
 | ``P-004``| a showcase post whose sources carry no evidence           |
 | ``P-005``| a bridge between projects that share every domain         |
 | ``P-006``| a concept or identifier that is not a lowercase slug      |
-| ``P-007``| a post body outside the voice profile's length band       |
+| ``P-007``| a missing body past candidate, or one outside the band    |
 | ``P-008``| a post opening the same way as a recently published one   |
 | ``P-009``| a post citing a friction moment that does not exist       |
 | ``P-010``| a post that cites no friction at all (warning)            |
@@ -72,22 +72,34 @@ class Corpus:
         self.root = Path(root)
         self.projects: list[Project] = []
         self.posts: list[Post] = []
+        #: Files that could not be turned into records at all, as
+        #: ``(path, reason)``. A record whose JSON is valid but whose shape is
+        #: not — ``"domains": null``, a list where an object belongs — must
+        #: still produce a deterministic finding rather than a traceback, so
+        #: the failure is captured here and reported by ``P-000``.
+        self.unreadable: list[tuple[Path, str]] = []
 
     @classmethod
     def load(cls, root: Path | str) -> Corpus:
         corpus = cls(Path(root))
         projects_dir = corpus.root / PROJECTS_DIR
         posts_dir = corpus.root / POSTS_DIR
-        if projects_dir.is_dir():
-            for path in sorted(projects_dir.glob("*.json")):
-                corpus.projects.append(
-                    Project.from_dict(json.loads(path.read_text("utf-8")))
-                )
-        if posts_dir.is_dir():
-            for path in sorted(posts_dir.glob("*.json")):
-                corpus.posts.append(
-                    Post.from_dict(json.loads(path.read_text("utf-8")))
-                )
+        for directory, factory, sink in (
+            (projects_dir, Project.from_dict, corpus.projects),
+            (posts_dir, Post.from_dict, corpus.posts),
+        ):
+            if not directory.is_dir():
+                continue
+            for path in sorted(directory.glob("*.json")):
+                try:
+                    payload = json.loads(path.read_text("utf-8"))
+                    if not isinstance(payload, dict):
+                        raise TypeError(
+                            f"record root is {type(payload).__name__}, expected object"
+                        )
+                    sink.append(factory(payload))
+                except (json.JSONDecodeError, TypeError, AttributeError, ValueError) as exc:
+                    corpus.unreadable.append((path, str(exc)))
         return corpus
 
     def project_ids(self) -> set[str]:
@@ -141,7 +153,16 @@ def validate(corpus: Corpus) -> list[Finding]:
 
 def _p000_structure(corpus: Corpus) -> list[Finding]:
     findings: list[Finding] = []
-    if not corpus.projects:
+    for path, reason in corpus.unreadable:
+        findings.append(
+            Finding(
+                "P-000",
+                SEVERITY_BLOCKING,
+                f"Record could not be read: {reason}.",
+                str(path),
+            )
+        )
+    if not corpus.projects and not corpus.unreadable:
         findings.append(
             Finding(
                 "P-000",
@@ -337,8 +358,15 @@ def _resolve_body(corpus: Corpus, body_path: str) -> Path | None:
     return None
 
 
+#: Statuses that a post cannot hold without a written body. ``candidate`` is
+#: excluded on purpose: the skill's third phase selects candidates and its
+#: fourth writes them, so a candidate is a decision about what to write, not
+#: a draft. Everything past that must have prose behind it.
+STATUSES_REQUIRING_BODY = frozenset({"draft", "approved", "published"})
+
+
 def _p007_length(corpus: Corpus) -> list[Finding]:
-    """A post body must sit inside the length band the voice profile sets.
+    """A post body must exist once the post is past candidate, and fit the band.
 
     The band is calibrated on the reference post, which runs 2,812 characters.
     Below the floor a post has skipped its evidence run; above the ceiling it
@@ -347,6 +375,16 @@ def _p007_length(corpus: Corpus) -> list[Finding]:
     findings: list[Finding] = []
     for post in corpus.posts:
         if not post.body_path:
+            if post.status in STATUSES_REQUIRING_BODY:
+                findings.append(
+                    Finding(
+                        "P-007",
+                        SEVERITY_BLOCKING,
+                        f"A post with status {post.status!r} has no body_path; "
+                        "only a candidate may be bodiless.",
+                        post.post_id,
+                    )
+                )
             continue
         path = _resolve_body(corpus, post.body_path)
         if path is None:
@@ -518,4 +556,5 @@ __all__ = [
     "MIN_POST_CHARS",
     "MAX_POST_CHARS",
     "OPENING_LOOKBACK",
+    "STATUSES_REQUIRING_BODY",
 ]

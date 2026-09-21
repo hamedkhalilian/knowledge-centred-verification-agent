@@ -17,8 +17,15 @@
 
 ## Code changes
 
-- Deterministic rules live in `src/kcv_agent/validator.py`.
-- Keep rule identifiers stable once released.
+- Claim Ledger deterministic rules (`V-…`) live in `src/kcv_agent/validator.py`.
+- A subsystem with its own ledger and its own object model carries its own
+  rule namespace and its own validator. The Post-Forge concept ledger's
+  `P-…` rules live in `src/postforge/ledger.py` for that reason: folding
+  them into `kcv-validate` would make the Claim Ledger validator responsible
+  for schemas it does not model, and would make `kcv-validate` fail on a
+  repository that has no posts. One namespace per object model, one
+  validator per namespace, and both gated in CI.
+- Keep rule identifiers stable once released, in every namespace.
 - Add or update tests for each rule change.
 - Keep schemas aligned with the Python model and examples.
 - Prefer standard-library code unless a dependency has a clear operational need.

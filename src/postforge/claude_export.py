@@ -30,7 +30,7 @@ import zipfile
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Iterator, Sequence
 
 # Markers of a turn where the author's understanding moved. Deliberately
 # generous: this is a shortlist for a human to judge, not a classifier. Both
@@ -260,13 +260,19 @@ def _is_zip(path: Path) -> bool:
 
 
 @contextmanager
-def unpacked(source: Path) -> Iterator[Path]:
-    """Yield a directory tree to search, extracting archives when needed.
+def unpacked(source: Path) -> Iterator[tuple[Path, ...]]:
+    """Yield every root worth searching, extracting archives when needed.
 
     The export ships as several ZIPs. Passing the download folder, a single
     archive, or an unzipped tree all work; anything extracted goes to a
     temporary directory that is removed on exit, so raw transcripts are never
     left inside the repository by accident.
+
+    Both the extracted tree and the original directory are returned, in that
+    order. Deciding between them on whether the source happens to contain a
+    loose JSON file is wrong: a real download folder holds the archives *and*
+    the export manifest, and choosing the source on that basis would hide
+    every archive beside it.
     """
     archives: list[Path] = []
     if _is_zip(source):
@@ -275,7 +281,7 @@ def unpacked(source: Path) -> Iterator[Path]:
         archives = sorted(p for p in source.iterdir() if _is_zip(p))
 
     if not archives:
-        yield source
+        yield (source,)
         return
 
     with tempfile.TemporaryDirectory(prefix="postforge-export-") as tmp:
@@ -291,14 +297,26 @@ def unpacked(source: Path) -> Iterator[Path]:
                     if name.is_absolute() or ".." in name.parts:
                         continue
                     zf.extract(member, target)
-        if source.is_dir():
-            yield root if not any(source.glob("*.json")) else source
-        else:
-            yield root
+        yield (root, source) if source.is_dir() else (root,)
+
+
+def locate_in(roots: Sequence[Path]) -> tuple[Path | None, Path | None]:
+    """Search several roots, taking the first hit for each of the two files.
+
+    The roots are independent: an export whose conversations sit in an archive
+    and whose projects were unzipped by hand resolves correctly.
+    """
+    conversations: Path | None = None
+    projects: Path | None = None
+    for root in roots:
+        found_conversations, found_projects = locate(root)
+        conversations = conversations or found_conversations
+        projects = projects or found_projects
+    return conversations, projects
 
 
 def locate(source: Path) -> tuple[Path | None, Path | None]:
-    """Find the conversations file and the projects source in a tree.
+    """Find the conversations file and the projects source in one tree.
 
     The projects side ships two ways. Older exports carry a single
     ``projects.json`` holding every project; the current one carries a
@@ -403,8 +421,8 @@ def import_export(
     agent's, and a record is written only after a human-readable digest has
     actually been read.
     """
-    with unpacked(source) as tree:
-        conversations_path, projects_path = locate(tree)
+    with unpacked(source) as roots:
+        conversations_path, projects_path = locate_in(roots)
         if conversations_path is None and projects_path is None:
             raise FileNotFoundError(
                 f"Found neither conversations.json nor projects.json under "
@@ -429,13 +447,26 @@ def import_export(
     written: list[Path] = []
     used: set[str] = set()
 
+    def unique(stem: str) -> str:
+        """Suffix a stem until it is unused.
+
+        Two projects may carry the same name, and the export identifies them
+        by uuid rather than by title. Without this the second digest silently
+        overwrites the first and the harvest loses a whole project.
+        """
+        candidate, suffix = stem, 2
+        while candidate in used:
+            candidate = f"{stem}-{suffix}"
+            suffix += 1
+        used.add(candidate)
+        return candidate
+
     for project in projects:
         if not project["docs"] and not project["description"]:
             continue
         if not project["name"]:
             continue
-        stem = f"project--{slugify(project['name'])}"
-        used.add(stem)
+        stem = unique(f"project--{slugify(project['name'])}")
         path = destination / f"{stem}.md"
         path.write_text(render_project_digest(project, max_chars), "utf-8")
         written.append(path)
@@ -444,13 +475,7 @@ def import_export(
         stem = slugify(conversation.name)
         if conversation.project:
             stem = f"{slugify(conversation.project)}--{stem}"
-        candidate = stem
-        suffix = 2
-        while candidate in used:
-            candidate = f"{stem}-{suffix}"
-            suffix += 1
-        used.add(candidate)
-        path = destination / f"{candidate}.md"
+        path = destination / f"{unique(stem)}.md"
         path.write_text(render_digest(conversation, max_chars), "utf-8")
         written.append(path)
     return written
@@ -467,6 +492,7 @@ __all__ = [
     "render_digest",
     "import_export",
     "locate",
+    "locate_in",
     "slugify",
     "FRICTION_MARKERS",
 ]

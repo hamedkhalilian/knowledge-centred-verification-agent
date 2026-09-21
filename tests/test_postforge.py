@@ -783,10 +783,25 @@ def test_unpacked_skips_traversal_members(tmp_path: Path) -> None:
     with zipfile.ZipFile(archive, "w") as zf:
         zf.writestr("../escaped.json", "{}")
         zf.writestr("conversations.json", json.dumps(EXPORT))
-    with unpacked(archive) as tree:
-        assert list(tree.rglob("escaped.json")) == []
-        assert list(tree.rglob("conversations.json"))
+    with unpacked(archive) as roots:
+        # rglob returns a generator, which is always truthy — materialise it.
+        escaped = [hit for root in roots for hit in root.rglob("escaped.json")]
+        found = [hit for root in roots for hit in root.rglob("conversations.json")]
+        assert escaped == []
+        assert found
     assert not (tmp_path / "escaped.json").exists()
+
+
+def test_unpacked_returns_both_the_extracted_tree_and_the_source(tmp_path: Path) -> None:
+    """Deciding between them is locate_in's job, not unpacked's."""
+    root = tmp_path / "download"
+    root.mkdir()
+    with zipfile.ZipFile(root / "conversations-000.zip", "w") as zf:
+        zf.writestr("conversations.json", json.dumps(EXPORT))
+    (root / "manifest.json").write_text("{}", "utf-8")
+    with unpacked(root) as roots:
+        assert len(roots) == 2
+        assert roots[1] == root
 
 
 def test_parse_projects_drops_empty_documents() -> None:
@@ -818,3 +833,129 @@ def test_import_reports_an_export_with_neither_file(tmp_path: Path) -> None:
         zf.writestr("frames.json", "[]")
     with pytest.raises(FileNotFoundError, match="neither conversations.json"):
         import_export(root, tmp_path / "drop")
+
+
+# --- regressions from the Codex review on PR #5 -------------------------
+
+
+def test_p000_reports_a_malformed_record_instead_of_raising(tmp_path: Path) -> None:
+    """A record whose JSON parses but whose shape is wrong is a finding.
+
+    ``"domains": null`` used to raise TypeError out of Project.from_dict,
+    so `postforge lint` printed a traceback instead of a deterministic
+    result — the exact failure P-000 exists to report.
+    """
+    (tmp_path / "projects").mkdir(parents=True)
+    (tmp_path / "projects" / "bad.json").write_text(
+        json.dumps({**make_project("bad"), "domains": None}), "utf-8"
+    )
+    corpus = Corpus.load(tmp_path)
+    findings = validate(corpus)
+    assert "P-000" in rule_ids(findings)
+    assert corpus.unreadable
+
+
+def test_p000_reports_a_record_whose_root_is_not_an_object(tmp_path: Path) -> None:
+    (tmp_path / "projects").mkdir(parents=True)
+    (tmp_path / "projects" / "list.json").write_text('["nope"]', "utf-8")
+    assert "P-000" in rule_ids(validate(Corpus.load(tmp_path)))
+
+
+def test_cli_lint_exits_one_on_a_malformed_record(tmp_path: Path) -> None:
+    """The CLI must not traceback: it returns a finding and exit 1."""
+    (tmp_path / "projects").mkdir(parents=True)
+    (tmp_path / "projects" / "bad.json").write_text(
+        json.dumps({**make_project("bad"), "concepts": None}), "utf-8"
+    )
+    assert main(["--corpus", str(tmp_path), "lint"]) == 1
+
+
+@pytest.mark.parametrize("status", ["draft", "approved", "published"])
+def test_p007_requires_a_body_once_past_candidate(tmp_path: Path, status: str) -> None:
+    corpus = build_corpus(
+        tmp_path,
+        [make_project("a", friction=["a moment"])],
+        [_post("P-1", status=status, friction_refs=["a#0"])],
+    )
+    findings = [f for f in validate(corpus) if f.rule_id == "P-007"]
+    assert findings, f"a {status} post with no body must be blocked"
+
+
+def test_p007_allows_a_candidate_without_a_body(tmp_path: Path) -> None:
+    """Selecting a candidate is a decision about what to write, not a draft."""
+    corpus = build_corpus(
+        tmp_path,
+        [make_project("a", friction=["a moment"])],
+        [_post("P-1", status="candidate", friction_refs=["a#0"])],
+    )
+    assert "P-007" not in rule_ids(validate(corpus))
+
+
+def test_import_finds_archives_beside_a_loose_json_file(tmp_path: Path) -> None:
+    """A real download folder holds the archives *and* the export manifest.
+
+    Choosing the source directory over the extracted tree on the basis of any
+    loose JSON hid every archive sitting next to it.
+    """
+    root = tmp_path / "download"
+    root.mkdir()
+    with zipfile.ZipFile(root / "conversations-000.zip", "w") as zf:
+        zf.writestr("conversations.json", json.dumps(EXPORT))
+    (root / "manifest.json").write_text('{"total_files": 6}', "utf-8")
+    written = import_export(root, tmp_path / "drop", min_turns=4)
+    assert len(written) == 1
+
+
+def test_import_searches_both_the_archives_and_the_source_tree(tmp_path: Path) -> None:
+    """Conversations zipped, projects already unzipped by hand."""
+    root = tmp_path / "mixed"
+    (root / "projects").mkdir(parents=True)
+    with zipfile.ZipFile(root / "conversations-000.zip", "w") as zf:
+        zf.writestr("conversations.json", json.dumps(EXPORT))
+    (root / "projects" / "one.json").write_text(
+        json.dumps(PROJECTS[0]), "utf-8"
+    )
+    names = sorted(p.name for p in import_export(root, tmp_path / "drop", min_turns=4))
+    assert "project--credit-optionality.md" in names
+    assert any(name.startswith("credit-optionality--") for name in names)
+
+
+def test_projects_sharing_a_name_get_separate_digests(tmp_path: Path) -> None:
+    """The export identifies projects by uuid; titles may collide."""
+    root = tmp_path / "dupes"
+    root.mkdir()
+    with zipfile.ZipFile(root / "projects-000.zip", "w") as zf:
+        zf.writestr("projects.json", json.dumps([
+            {"uuid": "p1", "name": "Migration",
+             "docs": [{"filename": "a.md", "content": "FIRST"}]},
+            {"uuid": "p2", "name": "Migration",
+             "docs": [{"filename": "b.md", "content": "SECOND"}]},
+        ]))
+    written = import_export(root, tmp_path / "drop")
+    assert len(written) == 2
+    bodies = {path.read_text("utf-8") for path in written}
+    assert any("FIRST" in body for body in bodies)
+    assert any("SECOND" in body for body in bodies)
+
+
+def test_a_conversation_cannot_overwrite_a_project_digest(tmp_path: Path) -> None:
+    """Both digest kinds share one namespace, so both share the suffixing."""
+    root = tmp_path / "clash"
+    root.mkdir()
+    with zipfile.ZipFile(root / "projects-000.zip", "w") as zf:
+        zf.writestr("projects.json", json.dumps([
+            {"uuid": "p1", "name": "Alpha",
+             "docs": [{"filename": "a.md", "content": "PROJECT BODY"}]},
+        ]))
+    with zipfile.ZipFile(root / "conversations-000.zip", "w") as zf:
+        zf.writestr("conversations.json", json.dumps([{
+            "uuid": "c1", "name": "project--alpha", "created_at": "2026-01-01",
+            "chat_messages": [
+                {"sender": "human", "text": "a question long enough to count"},
+                {"sender": "assistant", "text": "an answer"},
+                {"sender": "human", "text": "wait, that is wrong, here is why"},
+                {"sender": "assistant", "text": "fair"},
+            ],
+        }]))
+    written = import_export(root, tmp_path / "drop", min_turns=4)
+    assert len({path.name for path in written}) == len(written)
