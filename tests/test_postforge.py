@@ -679,3 +679,110 @@ def test_shipped_corpus_records_friction_for_every_project() -> None:
     corpus = Corpus.load(REPO_ROOT / "corpus")
     without = [p.project_id for p in corpus.projects if not p.friction]
     assert without == [], f"projects with no recorded friction: {without}"
+
+
+# --- the export arrives as ZIP archives --------------------------------
+
+import zipfile  # noqa: E402
+
+from postforge.claude_export import (  # noqa: E402
+    parse_projects,
+    render_project_digest,
+    unpacked,
+)
+
+PROJECTS = [
+    {
+        # Matches the project uuid EXPORT's first conversation points at, so
+        # the grouping path is exercised rather than the fallback.
+        "uuid": "proj-1",
+        "name": "Credit optionality",
+        "description": "Modelling loan exits.",
+        "created_at": "2026-08-01T00:00:00Z",
+        "docs": [
+            {"filename": "scope.md", "content": "Two exits: default, early repayment."},
+            {"filename": "empty.md", "content": "   "},
+        ],
+    }
+]
+
+
+def build_zip_export(tmp_path: Path) -> Path:
+    """A folder of per-category archives, as the real export ships."""
+    root = tmp_path / "export"
+    root.mkdir()
+    payloads = {
+        "conversations-000": ("conversations.json", EXPORT),
+        "projects-000": ("projects.json", PROJECTS),
+        "memories-000": ("memories-000.json", {"memories": []}),
+    }
+    for stem, (filename, payload) in payloads.items():
+        with zipfile.ZipFile(root / f"{stem}.zip", "w") as zf:
+            zf.writestr(filename, json.dumps(payload))
+    return root
+
+
+def test_import_reads_a_folder_of_zip_archives(tmp_path: Path) -> None:
+    written = import_export(build_zip_export(tmp_path), tmp_path / "drop", min_turns=4)
+    names = sorted(path.name for path in written)
+    assert "project--credit-optionality.md" in names
+    assert any(name.startswith("credit-optionality--") for name in names)
+
+
+def test_import_reads_a_single_zip_archive(tmp_path: Path) -> None:
+    root = tmp_path / "one"
+    root.mkdir()
+    archive = root / "conversations-000.zip"
+    with zipfile.ZipFile(archive, "w") as zf:
+        zf.writestr("conversations.json", json.dumps(EXPORT))
+    written = import_export(archive, tmp_path / "drop", min_turns=4)
+    assert len(written) == 1
+
+
+def test_import_still_reads_an_unzipped_tree(tmp_path: Path) -> None:
+    root = tmp_path / "plain"
+    root.mkdir()
+    (root / "conversations.json").write_text(json.dumps(EXPORT), "utf-8")
+    assert len(import_export(root, tmp_path / "drop", min_turns=4)) == 1
+
+
+def test_unpacked_skips_traversal_members(tmp_path: Path) -> None:
+    archive = tmp_path / "evil.zip"
+    with zipfile.ZipFile(archive, "w") as zf:
+        zf.writestr("../escaped.json", "{}")
+        zf.writestr("conversations.json", json.dumps(EXPORT))
+    with unpacked(archive) as tree:
+        assert list(tree.rglob("escaped.json")) == []
+        assert list(tree.rglob("conversations.json"))
+    assert not (tmp_path / "escaped.json").exists()
+
+
+def test_parse_projects_drops_empty_documents() -> None:
+    project = parse_projects(PROJECTS)[0]
+    assert [doc["filename"] for doc in project["docs"]] == ["scope.md"]
+
+
+def test_parse_projects_tolerates_junk() -> None:
+    assert parse_projects(None) == []
+    assert parse_projects(["nope"]) == []
+    assert parse_projects({"projects": PROJECTS})[0]["name"] == "Credit optionality"
+
+
+def test_project_digest_carries_description_and_docs() -> None:
+    digest = render_project_digest(parse_projects(PROJECTS)[0])
+    assert "Modelling loan exits." in digest
+    assert "## scope.md" in digest
+
+
+def test_an_unknown_project_uuid_falls_back_to_the_raw_id() -> None:
+    conversation = parse_conversations(EXPORT, {"other": "Something else"})[0]
+    assert conversation.project == "proj-1"
+
+
+def test_import_reports_an_export_with_neither_file(tmp_path: Path) -> None:
+    root = tmp_path / "wrong"
+    root.mkdir()
+    with zipfile.ZipFile(root / "frames-000.zip", "w") as zf:
+        zf.writestr("frames.json", "[]")
+    with pytest.raises(FileNotFoundError, match="neither conversations.json"):
+        import_export(root, tmp_path / "drop")

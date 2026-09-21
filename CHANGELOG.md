@@ -21,8 +21,11 @@ and releases use [Semantic Versioning](https://semver.org/).
 - Thirty-two tests for the new rules and the scorer.
 - `postforge lint` added to the CI gate.
 - `postforge import-claude`, which unpacks a Claude.ai data export into
-  per-conversation digests. This is the only route to Claude.ai chats and
-  Projects, which no connector reads.
+  per-conversation and per-Project digests. This is the only route to
+  Claude.ai chats and Projects, which no connector reads. It accepts the
+  export's per-category ZIP archives, a single archive, or an unzipped tree,
+  and extracts to a temporary directory so transcripts never land in the
+  repository.
 - A `friction` field on project records, recording where the work went wrong,
   alongside `evidence`, which records what it produced.
 - Anti-formula rules P-008 (opening-move rotation across recent posts), P-009

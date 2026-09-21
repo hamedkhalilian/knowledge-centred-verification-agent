@@ -32,7 +32,7 @@ Read sources and write project records into `corpus/projects/<id>.json`.
 | Google Drive | `search_files` for new material, then `read_file_content`. Record the file ID as `source_ref: drive:<fileId>` |
 | GitHub | Read the repository. `source_ref: github:<owner>/<repo>` or `…#path/to/thing` |
 | Claude Code sessions | `list_sessions` gives titles and post-turn summaries only, never transcripts. Record what the metadata actually supports and nothing more |
-| Claude.ai chats and Projects | No connector reads these. The route is the account's own data export: Settings, Privacy, Export data. Then `postforge import-claude <unzipped-export>`, which writes one digest per conversation into `corpus/drop/`. Record `source_ref: drop:<filename>` |
+| Claude.ai chats and Projects | No connector reads these. The route is the account's own data export: Settings, Privacy, Export data. It arrives as per-category ZIP archives; run `postforge import-claude <download-folder>`. It writes one digest per conversation and one per Project, with its knowledge docs. Record `source_ref: drop:<filename>` |
 | Drop folder | Read `corpus/drop/*` — importer output, plus anything pasted by hand |
 
 Check `corpus/SOURCES.md` first — it is the queue of known-but-unread

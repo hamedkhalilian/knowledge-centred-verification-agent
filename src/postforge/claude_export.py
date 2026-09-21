@@ -2,8 +2,12 @@
 
 No connector reads Claude.ai chats or Projects, so the only route into the
 ledger is the account's own data export: Settings, then Privacy, then Export
-data. The archive that arrives by email contains ``conversations.json`` and,
-where Projects exist, ``projects.json``.
+data. The export arrives as a set of per-category ZIP archives — among them
+``conversations`` and ``projects`` — so this module accepts the archives
+themselves, a directory holding them, or an already-unzipped tree.
+
+Categories this module does not understand are skipped and named in the
+result rather than guessed at.
 
 What this module does and does not do follows the repository's split. Turning
 a conversation into a project record is judgment and stays with the agent.
@@ -21,9 +25,12 @@ from __future__ import annotations
 
 import json
 import re
+import tempfile
+import zipfile
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterator
 
 # Markers of a turn where the author's understanding moved. Deliberately
 # generous: this is a shortlist for a human to judge, not a classifier. Both
@@ -154,6 +161,78 @@ def parse_conversations(payload: Any, project_names: dict[str, str] | None = Non
     return conversations
 
 
+def parse_projects(payload: Any) -> list[dict[str, Any]]:
+    """Normalise ``projects.json`` into records carrying their knowledge docs.
+
+    A Project's docs are the material the author curated deliberately, which
+    makes them denser than any single conversation. Shapes vary across export
+    versions, so anything unrecognised is dropped rather than guessed at.
+    """
+    if isinstance(payload, dict):
+        payload = payload.get("projects", [])
+    if not isinstance(payload, list):
+        return []
+    projects: list[dict[str, Any]] = []
+    for entry in payload:
+        if not isinstance(entry, dict):
+            continue
+        docs: list[dict[str, str]] = []
+        raw_docs = entry.get("docs")
+        if not isinstance(raw_docs, list):
+            raw_docs = entry.get("documents")
+        if isinstance(raw_docs, list):
+            for doc in raw_docs:
+                if not isinstance(doc, dict):
+                    continue
+                content = doc.get("content") or doc.get("text") or ""
+                if not isinstance(content, str) or not content.strip():
+                    continue
+                docs.append(
+                    {
+                        "filename": str(
+                            doc.get("filename") or doc.get("name") or "untitled"
+                        ),
+                        "content": content.strip(),
+                    }
+                )
+        projects.append(
+            {
+                "uuid": str(entry.get("uuid") or ""),
+                "name": str(entry.get("name") or entry.get("uuid") or "untitled"),
+                "description": str(entry.get("description") or ""),
+                "created_at": str(entry.get("created_at") or ""),
+                "docs": docs,
+            }
+        )
+    return projects
+
+
+def render_project_digest(project: dict[str, Any], max_chars: int = DEFAULT_MAX_CHARS) -> str:
+    """Render a Project and its knowledge docs as one harvestable digest."""
+    lines = [
+        f"# Project: {project['name']}",
+        "",
+        f"- project: `{project['uuid']}`",
+        f"- created: {project.get('created_at') or 'unknown'}",
+        f"- documents: {len(project['docs'])}",
+        "",
+        "> Raw exported material. Not a project record. Harvest it into",
+        "> `corpus/projects/` and cite this file in `source_ref`.",
+        "",
+    ]
+    if project.get("description"):
+        lines += ["## Description", "", project["description"], ""]
+    budget = max_chars
+    for doc in project["docs"]:
+        if budget <= 0:
+            lines += ["", "_[digest truncated]_"]
+            break
+        body = doc["content"][:budget]
+        budget -= len(body)
+        lines += [f"## {doc['filename']}", "", body, ""]
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def parse_project_names(payload: Any) -> dict[str, str]:
     """Map project UUIDs to their names, so chats can be grouped by project."""
     if isinstance(payload, dict):
@@ -176,12 +255,57 @@ def _read_json(path: Path) -> Any:
     return json.loads(path.read_text("utf-8"))
 
 
+def _is_zip(path: Path) -> bool:
+    return path.is_file() and zipfile.is_zipfile(path)
+
+
+@contextmanager
+def unpacked(source: Path) -> Iterator[Path]:
+    """Yield a directory tree to search, extracting archives when needed.
+
+    The export ships as several ZIPs. Passing the download folder, a single
+    archive, or an unzipped tree all work; anything extracted goes to a
+    temporary directory that is removed on exit, so raw transcripts are never
+    left inside the repository by accident.
+    """
+    archives: list[Path] = []
+    if _is_zip(source):
+        archives = [source]
+    elif source.is_dir():
+        archives = sorted(p for p in source.iterdir() if _is_zip(p))
+
+    if not archives:
+        yield source
+        return
+
+    with tempfile.TemporaryDirectory(prefix="postforge-export-") as tmp:
+        root = Path(tmp)
+        for archive in archives:
+            target = root / archive.stem
+            target.mkdir(parents=True, exist_ok=True)
+            with zipfile.ZipFile(archive) as zf:
+                for member in zf.infolist():
+                    # Refuse absolute paths and parent traversal in member
+                    # names; an export is trusted but this costs nothing.
+                    name = Path(member.filename)
+                    if name.is_absolute() or ".." in name.parts:
+                        continue
+                    zf.extract(member, target)
+        if source.is_dir():
+            yield root if not any(source.glob("*.json")) else source
+        else:
+            yield root
+
+
 def locate(source: Path) -> tuple[Path | None, Path | None]:
-    """Find the two files of interest, whether given a file or a directory."""
+    """Find the two files of interest inside an already-unpacked tree."""
     if source.is_file():
         if source.name == "projects.json":
             return None, source
-        return source, None
+        if source.suffix == ".json":
+            return source, None
+    if not source.is_dir():
+        return None, None
     conversations = next(iter(sorted(source.rglob("conversations.json"))), None)
     projects = next(iter(sorted(source.rglob("projects.json"))), None)
     return conversations, projects
@@ -248,16 +372,22 @@ def import_export(
     agent's, and a record is written only after a human-readable digest has
     actually been read.
     """
-    conversations_path, projects_path = locate(source)
-    if conversations_path is None:
-        raise FileNotFoundError(
-            f"No conversations.json found under {source}. Point this at the "
-            "unzipped Claude.ai data export."
+    with unpacked(source) as tree:
+        conversations_path, projects_path = locate(tree)
+        if conversations_path is None and projects_path is None:
+            raise FileNotFoundError(
+                f"Found neither conversations.json nor projects.json under "
+                f"{source}. Point this at the Claude.ai export: the folder of "
+                "downloaded .zip archives, one archive, or an unzipped tree."
+            )
+        conversations_payload = (
+            _read_json(conversations_path) if conversations_path else []
         )
-    project_names = (
-        parse_project_names(_read_json(projects_path)) if projects_path else {}
-    )
-    conversations = parse_conversations(_read_json(conversations_path), project_names)
+        projects_payload = _read_json(projects_path) if projects_path else []
+
+    projects = parse_projects(projects_payload)
+    project_names = {p["uuid"]: p["name"] for p in projects if p["uuid"]}
+    conversations = parse_conversations(conversations_payload, project_names)
 
     keep = [c for c in conversations if len(c.turns) >= min_turns]
     keep.sort(key=lambda c: c.created_at, reverse=True)
@@ -267,6 +397,16 @@ def import_export(
     destination.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     used: set[str] = set()
+
+    for project in projects:
+        if not project["docs"] and not project["description"]:
+            continue
+        stem = f"project--{slugify(project['name'])}"
+        used.add(stem)
+        path = destination / f"{stem}.md"
+        path.write_text(render_project_digest(project, max_chars), "utf-8")
+        written.append(path)
+
     for conversation in keep:
         stem = slugify(conversation.name)
         if conversation.project:
@@ -286,7 +426,10 @@ def import_export(
 __all__ = [
     "Conversation",
     "parse_conversations",
+    "parse_projects",
     "parse_project_names",
+    "render_project_digest",
+    "unpacked",
     "render_digest",
     "import_export",
     "locate",

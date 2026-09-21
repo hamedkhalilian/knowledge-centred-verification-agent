@@ -46,14 +46,26 @@ Those three questions are decidable, so they are code:
 ## Reading Claude.ai chats, and why
 
 No connector reads Claude.ai conversations or Projects. The route is the
-account's own data export — Settings, Privacy, Export data — and then:
+account's own data export — Settings, Privacy, Export data. The export arrives
+as a set of per-category ZIP archives (`conversations-000.zip`,
+`projects-000.zip`, and others). Point the importer at the download folder:
 
 ```bash
 postforge import-claude ~/Downloads/claude-export
 ```
 
-That writes one digest per substantial conversation into `corpus/drop/`,
-grouped by Project where the export has them.
+A folder of archives, a single archive, or an already-unzipped tree all work.
+Archives are extracted to a temporary directory that is removed afterwards, so
+raw transcripts are never left in the repository by accident. Categories the
+importer does not understand are skipped rather than guessed at.
+
+It writes two kinds of digest into `corpus/drop/`:
+
+- one per substantial conversation, grouped under its Project where the export
+  records one;
+- one per Project, carrying its description and knowledge documents. Those
+  docs are material the author curated deliberately, which makes them denser
+  than any single conversation.
 
 The reason to read chats is not that they hold results. Drive already holds
 the polished summary and the repository holds the finished code. Chats hold
@@ -217,5 +229,7 @@ phases that request needs.
 - Friction flagging is a keyword shortlist, not a classifier. It will miss a
   reversal phrased calmly, and it will flag turns that were nothing.
 - A data export is a snapshot. Re-export to pick up newer conversations.
+- Export download links are single-use and sit behind a bot challenge, so they
+  are fetched by a browser, not by a script.
 - A bridge is a hypothesis about shared structure, never a proof that a method
   transfers. Drafts are required to say so in the post itself.
