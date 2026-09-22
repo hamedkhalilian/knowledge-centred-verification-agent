@@ -54,17 +54,34 @@ jobs:
         # it is not, the committed data has drifted from the generator and the
         # generator is no longer the source of truth -- so the diff fails the
         # build rather than being silently overwritten.
+        #
+        # Generated into a TEMPORARY directory and compared, never generated
+        # over the committed files and then diffed. The first version did the
+        # latter and was blind: regeneration overwrote whatever was there, so a
+        # hand-edited staged input was silently reverted and `git diff` came
+        # back clean. It reported "no drift" precisely when there was drift.
+        # Verified by injecting an edit, which it failed to notice.
         run: |
-          python3 runs/ocm-run-3-bauspar/tools/gen_synthetic_bauspar.py --out-dir staged_inputs
+          TMP="$(mktemp -d)"
+          python3 runs/ocm-run-3-bauspar/tools/gen_synthetic_bauspar.py --out-dir "$TMP"
+          rc=0
           for f in merged_data_synthetic.csv synthetic_manifest.json abort_probe.csv; do
-            test -f "staged_inputs/$f" || { echo "missing staged_inputs/$f" >&2; exit 1; }
+            if [ ! -f "staged_inputs/$f" ]; then
+              echo "staged_inputs/$f is missing but the generator produces it" >&2; rc=1
+            elif ! cmp -s "$TMP/$f" "staged_inputs/$f"; then
+              echo "staged_inputs/$f differs from what the seeded generator produces:" >&2
+              diff "staged_inputs/$f" "$TMP/$f" | head -20 >&2
+              rc=1
+            fi
           done
-          if ! git diff --quiet -- staged_inputs; then
-            echo "Regenerating the staged inputs changed committed files:" >&2
-            git diff --stat -- staged_inputs >&2
-            echo "The committed data has drifted from the seeded generator." >&2
+          if [ "$rc" -ne 0 ]; then
+            echo "The committed staged inputs have drifted from the generator." >&2
+            echo "The generator is the source of truth: regenerate and commit," >&2
+            echo "or fix the generator if the committed data is the intended one." >&2
             exit 1
           fi
+          echo "staged inputs match the seeded generator exactly"
+          cp "$TMP"/* staged_inputs/
       - name: Verify both targets still reproduce the source checkpoints
         # Run 3 established that the R source, a TypeScript target and a Java
         # target produce byte-identical checkpoints. Nothing re-checked it: the
