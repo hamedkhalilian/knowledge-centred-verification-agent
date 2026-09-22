@@ -374,3 +374,67 @@ Given the three-valued contract now used by every other gate: 0 comparable and
 agreeing, 1 comparable and diverging, 2 not comparable. Three tests pin it,
 including the case that matters — agreeing digests over differing input lists
 return 2, because agreement over different inputs establishes nothing.
+
+## Second target (Java) — three-way agreement
+
+A second IMPLEMENT was run against the same neutral spec, in Java, by a
+different agent in a separate context. Barrier extended: this target was
+quarantined from the **TypeScript target** as well as from the source, because
+an implementation that has read the first is a translation and its agreement
+would prove only that translation works.
+
+| object | R (source) | TypeScript | Java |
+|---|---|---|---|
+| `customer_book` 503×34 | `9ef73ff0…0db90b` | agree | agree |
+| `customer_export_rows` 503×26 | `afa5ebd0…996f81` | agree | agree |
+| `customers_js_document` 507×2 | `fc9c29b4…0e506a` | agree | agree |
+
+`inputs bound identically: True · AGREE 3 · DIFFER 0 · exit 0`
+
+Coverage agrees too, not only the digests — see below.
+
+### Controller verification
+
+The Java target was **built and run by the controller**, not accepted from the
+agent's report. Because the agent was still working, an in-place build would
+have raced its edits, so the committed tree was extracted to a clean scratch
+directory and built there; the result is pinned to a commit. The agent's final
+state was afterwards confirmed to match, its checkpoint differing only in
+`emitted_utc`.
+
+Barrier audited: no file in the source language anywhere in the Java tree, the
+three source digests appear nowhere in its sources, no reference to the
+TypeScript target, and a mechanical scan of all 21 modules clean. Deterministic
+across two runs. Schema-valid. Both consumed inputs declared.
+
+### A predicted divergence that did not occur
+
+The Java agent named, in advance, where it thought the two targets would most
+likely differ: coverage `min`/`max` on `customers_js_document`, depending on
+whether the emitter-added ordering key counts as a numeric cell. That is a
+difference the digests would **hide**, since coverage is not digested.
+
+Checked directly. It did not occur: all three sides agree on every coverage
+field. A prediction worth making and worth testing — an unchecked "probably
+cosmetic" difference is how a real one survives.
+
+### What this adds, and what it does not
+
+The first target's agent had cross-checked itself with a second implementation,
+but both shared its reading of the spec, so that ruled out coding slips and
+nothing more. The Java target was written by a different agent, in a third
+language, unable to see the first. Three independent implementations agreeing
+byte-for-byte is evidence that the **specification determines the behaviour**
+rather than merely being satisfiable more than one way.
+
+It changes nothing about the caps. R2 still holds: no real input exists, so
+this remains fidelity to a specification over a synthetic stand-in, and the
+verdict stays PROVISIONAL. Three agreeing implementations of a specification
+that may not describe the real system are still three implementations of that
+specification.
+
+Two findings pass **vacuously** on this input and are reported as such rather
+than as evidence: FND-03 (no exponent-form identifiers, because the identifier
+column arrives as text) and FND-04 (no duplicate identifiers, unique by
+construction). FND-13 is implemented and unit-tested but unexposed — the
+stand-in contains no ratio on its boundary.

@@ -40,5 +40,8 @@
     }
   ],
   "agree": 3,
-  "differ": 0
+  "differ": 0,
+  "coverage_also_agrees": true,
+  "coverage_note": "The Java agent predicted its highest-probability divergence would be coverage min/max on customers_js_document, depending on whether the emitter-added ordering key counts as a numeric cell -- a difference the digests would hide, since coverage is not digested. Checked: it did not occur. All three sides agree on every coverage field as well as every digest.",
+  "agent_final_state_matches_controller_build": true
 }
