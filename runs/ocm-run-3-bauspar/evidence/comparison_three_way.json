@@ -1,0 +1,47 @@
+{
+  "run_id": "ocm-run-3-bauspar",
+  "state": "COMPARE",
+  "comparison": "three-way",
+  "note": "Both targets were built from the same neutral spec in separate agent contexts. The Java target was additionally quarantined from the TypeScript target, so its agreement is not a translation. The controller built and ran the Java target itself from committed source rather than accepting the agent's reported digests.",
+  "java_build_provenance": {
+    "built_from_commit": "7ff297cff68fa7191060945583bd11b4859866c7",
+    "built_by": "controller",
+    "clean_build": true,
+    "deterministic_across_two_runs": true,
+    "schema_valid": true
+  },
+  "barrier_audit": {
+    "r_files_in_java_tree": 0,
+    "source_digests_hardcoded": 0,
+    "references_to_typescript_target": 0,
+    "source_language_syntax_scan": "CLEAN"
+  },
+  "objects": [
+    {
+      "object": "customer_book",
+      "source_R": "9ef73ff04d1d8f76e79fe76a0efcc1c7d8d921cbdf133867af8f4a046f0db90b",
+      "target_typescript": "9ef73ff04d1d8f76e79fe76a0efcc1c7d8d921cbdf133867af8f4a046f0db90b",
+      "target_java": "9ef73ff04d1d8f76e79fe76a0efcc1c7d8d921cbdf133867af8f4a046f0db90b",
+      "all_three_agree": true
+    },
+    {
+      "object": "customer_export_rows",
+      "source_R": "afa5ebd0b822d43c441cec219ae5ebd7a70b247e02a3a8f7c2224a8052996f81",
+      "target_typescript": "afa5ebd0b822d43c441cec219ae5ebd7a70b247e02a3a8f7c2224a8052996f81",
+      "target_java": "afa5ebd0b822d43c441cec219ae5ebd7a70b247e02a3a8f7c2224a8052996f81",
+      "all_three_agree": true
+    },
+    {
+      "object": "customers_js_document",
+      "source_R": "fc9c29b403d73516ea3234d83e4e02d55701a4e4ecdbeff906c091ddc20e506a",
+      "target_typescript": "fc9c29b403d73516ea3234d83e4e02d55701a4e4ecdbeff906c091ddc20e506a",
+      "target_java": "fc9c29b403d73516ea3234d83e4e02d55701a4e4ecdbeff906c091ddc20e506a",
+      "all_three_agree": true
+    }
+  ],
+  "agree": 3,
+  "differ": 0,
+  "coverage_also_agrees": true,
+  "coverage_note": "The Java agent predicted its highest-probability divergence would be coverage min/max on customers_js_document, depending on whether the emitter-added ordering key counts as a numeric cell -- a difference the digests would hide, since coverage is not digested. Checked: it did not occur. All three sides agree on every coverage field as well as every digest.",
+  "agent_final_state_matches_controller_build": true
+}

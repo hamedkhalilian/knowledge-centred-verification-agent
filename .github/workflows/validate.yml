@@ -39,6 +39,78 @@ jobs:
             echo "R detector tests were SKIPPED; R is not usable in CI." >&2
             exit 1
           fi
+      - name: Regenerate the run-3 staged inputs
+        # Synthetic data is not committed: it is fully determined by the seeded
+        # generator, and committing generated data invites editing the data
+        # instead of the generator.
+        # The generator owns EVERY staged input, including the abort probe. That
+        # matters: the probe was once a hand-written file committed beside
+        # generated ones, and regenerating the directory deleted it, because the
+        # generator produced only the other two and nothing noticed the third
+        # was gone. A directory that is partly generated and partly committed
+        # has no single source of truth.
+        #
+        # Regenerating must therefore be a no-op against what is committed. If
+        # it is not, the committed data has drifted from the generator and the
+        # generator is no longer the source of truth -- so the diff fails the
+        # build rather than being silently overwritten.
+        #
+        # Generated into a TEMPORARY directory and compared, never generated
+        # over the committed files and then diffed. The first version did the
+        # latter and was blind: regeneration overwrote whatever was there, so a
+        # hand-edited staged input was silently reverted and `git diff` came
+        # back clean. It reported "no drift" precisely when there was drift.
+        # Verified by injecting an edit, which it failed to notice.
+        run: |
+          TMP="$(mktemp -d)"
+          python3 runs/ocm-run-3-bauspar/tools/gen_synthetic_bauspar.py --out-dir "$TMP"
+          rc=0
+          for f in merged_data_synthetic.csv synthetic_manifest.json abort_probe.csv; do
+            if [ ! -f "staged_inputs/$f" ]; then
+              echo "staged_inputs/$f is missing but the generator produces it" >&2; rc=1
+            elif ! cmp -s "$TMP/$f" "staged_inputs/$f"; then
+              echo "staged_inputs/$f differs from what the seeded generator produces:" >&2
+              diff "staged_inputs/$f" "$TMP/$f" | head -20 >&2
+              rc=1
+            fi
+          done
+          if [ "$rc" -ne 0 ]; then
+            echo "The committed staged inputs have drifted from the generator." >&2
+            echo "The generator is the source of truth: regenerate and commit," >&2
+            echo "or fix the generator if the committed data is the intended one." >&2
+            exit 1
+          fi
+          echo "staged inputs match the seeded generator exactly"
+          cp "$TMP"/* staged_inputs/
+      - name: Verify both targets still reproduce the source checkpoints
+        # Run 3 established that the R source, a TypeScript target and a Java
+        # target produce byte-identical checkpoints. Nothing re-checked it: the
+        # suite above is all Python and builds neither target, so an edit to
+        # either one's export mapping or canonicalisation would break the
+        # agreement while CI stayed green.
+        #
+        # This rebuilds each target from source, runs it, and compares its three
+        # digests against the committed source checkpoints. Exit codes are
+        # three-valued: 0 agree, 1 regression, 2 could not be established -- and
+        # 2 is non-zero on purpose, because a verifier that cannot verify must
+        # never pass.
+        #
+        # JAVA_HOME is pinned to 21 explicitly. The runner image ships several
+        # JDKs and defaults JAVA_HOME to an older one; the Java target declares
+        # java.level=21 in its own project.properties and compiles with
+        # --release 21, which an older javac rejects outright. Selecting the
+        # version here rather than hoping the default matches is the same
+        # discipline as installing R above instead of relying on the image.
+        run: |
+          if [ -n "${JAVA_HOME_21_X64:-}" ]; then
+            export JAVA_HOME="$JAVA_HOME_21_X64"
+            export PATH="$JAVA_HOME/bin:$PATH"
+          fi
+          echo "JAVA_HOME=$JAVA_HOME"
+          javac -version
+          java -version
+          node --version
+          python3 runs/ocm-run-3-bauspar/tools/verify_targets.py
       - name: Validate example ledger
         run: kcv-validate examples/498-bgb/claim-ledger.example.json
       - name: Validate §254 run ledger

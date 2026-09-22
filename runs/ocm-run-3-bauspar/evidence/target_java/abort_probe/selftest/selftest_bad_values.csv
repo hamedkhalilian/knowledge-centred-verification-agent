@@ -1,0 +1,5 @@
+BSV,abschlussdatum,einloesungsdatum,erstmalige_zuteilungsanwartschaft,Tilgungsbeginn,Vertragsende,DaBetrag,bausparsumme_teuro,guthaben,tariff_amount,contract_type,guthaben_alt
+700001,2001-03-01,2001-04-01,20110401,20110601,20220601,30000,30,12000,40,BS1,1
+700001,2007-05-01,2007-06-01,20200101,,,20000,20,-500,0.4,BS1,1
+700003,2019-01-01,2019-02-01,20131345,,,40000,40,4000,0.4,BS2,1
+700004,1899-01-01,1899-02-01,20280201,,,25000,25,"1,2,3",0.4,BS2,1
