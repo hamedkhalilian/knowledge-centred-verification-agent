@@ -130,4 +130,6 @@ rows read 503, records published 503, rows refused 0
 - FND-07 is unobservable at CORE tier: no standalone page writer is built.
 - Every threshold here has only ever seen synthetic data (R15).
 
-Computed 503 contracts in 0.08 s.
+Computed 503 contracts. The elapsed time is reported on the
+console rather than written here, so that every artifact in this bundle is byte-stable
+across runs and a re-run can be diffed against it (GR-16).

@@ -1,0 +1,5 @@
+The run aborted at row_index 3 on column Tilgungsbeginn.
+Controller directive 01 rule B: an aborted run emits NO checkpoint file, because a partial
+checkpoint is not comparable (R12). abort_record.json carries what COMPARE needs instead.
+Everything built before the abort is kept: the profile and the layout reading are in
+io_reading_target.json.
