@@ -11,7 +11,40 @@ General Rules rev 2, using the kit in `ocm-kit/`.
 | PROFILE | **done** — `evidence/input_profile.json`, schema-validated |
 | SPECIFY | **done** — gate PASSED, spec releasable to the target room |
 | OBSERVE_SOURCE | **done** — `evidence/checkpoints_source.json`, schema-valid, deterministic |
-| IMPLEMENT | **next** — target agent, separate context |
+| IMPLEMENT | **done** — TypeScript target built from the spec alone |
+| OBSERVE_TARGET | **done** — `evidence/target/checkpoints_target.json`, schema-valid, deterministic |
+| COMPARE | **done** — 3 of 3 byte-identical, inputs bound identically, exit 0 |
+| VERIFY | **done** — 10 of 12 ladder layers ran (all 9 CORE, plus layer 10) |
+| VERDICT | **PROVISIONAL** — `evidence/verdict.json`, schema-valid |
+
+## Verdict: PROVISIONAL
+
+Both halves of that word are load-bearing.
+
+**What was established.** Two implementations — one executing the original in
+its own language, one written in TypeScript from a written specification by an
+agent that never saw the original — agree on every byte of all three published
+objects, over 503 rows, including the browser document's 507 physical lines.
+Neither could see the other's values. Ten of twelve ladder layers ran; the two
+that did not are FULL-tier and the owner chose CORE.
+
+**Why it is capped.** R2. The real input table is not in the bundle, so every
+observation is of a synthetic stand-in. No amount of agreement between the two
+sides can lift that, because the layer the record blames for six of ten
+historical failures — input shape, layout, encoding and scale — is precisely
+the layer this run could not observe at all. GR-09 adds a second cap: nothing
+ran at the production scale of 45,881 contracts.
+
+The verdict names both caps, what each absent observation would have covered,
+and the six limits, in the artifact rather than in prose.
+
+**What it does not say.** It does not say the unit is correct. Thirteen
+catalogued findings describe behaviour that looks wrong — two at FAIL severity
+— and under the faithful-only policy all thirteen were reproduced exactly
+rather than corrected. FND-02 is the one to escalate: if real tariff values are
+percent points rather than fractions, every saving goal in production has been
+100× too large for as long as this version has run, and neither side could tell
+from this bundle.
 
 ### SPECIFY exit gate — controller-executed
 

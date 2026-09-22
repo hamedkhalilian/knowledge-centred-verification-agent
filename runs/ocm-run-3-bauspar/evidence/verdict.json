@@ -1,0 +1,279 @@
+{
+  "run_id": "ocm-run-3-bauspar",
+  "tier": "CORE",
+  "verdict": "PROVISIONAL",
+  "emitted_utc": "2026-09-22T00:00:00Z",
+  "caps": [
+    {
+      "rule": "R2",
+      "absent_observation": "The real contract table (merged_data_with_tariff_amount) and the enrichment script that builds it. Neither is in the delivered bundle, and the downstream quality harness asserts the table's prior existence, so the source cannot be executed on real data as delivered.",
+      "would_have_covered": "Input shape, layout, encoding and scale -- the layer the record blames for 6 of 10 failures, and the only layer this run could not observe at all. Specifically: whether the eleven columns exist under these names, which of them arrive already typed as dates, whether tariff_amount is a fraction or percent points (FND-02, a 100x exposure that is unknowable from this bundle), and whether contract identifiers repeat (UA-04).",
+      "resulting_cap": "PROVISIONAL"
+    },
+    {
+      "rule": "GR-09",
+      "absent_observation": "A full-size run. Both sides observed 503 synthetic rows; production is 45,881 contracts.",
+      "would_have_covered": "Memory behaviour and runtime under the declared budget. The target streams in blocks into column-oriented typed arrays and should scale, but 'should' is not 'did' and the gate is not claimed.",
+      "resulting_cap": "PROVISIONAL"
+    }
+  ],
+  "context_sharing": {
+    "structural_barrier": true,
+    "roles": [
+      {
+        "role": "controller",
+        "context": "top-level session",
+        "saw_source": true,
+        "saw_target": true
+      },
+      {
+        "role": "source agent",
+        "context": "separate agent context A",
+        "saw_source": true,
+        "saw_target": false
+      },
+      {
+        "role": "target agent",
+        "context": "separate agent context B",
+        "saw_source": false,
+        "saw_target": true
+      }
+    ],
+    "note": "The barrier was checked, not assumed. The target tree contains no file in the source language; a mechanical scan of all 21 of its modules is clean; the three source digests appear nowhere in its sources; and the controller deleted the build output, rebuilt from source and re-ran the program itself, reproducing all three digests. A target that had seen the answers could hard-code them but could not recompute them. The source's own OUTPUT on real data (customers_data.js, 45,881 contracts) was quarantined for the whole run and withheld even from the source agent during SPECIFY, so that the spec describes how to compute rather than what the answers are. Source checkpoint values were withheld from the target room until the target had emitted independently."
+  },
+  "waivers": [
+    {
+      "decision": "R20(b) source instrumentation deferred",
+      "by": "protocol default, recorded",
+      "risk_accepted": "No dynamic source-side effect interception or mutation metadata.",
+      "mitigations": [
+        "Layer 5 ran: the source was executed under R20(a) and both sides emitted independently",
+        "R4 derived-quantity plausibility ran (P-13)"
+      ]
+    },
+    {
+      "decision": "GR-12/R9 corrected-behaviour switch mechanism stood down",
+      "by": "owner (findings policy: faithful only)",
+      "risk_accepted": "No corrected variant exists for any of the thirteen catalogued findings, and no delta report quantifies what correcting them would change.",
+      "mitigations": [
+        "Every finding carries an executable precondition that reports its exposure",
+        "A divergence is then unambiguous: there is no legitimate reason for the two sides to differ"
+      ]
+    },
+    {
+      "decision": "GR-04 artifact browser and GR-05/GR-06 figure rendering not built",
+      "by": "owner (tier: CORE)",
+      "risk_accepted": "No interactive inspection of published objects and no rendered figures.",
+      "mitigations": [
+        "Stood down explicitly in the run's target directives rather than omitted silently",
+        "Figure geometry is still specified and still checkpointed through the export object, because the positions are computed values"
+      ]
+    }
+  ],
+  "unverified_assumptions": [
+    {
+      "id": "UA-01",
+      "statement": "The real input table carries these eleven columns under these names.",
+      "precondition": "The names are what the unit DEMANDS, derived two independent ways that agree exactly. That is not evidence the real table supplies them.",
+      "status": "open"
+    },
+    {
+      "id": "UA-02",
+      "statement": "Real inputs mix already-typed date columns with raw eight-digit ones as the unit's header comment describes.",
+      "precondition": "Asserted by a comment only. R1 forbids treating a comment as evidence; no real file was available to check.",
+      "status": "open"
+    },
+    {
+      "id": "UA-03",
+      "statement": "Real tariff values are fractions in (0,1] and an absent value means the tariff code found no match.",
+      "precondition": "Inferred from the unit's use of the field. This is the substance of FND-02: if the real values are percent points, every saving goal in production has been 100x for as long as this version has run.",
+      "status": "open"
+    },
+    {
+      "id": "UA-04",
+      "statement": "Contract identifiers are unique per row.",
+      "precondition": "Enforced by the generator so the canonical order is total. The downstream harness takes the FIRST row for an identifier, which implies duplicates are expected in real data. Designed around rather than assumed away: both sides carry an emitter-added row index so the order stays total if identifiers repeat.",
+      "status": "open"
+    }
+  ],
+  "layers": [
+    {
+      "n": 1,
+      "name": "Input profile",
+      "tier": "CORE",
+      "ran": true,
+      "result": "FINDINGS",
+      "findings": [
+        "The staged file is rectangular at 11 fields under proper quoting; a naive delimiter split sees 11/14/15 and mis-assigns every column after the first amount. Recorded as a hazard for the target, which reproduced the two readings independently."
+      ]
+    },
+    {
+      "n": 2,
+      "name": "Barrier scan",
+      "tier": "CORE",
+      "ran": true,
+      "result": "PASS"
+    },
+    {
+      "n": 3,
+      "name": "Preconditions",
+      "tier": "CORE",
+      "ran": true,
+      "result": "FINDINGS",
+      "findings": [
+        "P-01..P-13 all PASS, including parse-count reconciliation on all five date fields and the thousands-factor check (median ratio 0.975629, near 1)",
+        "FND-08 FLAGGED: 27 contracts published in the ended phase while both the allocation and end dates were absent, reached through chained fallbacks, with nothing marking an estimated end",
+        "FND-07 NOT_EXERCISED rather than vacuously passed: its entry point does not exist at CORE tier"
+      ]
+    },
+    {
+      "n": 4,
+      "name": "Target checkpoints, cross-run",
+      "tier": "CORE",
+      "ran": true,
+      "result": "PASS",
+      "findings": [
+        "Byte-identical across two runs with the timestamp pinned; re-verified by the controller after deleting the build output and rebuilding from source"
+      ]
+    },
+    {
+      "n": 5,
+      "name": "Source-target checkpoint comparison",
+      "tier": "CORE",
+      "ran": true,
+      "result": "PASS",
+      "findings": [
+        "3 of 3 objects byte-identical: customer_book 503x34, customer_export_rows 503x26, customers_js_document 507x2",
+        "Input lists bound identically, so the two files are comparable under the canonicalisation contract section 7",
+        "R20(a) satisfied: the source was executed, not described"
+      ]
+    },
+    {
+      "n": 6,
+      "name": "Inversion self-tests",
+      "tier": "CORE",
+      "ran": true,
+      "result": "PASS",
+      "findings": [
+        "89 checks, 89 passed, run before any artifact was written",
+        "Includes the sixteen measured rounding vectors and an assertion that the rule DIFFERS from multiply-round-divide, which it does on two of them"
+      ]
+    },
+    {
+      "n": 7,
+      "name": "Derived-quantity plausibility",
+      "tier": "CORE",
+      "ran": true,
+      "result": "PASS",
+      "findings": [
+        "P-13: median of loan notional over bauspar sum = 0.975629, near 1, so the thousands factor is the right way up. A value near 0.001 or 1000 would mean the whole book's bridge flag had flipped."
+      ]
+    },
+    {
+      "n": 8,
+      "name": "Schema validation",
+      "tier": "CORE",
+      "ran": true,
+      "result": "PASS",
+      "findings": [
+        "Controller validated neutral_spec, flow_manifest, input_profile, checkpoints_source and checkpoints_target against their schemas"
+      ]
+    },
+    {
+      "n": 9,
+      "name": "Build at declared level",
+      "tier": "CORE",
+      "ran": true,
+      "result": "PASS",
+      "findings": [
+        "The declared level lives once in tsconfig.json and the build script reads it from there, then re-reads the compiler's effective configuration and asserts agreement",
+        "Zero runtime dependencies; number formatting confined to one module and proved so by a build-time scan"
+      ]
+    },
+    {
+      "n": 10,
+      "name": "Good-input control run",
+      "tier": "FULL",
+      "ran": true,
+      "result": "PASS",
+      "findings": [
+        "Run although FULL-tier and not required: 26 checks over a known-good fixture, none reporting FAIL or FLAGGED, and eleven detectors asserted to separate good from bad input",
+        "This is the layer whose absence produced two wolf-crying detectors in the previous run"
+      ]
+    },
+    {
+      "n": 11,
+      "name": "Runtime trace",
+      "tier": "FULL",
+      "ran": false,
+      "result": "NOT_RUN",
+      "blocked_reason": "FULL-tier artifact; the owner chose CORE."
+    },
+    {
+      "n": 12,
+      "name": "Graph comparison",
+      "tier": "FULL",
+      "ran": false,
+      "result": "NOT_RUN",
+      "blocked_reason": "FULL-tier artifact; the owner chose CORE. A source-side flow manifest exists but no target-side counterpart was built, so no comparison was possible."
+    }
+  ],
+  "findings": [
+    "FND-01 FAIL: a thousands dot without a comma reads 1000x small, because dots are stripped only when a comma is present",
+    "FND-02 FAIL: the tariff share is multiplied in as a fraction while the unit's comment calls it a percentage; a value of 40 yields a saving goal 100x too large with no error. Exposure unknowable from this bundle.",
+    "FND-03 FLAGGED: identifiers are rendered by the source language's default numeric-to-text conversion, so some round values become exponent form, and those become the browser file's keys",
+    "FND-04 FLAGGED: one entry per row, so duplicate identifiers produce duplicate keys; the browser keeps the last while the quality harness keeps the first",
+    "FND-05 FLAGGED: the bridge flag tests the UNROUNDED ratio above 2 while the red alarm tests the ALREADY ROUNDED ratio below 0.5, and the two cutoffs are not derived from each other",
+    "FND-06 FLAGGED: asymmetric date failure -- an unparseable hyphenated value aborts the run while an unparseable digit value becomes missing silently, and a seven-digit value is misread as a real date",
+    "FND-07 FAIL: the page writer ignores its own table argument and uses the session-level table, so the documented subset has no effect",
+    "FND-08 FLAGGED: chained fallbacks let a contract with neither date be published as ended; only the allocation estimate is flagged, nothing marks an estimated end",
+    "FND-09 FLAGGED: amounts are rounded independently, so the published loan portion need not equal reference minus balance to the euro",
+    "FND-10 FLAGGED: both consumers draw a fifth phase the unit never produces",
+    "FND-11 FLAGGED: the header comment lists four missing-date markers; the code uses seven",
+    "FND-12 FLAGGED: the source language's column access does prefix matching, so a real table with a similarly-named column could compute silently from the wrong field",
+    "FND-13 FLAGGED: the warning flag is decided on the unrounded ratio while the ratio is published rounded, so a published 0.900 can carry an unset flag while both consumers draw a warning box from that same published value",
+    "F1 the source cannot be executed on real data as delivered",
+    "F2 customers_data.js is the source's output, not an input -- the answer key, quarantined all run",
+    "F5 the source language's system2 with an input string returns the WRONG digest, appending a newline",
+    "F6 the source language's sprintf renders negative zero contrary to the canonicalisation contract",
+    "F7 two defects in the controller's own tooling: an unreached designed branch, and a profiler reporting false raggedness",
+    "F8 the spec schema constrains provenance in one location and not the other",
+    "F9 the abort is position-dependent, not value-dependent -- corrects FND-06",
+    "F10 the COMPARE tool reported a disqualifying condition and exited 0 anyway"
+  ],
+  "owner_decisions": [
+    {
+      "decision": "Tier",
+      "choice": "CORE",
+      "consequence": "Layers 11 and 12 did not run. Given R2 already caps the verdict, FULL's extra artifacts would have added evidence about structure, not about reality, and could not have lifted the cap."
+    },
+    {
+      "decision": "Barrier",
+      "choice": "structural",
+      "consequence": "Source and target agents ran in separate contexts. This is what makes layer 5's agreement evidence rather than a restatement."
+    },
+    {
+      "decision": "Target language",
+      "choice": "TypeScript",
+      "consequence": "Zero runtime dependencies; the browser document the unit produces can be consumed directly by the existing view."
+    },
+    {
+      "decision": "Findings policy",
+      "choice": "faithful only",
+      "consequence": "Thirteen catalogued defects were reproduced exactly rather than corrected. No switches, no delta report. A divergence is therefore unambiguous."
+    },
+    {
+      "decision": "Inputs",
+      "choice": "synthetic stand-ins",
+      "consequence": "Forced by F1 before it was chosen. Caps the verdict at PROVISIONAL under R2 however well the two sides agree."
+    }
+  ],
+  "limits": [
+    "This run establishes FIDELITY TO THE SPECIFICATION over a synthetic stand-in. It does not establish that the specification describes the real system, because no real input was available to check it against.",
+    "It does not establish that the unit is correct. Thirteen catalogued findings describe behaviour that looks wrong, two of them at FAIL severity, and all thirteen were faithfully reproduced rather than fixed.",
+    "FND-02 in particular is unresolved and potentially large: if the real tariff values are percent points rather than fractions, every saving goal in production has been 100x for as long as this version has run. Neither side could tell from this bundle.",
+    "Branches implemented but not exercised by this data: the FND-13 warning-boundary disagreement (zero cases in the stand-in), duplicate identifiers, exponent-form identifiers, three of the seven date markers, and the harness-coercion abort path beyond its markers.",
+    "The target agent's independent second implementation shares its own READING of the spec. It rules out coding slips; it does not rule out a shared misreading. The source-target agreement is what addresses that, and is the reason the structural barrier mattered.",
+    "Layer 5's agreement is over 503 rows. Nothing was observed at the production scale of 45,881."
+  ]
+}
