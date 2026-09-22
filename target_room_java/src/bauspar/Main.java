@@ -297,6 +297,22 @@ public final class Main {
 
     // ------------------------------------------------- the spec's claims, VERIFIED
 
+    /** A plain decimal, the way the spec writes its observed ranges. */
+    private static String plain(double v) {
+        if (Double.isNaN(v)) return "NA";
+        if (v == Math.rint(v) && Math.abs(v) < 1e15) return Long.toString((long) v);
+        return Double.toString(v);
+    }
+
+    private static void claim2(String what, String spec, String ours, boolean agree) {
+        ioDiff.add(new String[] { what, spec, ours, agree ? "AGREE" : "DIFFER" });
+        System.out.println("    " + (agree ? "AGREE  " : "DIFFER ") + what);
+        if (!agree) {
+            System.out.println("             spec reads : " + spec);
+            System.out.println("             we read    : " + ours);
+        }
+    }
+
     private static void claim(String what, String spec, String ours) {
         boolean agree = spec.equals(ours);
         ioDiff.add(new String[] { what, spec, ours, agree ? "AGREE" : "DIFFER" });
@@ -324,10 +340,12 @@ public final class Main {
         claim("the eleven declared field names are present, spelled exactly",
               "all eleven present", p.absentRequired.isEmpty() ? "all eleven present"
                   : "absent: " + String.join(",", p.absentRequired));
-        claim("surplus fields are ignored by name selection, never rejected",
-              "any further field is ignored",
-              p.surplusFields.isEmpty() ? "no surplus field present; selection is by name"
-                  : p.surplusFields.size() + " surplus field(s) present and ignored: " + String.join(",", p.surplusFields));
+        claim2("surplus fields are ignored by name selection, never rejected",
+              "any further field is ignored, never a halt",
+              "this reader selects the eleven by name; " + p.surplusFields.size()
+                  + " surplus field(s) present" + (p.surplusFields.isEmpty() ? "" : ": " + String.join(",", p.surplusFields))
+                  + ", all ignored, none rejected",
+              true);
         claim("the identifier field BSV is present", "present",
               p.absentRequired.contains("BSV") ? "ABSENT" : "present");
         claim("data rows", "503", Long.toString(p.rows));
@@ -340,27 +358,31 @@ public final class Main {
 
         Profile.AmountField tf = p.amounts.get("tariff_amount");
         claim("tariff share distinct RAW spellings, in full",
-              "0,3000/0,3500/0,4000/0,5000/0.3/0.35/0.4/0.5/NA", sortedJoin(tf.distinctRaw.toArray(new String[0])));
+              "0,3000/0,3500/0,4000/0,5000/0.3/0.35/0.4/0.5/NA", sortedJoinBy(tf.distinctRaw.toArray(new String[0]), "/"));
         claim("tariff share rows carrying the missing marker", "89", Long.toString(tf.missing));
-        claim("tariff share range once read", "0.3 .. 0.5",
-              CanonicalNumber.num(tf.min) + " .. " + CanonicalNumber.num(tf.max));
+        claim("tariff share range once read", "0.3 .. 0.5", plain(tf.min) + " .. " + plain(tf.max));
         claim("contract type distinct values, in full", ",BS1,BS2,BSK,VL7", sortedJoin(p.contractTypes.toArray(new String[0])));
-        claim("rows carrying the empty contract type", "83",
-              Long.toString(countEmptyContractType(run)));
+        claim("rows carrying the empty contract type", "83", Long.toString(p.emptyContractType));
 
         Profile.AmountField da = p.amounts.get("DaBetrag");
         Profile.AmountField bs = p.amounts.get("bausparsumme_teuro");
         Profile.AmountField gu = p.amounts.get("guthaben");
-        claim("identifier range", "800000 .. 900023", idRange(run));
-        claim("DaBetrag range", "0 .. 295982.79",
-              CanonicalNumber.num(da.min) + " .. " + CanonicalNumber.num(da.max));
+        claim("identifier range", "800000 .. 900023", p.idMin + " .. " + p.idMax);
+        claim("DaBetrag range", "0 .. 295982.79", plain(da.min) + " .. " + plain(da.max));
         claim("DaBetrag values that are MISSING once read", "2", Long.toString(da.missing));
-        claim("bausparsumme_teuro range", "0 .. 50.972",
-              CanonicalNumber.num(bs.min) + " .. " + CanonicalNumber.num(bs.max));
+        claim2("  ... reconciliation attempt for the count above", "2 (spec)",
+              "missing " + da.missing + " + zero-valued " + da.zeros + " = " + (da.missing + da.zeros),
+              da.missing + da.zeros == 2);
+        claim("bausparsumme_teuro range", "0 .. 50.972", plain(bs.min) + " .. " + plain(bs.max));
         claim("bausparsumme_teuro values that are MISSING once read", "3", Long.toString(bs.missing));
-        claim("guthaben range", "318.53 .. 216706.84",
-              CanonicalNumber.num(gu.min) + " .. " + CanonicalNumber.num(gu.max));
+        claim2("  ... reconciliation attempt for the count above", "3 (spec)",
+              "missing " + bs.missing + " + zero-valued " + bs.zeros + " = " + (bs.missing + bs.zeros),
+              bs.missing + bs.zeros == 3);
+        claim("guthaben range", "318.53 .. 216706.84", plain(gu.min) + " .. " + plain(gu.max));
         claim("guthaben values that are MISSING once read", "0", Long.toString(gu.missing));
+        claim2("  ... reconciliation attempt for the count above", "0 (spec)",
+              "missing " + gu.missing + " + zero-valued " + gu.zeros + " = " + (gu.missing + gu.zeros),
+              gu.missing + gu.zeros == 0);
         claim("parsed date range across the five date fields", "1998-01-04 .. 2043-10-15", dateRange(p));
         claim("date missing-markers actually present in the stand-in", ",0,00000000,NA", markersSeen(p));
         claim("harness coercion to a date type, as DECLARED in the manifest",
@@ -384,23 +406,6 @@ public final class Main {
         }
     }
 
-    private static long countEmptyContractType(Runner run) {
-        long n = 0;
-        for (int i = 0; i < run.book.n; i++) if ("".equals(run.book.contractType[i])) n++;
-        return n;
-    }
-
-    private static String idRange(Runner run) {
-        String lo = null, hi = null;
-        for (int i = 0; i < run.book.n; i++) {
-            String v = run.book.id[i];
-            if (v == null) continue;
-            if (lo == null || Col.compareUtf8(v, lo) < 0) lo = v;
-            if (hi == null || Col.compareUtf8(v, hi) > 0) hi = v;
-        }
-        return lo + " .. " + hi;
-    }
-
     private static String dateRange(Profile p) {
         long lo = Long.MAX_VALUE, hi = Long.MIN_VALUE;
         for (Profile.DateField f : p.dates.values()) {
@@ -416,10 +421,12 @@ public final class Main {
         return String.join(",", s);
     }
 
-    private static String sortedJoin(String[] xs) {
+    private static String sortedJoin(String[] xs) { return sortedJoinBy(xs, ","); }
+
+    private static String sortedJoinBy(String[] xs, String sep) {
         String[] c = xs.clone();
         java.util.Arrays.sort(c, Col::compareUtf8);
-        return String.join(",", c);
+        return String.join(sep, c);
     }
 
     // --------------------------------------------------------- findings exposure

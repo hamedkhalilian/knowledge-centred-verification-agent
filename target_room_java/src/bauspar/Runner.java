@@ -141,12 +141,17 @@ public final class Runner {
                 }
 
                 String ct = get(rec, "contract_type");
-                if (ct != null && profile.contractTypes.size() < 64) profile.contractTypes.add(ct);
+                if (ct != null) {
+                    if (profile.contractTypes.size() < 64) profile.contractTypes.add(ct);
+                    if (ct.isEmpty()) profile.emptyContractType++;
+                }
 
                 String id = get(rec, "BSV");
                 if (id != null) {
                     profile.idRows++;
                     idCounts.merge(id, 1, Integer::sum);
+                    if (profile.idMin == null || Col.compareUtf8(id, profile.idMin) < 0) profile.idMin = id;
+                    if (profile.idMax == null || Col.compareUtf8(id, profile.idMax) > 0) profile.idMax = id;
                     if (id.matches("^[+-]?[0-9]*\\.?[0-9]+[eE][+-]?[0-9]+$")) {
                         profile.exponentIdCount++;
                         if (profile.exponentIds.size() < 10) profile.exponentIds.add(id);

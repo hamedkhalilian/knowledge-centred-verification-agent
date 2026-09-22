@@ -44,7 +44,8 @@ public final class Profile {
     public final Map<String, DateField> dates = new LinkedHashMap<>();
     public final Map<String, AmountField> amounts = new LinkedHashMap<>();
     public final LinkedHashSet<String> contractTypes = new LinkedHashSet<>();
-    public long idRows, idDistinct, idDuplicated;
+    public long idRows, idDistinct, idDuplicated, emptyContractType;
+    public String idMin, idMax;
     public final List<String> duplicatedIds = new ArrayList<>();
     public final List<String> exponentIds = new ArrayList<>();
     public long exponentIdCount;
