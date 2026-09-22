@@ -26,9 +26,18 @@ emits 33 fields over 503 rows, deterministically (identical digest on re-run).
 |---|---|
 | Barrier (R21) | structural — source and target agents in separate contexts |
 | Inputs | synthetic stand-ins (forced by F1, then chosen) |
-| Tier | **not yet chosen** (CORE or FULL) |
-| Target language | **not yet chosen** |
-| Findings policy | **not yet chosen** |
+| Tier | CORE |
+| Target language | TypeScript |
+| Findings policy | faithful only — no corrected-behaviour switches |
+
+CORE was chosen knowing F1 already caps the verdict: FULL's extra artifacts
+would add evidence about structure, not about reality, and cannot lift a cap
+that exists because the inputs are not real.
+
+Faithful-only means the target reproduces the source exactly, including any
+behaviour that looks like a defect. Suspected defects are reported as findings
+with executable preconditions; none is silently corrected. A divergence is then
+unambiguous — there is no legitimate reason for the two sides to differ.
 
 ## Source inventory
 
