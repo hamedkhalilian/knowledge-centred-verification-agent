@@ -1,0 +1,203 @@
+{
+  "run_id": "ocm-run-3-bauspar",
+  "side": "source",
+  "state": "OBSERVE_SOURCE",
+  "canonicalisation": "dec9-half-even-v1",
+  "emitted_utc": "2026-09-22T16:43:56Z",
+  "harness_patches": [
+    {
+      "file": "customer_engine_v4.R",
+      "what": "none: the engine file is sourced unmodified",
+      "why": "The harness supplies merged_data_with_tariff_amount as a synthetic table and calls compute_contract() directly. No line of the engine was edited, so no behaviour is attributable to the harness."
+    }
+  ],
+  "inputs": [
+    {
+      "name": "merged_data_synthetic.csv",
+      "bytes": 37896,
+      "sha256": "7093a21b7197714549c8f8896917eb189b6e3d0a1e3043f3ed26a5f22c1cfa47"
+    }
+  ],
+  "units": [
+    {
+      "unit": "U01",
+      "objects": [
+        {
+          "name": "customer_book",
+          "kind": "frame",
+          "rows": 503,
+          "cols": 33,
+          "colnames": [
+            "id",
+            "phase",
+            "savings_ratio",
+            "saving_goal",
+            "contract_type",
+            "goal_fraction",
+            "goal_source",
+            "saving_reference",
+            "balance",
+            "bauspar_sum",
+            "loan_notional",
+            "bauspar_loan",
+            "loan_to_bauspar_ratio",
+            "is_bridge_loan",
+            "allocation_estimated",
+            "allocation_in_past",
+            "repayment_active",
+            "saving_after_allocation",
+            "warn_loan_pointless",
+            "contract_start_date",
+            "first_payment_date",
+            "allocation_date",
+            "loan_start_date",
+            "contract_end_date",
+            "year_contract",
+            "year_first_payment",
+            "year_allocation",
+            "year_loan_start",
+            "x_contract",
+            "x_first_payment",
+            "x_allocation",
+            "x_loan_start",
+            "x_now"
+          ],
+          "canonical_order": [
+            {
+              "column": "id",
+              "direction": "asc"
+            }
+          ],
+          "digest": {
+            "algorithm": "SHA-256",
+            "canonicalisation": "dec9-half-even-v1",
+            "value": "82bf5ab25f3672672adc49f9cd6b158cc6aa2abdc94479b05852a58580413b78"
+          },
+          "coverage": {
+            "row_count": 503,
+            "field_count": 33,
+            "null_count": 690,
+            "min": "-1.66139000e+05",
+            "max": "2.95983000e+05"
+          },
+          "probes": [
+            {
+              "selection_rule": "index:1",
+              "fields": {
+                "id": "800000",
+                "phase": "oversave",
+                "savings_ratio": "4.46000000e-01",
+                "saving_goal": "1.55650000e+04",
+                "contract_type": "BS1",
+                "goal_fraction": "3.50000000e-01",
+                "goal_source": "tariff",
+                "saving_reference": "4.44720000e+04",
+                "balance": "1.98550000e+04",
+                "bauspar_sum": "4.50390000e+04",
+                "loan_notional": "4.44720000e+04",
+                "bauspar_loan": "2.46170000e+04",
+                "loan_to_bauspar_ratio": "9.87000000e-01",
+                "is_bridge_loan": "false",
+                "allocation_estimated": "false",
+                "allocation_in_past": "false",
+                "repayment_active": "false",
+                "saving_after_allocation": "false",
+                "warn_loan_pointless": "false",
+                "contract_start_date": "18955",
+                "first_payment_date": "19159",
+                "allocation_date": "23732",
+                "loan_start_date": "23809",
+                "contract_end_date": "27750",
+                "year_contract": "2021",
+                "year_first_payment": "2022",
+                "year_allocation": "2034",
+                "year_loan_start": "2035",
+                "x_contract": "2.00000000e-02",
+                "x_first_payment": "6.00000000e-02",
+                "x_allocation": "4.00000000e-01",
+                "x_loan_start": "NA",
+                "x_now": "4.60000000e-01"
+              }
+            },
+            {
+              "selection_rule": "index:ceil(n/2)",
+              "fields": {
+                "id": "800251",
+                "phase": "done",
+                "savings_ratio": "6.60000000e-01",
+                "saving_goal": "8.39000000e+03",
+                "contract_type": "BSK",
+                "goal_fraction": "4.00000000e-01",
+                "goal_source": "fallback_no_tariff",
+                "saving_reference": "2.09740000e+04",
+                "balance": "1.38500000e+04",
+                "bauspar_sum": "2.08680000e+04",
+                "loan_notional": "2.09740000e+04",
+                "bauspar_loan": "7.12400000e+03",
+                "loan_to_bauspar_ratio": "1.00500000e+00",
+                "is_bridge_loan": "false",
+                "allocation_estimated": "false",
+                "allocation_in_past": "true",
+                "repayment_active": "false",
+                "saving_after_allocation": "false",
+                "warn_loan_pointless": "false",
+                "contract_start_date": "12642",
+                "first_payment_date": "12955",
+                "allocation_date": "15672",
+                "loan_start_date": "NA",
+                "contract_end_date": "19690",
+                "year_contract": "2004",
+                "year_first_payment": "2005",
+                "year_allocation": "2012",
+                "year_loan_start": "",
+                "x_contract": "2.00000000e-02",
+                "x_first_payment": "6.00000000e-02",
+                "x_allocation": "4.00000000e-01",
+                "x_loan_start": "4.00000000e-01",
+                "x_now": "1.00000000e+00"
+              }
+            },
+            {
+              "selection_rule": "index:n",
+              "fields": {
+                "id": "900023",
+                "phase": "save",
+                "savings_ratio": "NA",
+                "saving_goal": "0.00000000e+00",
+                "contract_type": "BS2",
+                "goal_fraction": "4.00000000e-01",
+                "goal_source": "tariff",
+                "saving_reference": "0.00000000e+00",
+                "balance": "1.20000000e+03",
+                "bauspar_sum": "0.00000000e+00",
+                "loan_notional": "0.00000000e+00",
+                "bauspar_loan": "-1.20000000e+03",
+                "loan_to_bauspar_ratio": "NA",
+                "is_bridge_loan": "false",
+                "allocation_estimated": "false",
+                "allocation_in_past": "true",
+                "repayment_active": "false",
+                "saving_after_allocation": "true",
+                "warn_loan_pointless": "false",
+                "contract_start_date": "15857",
+                "first_payment_date": "15887",
+                "allocation_date": "19905",
+                "loan_start_date": "NA",
+                "contract_end_date": "23923",
+                "year_contract": "2013",
+                "year_first_payment": "2013",
+                "year_allocation": "2024",
+                "year_loan_start": "",
+                "x_contract": "2.00000000e-02",
+                "x_first_payment": "6.00000000e-02",
+                "x_allocation": "4.00000000e-01",
+                "x_loan_start": "NA",
+                "x_now": "4.28600000e-01"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
