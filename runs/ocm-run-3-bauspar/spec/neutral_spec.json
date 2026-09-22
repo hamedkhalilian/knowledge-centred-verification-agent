@@ -1,0 +1,801 @@
+{
+  "spec_version": "ocm-run-3-bauspar-U01-v1",
+  "emitted_utc": "2026-09-22T00:00:00Z",
+  "author_role": "source_agent",
+  "barrier_scan": {
+    "scanned": true,
+    "patterns_hit": 0,
+    "leak_injection_validated": true
+  },
+  "io_formats": [
+    {
+      "input": "contract table handed to the unit (in the source's own session, the enriched merged contract table; the run's stand-in is the staged file below)",
+      "expectations": [
+        {
+          "fact": "The unit reads exactly these eleven named fields from a contract row and no others: BSV, DaBetrag, Tilgungsbeginn, Vertragsende, abschlussdatum, bausparsumme_teuro, contract_type, einloesungsdatum, erstmalige_zuteilungsanwartschaft, guthaben, tariff_amount.",
+          "provenance": "source_code_declared",
+          "note": "Established twice over and in agreement: a mechanical parse of the unit's field accesses, and the controller's independent scan recorded as run finding F3. Stated here as VALUES in this order, never as a count (R3) -- this is the vector class that cost run 2 its only divergence. These names are what the unit DEMANDS; they are not evidence that a real table supplies them (run assumption UA-01)."
+        },
+        {
+          "fact": "Any further field in the table is ignored. The unit selects the eleven it needs by name.",
+          "provenance": "source_code_declared",
+          "note": "Scope for R7 is the facts the computation depends on. A surplus field is a reported difference, never a halt (lessons finding 4)."
+        },
+        {
+          "fact": "The identifier field BSV must be present: the browser-data writer stops with a named refusal when it is absent, and the single-contract inspector does the same.",
+          "provenance": "source_code_declared"
+        },
+        {
+          "fact": "Each of the five date-bearing fields may arrive either already typed as a date or as text holding eight digits in year-month-day order; both are handled, and the unit's comment names abschlussdatum and einloesungsdatum as typed and erstmalige_zuteilungsanwartschaft, Tilgungsbeginn and Vertragsende as raw digits.",
+          "provenance": "source_code_declared",
+          "note": "The split between the two forms comes from the unit's header comment only. Comments are not evidence (R1) and no real table was available to check it; recorded as the run's unverified assumption UA-02. The CODE handles either form for any of the five, and that is what must be implemented."
+        },
+        {
+          "fact": "Each of the four amount-bearing fields may arrive either as a number or as text in German decimal-comma style, optionally with thousands dots.",
+          "provenance": "source_code_declared"
+        },
+        {
+          "fact": "The tariff share may be absent or missing for a contract; the unit records that as the goal source fallback_no_tariff and uses 0.40 instead.",
+          "provenance": "source_code_declared"
+        },
+        {
+          "fact": "Non-missing tariff shares are fractions of one, not percent points.",
+          "provenance": "assumption",
+          "note": "Run assumption UA-03. Inferred from the unit's arithmetic, not observed in any real table. Finding FND-02 states the consequence if it is false."
+        },
+        {
+          "fact": "Contract identifiers are unique per row.",
+          "provenance": "assumption",
+          "note": "Run assumption UA-04, and it is doubtful: the downstream quality harness deliberately takes the FIRST row for an identifier, which implies duplicates are expected in the real table. The canonical order declared for every checkpoint object therefore carries a second key so that it stays total if identifiers repeat."
+        }
+      ]
+    },
+    {
+      "input": "merged_data_synthetic.csv (staged stand-in, generated; NOT a real input)",
+      "expectations": [
+        {
+          "fact": "The real contract table is absent from the bundle, so every fact in this block was observed in a generated stand-in and none of them is evidence about production data. Under R2 this caps the run's verdict at PROVISIONAL however well the two sides agree.",
+          "provenance": "assumption",
+          "note": "Run finding F1. Named here so the cap is stated, not inferred."
+        },
+        {
+          "fact": "503 data rows and one header row; exactly eleven comma-delimited fields on every line under proper quoting; UTF-8; the eleven header names are the eleven of input_column_catalogue.",
+          "provenance": "observed_in_synthetic_input"
+        },
+        {
+          "fact": "103 of the 503 data lines carry quoted fields containing commas. A reader that splits the line on commas instead of parsing quoted fields sees 14 or 15 fields on those lines and mis-assigns every field after the first amount, silently.",
+          "provenance": "observed_in_synthetic_input",
+          "note": "The controller's own profiler made exactly this mistake and reported the file as ragged (run finding F7). Carried across as a hazard to verify, not as a setting to adopt (R7)."
+        },
+        {
+          "fact": "Distinct tariff share values in full: 0,3000 / 0,3500 / 0,4000 / 0,5000 / 0.3 / 0.35 / 0.4 / 0.5 / NA. 89 of 503 rows carry the missing marker. Values run from 0.3 to 0.5 once read.",
+          "provenance": "observed_in_synthetic_input",
+          "note": "Values in full rather than a count (R3). Both the plain and the decimal-comma spellings occur, so both branches of the number reader are exercised."
+        },
+        {
+          "fact": "Distinct contract type values in full: the empty text, BS1, BS2, BSK, VL7. 83 of 503 rows carry the empty text.",
+          "provenance": "observed_in_synthetic_input"
+        },
+        {
+          "fact": "Observed ranges in the stand-in, after reading: identifiers 800000 to 900023; DaBetrag 0 to 295982.79 with 2 missing; bausparsumme_teuro 0 to 50.972 with 3 missing, in thousands of euro; guthaben 318.53 to 216706.84 with none missing; parsed dates from 1998-01-04 to 2043-10-15.",
+          "provenance": "observed_in_synthetic_input",
+          "note": "Ranges, not shapes (R3). The maximum of bausparsumme_teuro is about 51, which is the thousands-of-euro unit showing itself: a reader that failed to apply the factor of 1000 would put the whole book in the bridge-loan band, which is what precondition P-13 tests."
+        },
+        {
+          "fact": "The missing markers actually present in the stand-in's date fields are the empty text, 0, 00000000 and NA. The unit recognises seven markers; three of them are not exercised here.",
+          "provenance": "observed_in_synthetic_input",
+          "note": "An honest statement of what the stand-in does and does not cover. See finding FND-11."
+        },
+        {
+          "fact": "The stand-in is delivered as text throughout. The source-side harness coerces exactly two fields, abschlussdatum and einloesungsdatum, to a date type before the unit sees them, and leaves erstmalige_zuteilungsanwartschaft, Tilgungsbeginn and Vertragsende as raw digits, so that both branches of the date reader are exercised. The coercion is declared in the stand-in's manifest and is applied identically on both sides; neither side infers it.",
+          "provenance": "observed_in_synthetic_input"
+        },
+        {
+          "fact": "Identifiers are unique in the stand-in by construction, so the stand-in cannot exercise the duplicate-identifier path of finding FND-04.",
+          "provenance": "observed_in_synthetic_input"
+        }
+      ]
+    }
+  ],
+  "units": [
+    {
+      "id": "U01",
+      "name": "customer lifecycle engine for a single Bauspar contract",
+      "reads": [
+        "contract table handed to the unit (the eleven fields of input_column_catalogue)",
+        "valuation date (supplied by the caller; the unit's own default is in the constants)"
+      ],
+      "produces": [
+        "customer_book",
+        "customer_export_rows",
+        "customers_js_document"
+      ],
+      "behavior": [
+        "L1. LOAD. Bringing the unit into a session defines thirteen named routines and creates no other value: a date reader, a year-label maker, a clamp, a German-number reader, the per-contract calculation, a whole-book calculation, an export-name mapper, a scalar-to-script renderer, a record-to-script renderer, a progress-indicator builder, the browser-data writer, a single-contract inspector and a standalone-page writer. Nothing else is evaluated at load except the three-way branch in L2. Verified by loading the unit in an empty session and listing what appeared; the unit's own header comments were not used as evidence (R1).",
+        "L2. LOAD, continued. Exactly one of three branches then runs, chosen by what already exists in the calling session. (a) If a value named merged_data_with_tariff_amount exists, the browser-data writer runs immediately over it and writes the file customers_data.js into the process working directory, at the valuation date held in a session value named VAL_DATE when that name exists and otherwise at 2026-03-31. (b) Otherwise, if a value named merged_data exists, a warning is raised on the diagnostic stream saying the enriched table was not found and that contract_type and goal_frac will be empty, and the same writer then runs over that table on the same date rule. (c) Otherwise a two-line notice is printed on the diagnostic stream, naming the unit and the call that would produce the data file; nothing is computed and nothing is written. Branch (c) is the branch a clean load takes, and it is what the source-side harness observed: two lines on the diagnostic stream, no file, no computation.",
+        "L3. In branches (a) and (b) the load also leaves behind one extra session value holding the valuation date it used. This is a side effect of loading, not a published object.",
+        "C0. ENTRY POINT. The per-contract calculation takes one contract row and one valuation date, plus seven configuration values whose defaults are listed in the constants. Everything below describes the default configuration, which is the only configuration the source itself uses.",
+        "C1. DATE READING RULE, applied to each of the five date-bearing fields. If the incoming value is already of a date type it is taken as that date, with a timestamp reduced to its calendar date in UTC. Otherwise the value is rendered as text and surrounding whitespace is removed. If the resulting text is one of the seven missing markers listed in the constants (date_missing_markers) the date is missing -- this is how the source says 'this event has not happened'. Otherwise: if the text contains a hyphen anywhere it is read as a calendar date in year-month-day order with hyphen or slash separators, and a value that cannot be read that way RAISES AN ERROR that stops the whole run; if the text contains no hyphen it is read as eight digits in year-month-day order, and a value that cannot be read that way becomes missing without any message. Note the asymmetry between those two failure modes; it is finding FND-06. Three further behaviours were measured and must be reproduced: text after a complete eight-digit match is ignored, so 20110401.0 reads as 2011-04-01; a value with fewer than eight digits is NOT rejected but read greedily, so 2013112 reads as 2013-11-02; and a value with slash separators and no hyphen, such as 2011/04/01, is sent to the eight-digit branch and becomes missing.",
+        "C2. NUMBER READING RULE, applied to each of the four amount-bearing fields. If the incoming value is already numeric it is used as it stands, and none of the missing markers apply to it -- in particular a numeric zero stays zero. Otherwise the value is rendered as text, surrounding whitespace is removed, and the five markers listed in the constants (amount_missing_markers) mean missing. Otherwise: if the text contains a comma, EVERY dot is deleted first (they are thousands separators) and then the comma becomes the decimal point; if the text contains no comma it is read as written, so a dot in it is a decimal point. Text that still does not read as a number becomes missing, silently. Worked values, measured: 36263,14 and 36.263,14 both give 36263.14; 1.234.567,89 gives 1234567.89; 36.263 gives 36.263, which is finding FND-01; 1,2,3 gives missing.",
+        "C3. Read the five dates with rule C1: the contract start from abschlussdatum, the first payment from einloesungsdatum, the raw allocation date from erstmalige_zuteilungsanwartschaft, the repayment start from Tilgungsbeginn and the contract end from Vertragsende.",
+        "C4. TIMELINE ORIGIN. If the contract start is missing, use the first payment date. If it is still missing, use the valuation date minus 2557 days. 2557 is a constant of the unit, not a calendar computation: see the constant fallback_origin_days and its note.",
+        "C5. ALLOCATION DATE. The flag allocation_estimated is set when and only when the raw allocation date is missing. When it is set, the base is the first payment date if that is present, otherwise the contract start date as it stands after step C4, and the allocation date is that base plus 3652 days -- note 3652, not 3653; see the constant allocation_fallback_days. When the flag is not set, the allocation date is the raw value. After this step the allocation date can never be missing, because the base of the estimate can never be missing after C4.",
+        "C6. CONTRACT END. If the contract end is missing it becomes the allocation date plus 4018 days, using the allocation date from C5 whether or not that was itself an estimate. After this step the contract end can never be missing either. Two chained fallbacks can therefore decide the 'done' phase with no observed date behind either of them: finding FND-08.",
+        "C7. AMOUNTS, by rule C2. The loan notional comes from DaBetrag as read. The Bauspar sum comes from bausparsumme_teuro MULTIPLIED BY 1000, because that column carries thousands of euro and every other amount in this unit is in euro. The balance comes from guthaben as read. Missing propagates through the multiplication.",
+        "C8. TARIFF SHARE. Read tariff_amount by rule C2 and keep its first value. If that field is absent from the row altogether the result is missing rather than an error. The tariff share is USED when it is both finite and strictly greater than zero; then goal_fraction is that value and goal_source is the text tariff. Otherwise goal_fraction is 0.40 and goal_source is the text fallback_no_tariff. Those two texts are the complete value set of goal_source. The share is a FRACTION OF ONE and is multiplied directly by an amount in euro; the unit's own comment calls it a percentage, and a table that supplied percent points would multiply every saving goal by one hundred: finding FND-02.",
+        "C9. CONTRACT TYPE. If the field contract_type is present on the row its first value is carried through as text, unchanged and untrimmed, including an empty text; if the field is absent altogether the record carries a missing text. No other use is made of it.",
+        "C10. BRIDGE TEST. The ratio loan_to_bauspar_ratio is the loan notional divided by the Bauspar sum, but only when the Bauspar sum is finite and strictly greater than zero; otherwise the ratio is missing. The flag is_bridge_loan is set when and only when the ratio is finite and STRICTLY GREATER than 2. A ratio exactly equal to 2 does not set it.",
+        "C11. SAVING REFERENCE. If is_bridge_loan is set and the Bauspar sum is finite and strictly greater than zero, the saving reference is the Bauspar sum; in every other case it is the loan notional, including when the loan notional is missing.",
+        "C12. DERIVED AMOUNTS. saving_goal is goal_fraction times the saving reference. savings_ratio is the balance divided by the saving reference, but only when the reference is finite and strictly greater than zero; otherwise savings_ratio is missing. bauspar_loan is the saving reference minus the balance, computed unconditionally, so it can be negative and it is missing whenever either side is missing. The flag warn_loan_pointless is set when and only when savings_ratio is finite and GREATER THAN OR EQUAL TO 0.90.",
+        "C13. TIMELINE PREDICATES, all three against the valuation date, each with the strictness stated. allocation_in_past: the allocation date is present and the valuation date is STRICTLY AFTER it. repayment_active: the repayment start is present and the valuation date is ON OR AFTER it. contract_ended: the contract end is present and the valuation date is ON OR AFTER it. A fourth predicate, over_goal, is set when savings_ratio is finite and GREATER THAN OR EQUAL TO goal_fraction. All four are plain yes-or-no values and are never missing.",
+        "C14. PHASE. In this order of precedence: if contract_ended then done; otherwise if repayment_active then loan; otherwise oversave when over_goal and save when not. The four texts done, loan, oversave, save are the complete value set of phase. The decisive test for the loan phase is that repayment has started, NOT that the allocation date has passed.",
+        "C15. The flag saving_after_allocation is set when allocation_in_past is set and neither repayment_active nor contract_ended is. It records the legitimate case of a customer who keeps paying in after allocation, and it is what step C17 branch two keys on.",
+        "C16. SCHEMATIC POSITIONS. Three fixed positions on a zero-to-one axis: contract 0.02, first payment 0.06, allocation 0.40. This axis is schematic and is not a time scale. saving_progress is savings_ratio divided by goal_fraction, clamped into zero-to-one, when savings_ratio is finite, and zero when it is not. The clamp is: take the smaller of the value and the upper bound, then the larger of that and the lower bound.",
+        "C17. CURRENT POSITION, exactly one of three branches. BRANCH ONE, when phase is loan or done: the loan-start position is 0.40; a repayment reference date is the repayment start when present and otherwise the allocation date; the repayment window is the whole-day count from that reference to the contract end and the elapsed part is the whole-day count from that reference to the valuation date; the repayment progress is elapsed divided by window clamped into zero-to-one when the window is finite and strictly greater than zero, and zero otherwise; the current position is 0.40 plus repayment progress times 0.60. BRANCH TWO, when branch one does not apply and saving_after_allocation is set: the loan-start position is missing; the saving window is the whole-day count from the first payment date to the allocation date and the extra time is the whole-day count from the allocation date to the valuation date; the extra fraction is extra time divided by saving window clamped into zero-to-one when the window is finite and strictly greater than zero, and zero otherwise; the current position is 0.40 plus extra fraction times 0.18. BRANCH THREE, otherwise: the loan-start position is missing and the current position is 0.06 plus saving_progress times 0.34; and then, only when the phase is oversave, the current position becomes the smaller of that value plus 0.06 and 0.46.",
+        "C18. YEAR LABELS. For each of the contract start, first payment, allocation and repayment start: an empty text when the date is missing, otherwise its four-digit calendar year. Then, when allocation_estimated is set and the allocation label is not empty, a tilde is prefixed to the allocation label, giving for example ~2029. Since the allocation date can never be missing after C5, an estimated allocation is always labelled with the tilde.",
+        "C19. RECORD. The result is one record of exactly 33 named values in the order given by the constant record_field_catalogue. Fourteen of them are rounded, each to the number of decimal places given by the constant rounding_places, by the rounding rule in C20; the other nineteen are carried as they are. The identifier is the value of BSV rendered as text by the source language's default conversion, which for a numeric identifier uses up to fifteen significant digits and switches to exponent form for some round values: finding FND-03. The five date values stay dates, the six flags stay yes-or-no values, and the four year labels and the three texts phase, contract_type and goal_source stay texts.",
+        "C20. ROUNDING RULE. This rule governs every rounded field in C19 and it is NOT the same rule as the script-rendering rule in C22. To round a finite value to d decimal places: work on the magnitude and put the sign back at the end, so a negative value that rounds to zero yields a negative zero; let k be the largest integer not greater than magnitude times ten-to-the-d, evaluated EXACTLY on the binary value held, not in binary floating point; form the two candidate results as the binary values nearest to the decimals k over ten-to-the-d and k plus one over ten-to-the-d; compare the exact distances from the magnitude to each candidate and take the nearer; if the two distances are exactly equal take the candidate whose numerator is even. A missing or non-finite value is returned unchanged. The obvious alternative -- multiply by ten-to-the-d in binary floating point, round half to even, divide back -- DISAGREES with this unit: at three places it sends 0.0055 to 0.006 where this unit gives 0.005. The constant round_reference_vectors carries sixteen measured cases; an implementation that reproduces all sixteen has the rule, and one that fails any of them does not.",
+        "C21. EXPORT MAPPING. A second published shape renames and narrows the record to exactly 25 named values in the order given by the constant export_field_catalogue. id, phase, contract_type and goal_source carry through unchanged; sr is savings_ratio; xc, xf, xa, xl and xn are the five positions; lab_contract, lab_first, lab_alloc and lab_loan are the four year labels; guthaben is balance; bausparsumme is bauspar_sum; save_target is saving_goal; loan_amount is bauspar_loan; dabetrag is loan_notional; da_bsum_ratio is loan_to_bauspar_ratio; goal_frac is goal_fraction. Four values are turned into whole numbers one and zero: warn from warn_loan_pointless, alloc_est from allocation_estimated, bridge from is_bridge_loan, and special, which is one when loan_to_bauspar_ratio is present and STRICTLY LESS THAN 0.5 and zero otherwise, including when the ratio is missing. The 0.5 in the special alarm is written into this mapping and is not tied to the bridge cutoff of 2, so the two cutoffs can be moved apart: finding FND-05. Note also that the rounded amounts are mapped through as they are, so loan_amount need not equal bausparsumme or dabetrag minus guthaben to the euro: finding FND-09.",
+        "C22. SCRIPT VALUE RENDERING. Each of the 25 exported values is rendered for the browser data file as follows. A value that is missing, or that is not exactly one value, renders as the bare word null. A yes-or-no value renders as the bare word true or false in lower case. A numeric value that is not finite renders as null; any other numeric value is rendered in plain fixed notation with exactly six digits after the decimal point, rounding HALF TO EVEN ON THE EXACT BINARY VALUE -- this is the ordinary C fixed-format conversion, and it is NOT the rule of C20 -- after which trailing zeros and then a trailing decimal point are removed. So 0.4 renders as 0.4, 14500 renders as 14500, a value of one ten-millionth renders as 0, and a negative zero renders as -0. Anything else is rendered as text: every backslash is doubled, every double quote is prefixed with a backslash, and the result is wrapped in double quotes. No other character is escaped.",
+        "C23. SCRIPT RECORD RENDERING. One contract renders as an opening brace, then for each of the 25 exported names in order the name in double quotes, a colon, and the value from C22, joined by single commas with no spaces, then a closing brace.",
+        "C24. BROWSER DATA FILE. The writer takes a table and a valuation date. It stops with a named error if the table is absent or empty of content, and stops with a second named error if the table has no BSV field. It then makes a progress indicator by trying, in order, a graphical one, then a console one, then a silent one, each attempt guarded so that a failure can never abort the write. It walks the table ROW BY ROW IN TABLE ORDER, computes each contract by C0 through C19, renders the identifier as text and escapes any double quote in it by prefixing a backslash -- note that a backslash in the identifier is NOT escaped here, unlike C22 -- and builds one entry as the quoted identifier, a colon, and the rendered record from C23. The file is then five parts: a first comment line naming the unit that generated it, a second comment line carrying the row count and the valuation date rendered as year-month-day, a line opening the assignment to the browser-side collection, the entries joined by a comma followed by a line feed, and a final line closing the collection. Those five parts are written as lines to a file opened in UTF-8, each part followed by one line feed, so the file ends with a line feed. The writer then prints one line on the standard stream giving the row count and the absolute path, and returns that path without printing it again. Duplicate identifiers are written as duplicate keys, one entry per row: finding FND-04.",
+        "C25. WHOLE-BOOK SHAPE. A second entry point computes every row of a table by C0 through C19 and stacks the records into one table, one row per contract, whose fields are the 33 of record_field_catalogue in that order. It is not called by the load-time branch and it applies no sorting, no filtering and no deduplication; row order is table order.",
+        "C26. SINGLE-CONTRACT INSPECTION. A third entry point selects the rows of a table whose BSV equals a given identifier, stops with a named error when there are none, and when there is more than one raises a warning naming the identifier and the count and KEEPS THE FIRST ROW. It then computes that contract and prints a fixed report; it publishes nothing and changes nothing. Its default valuation date is the session value VAL_DATE when that name exists and otherwise 2026-03-31.",
+        "C27. STANDALONE PAGE. A fourth entry point splices the browser data into a copy of the view template and writes one self-contained page. It reads its template argument and its output argument, but it IGNORES ITS OWN TABLE ARGUMENT and instead writes the data of the session value named merged_data_with_tariff_amount, so a caller who passes a subset gets the whole enriched table, and a caller who has no such session value gets an error naming that value rather than the argument: finding FND-07. Its completion message reports the row count OF THE ARGUMENT, which is therefore not the number of contracts in the file it just wrote. The splice itself replaces the external script tag that names the data file, matched without regard to case, and falls back to inserting before the head-closing tag with a warning when that tag is not found, and stops with an error when neither is present."
+      ],
+      "constants": [
+        {
+          "name": "input_column_catalogue",
+          "value": [
+            "BSV",
+            "DaBetrag",
+            "Tilgungsbeginn",
+            "Vertragsende",
+            "abschlussdatum",
+            "bausparsumme_teuro",
+            "contract_type",
+            "einloesungsdatum",
+            "erstmalige_zuteilungsanwartschaft",
+            "guthaben",
+            "tariff_amount"
+          ],
+          "provenance": "source_declared",
+          "precondition": "P-01. Declared as values in this order (R3); the controller's gate compares this vector against a mechanical parse of the source."
+        },
+        {
+          "name": "record_field_catalogue",
+          "value": [
+            "id",
+            "phase",
+            "savings_ratio",
+            "saving_goal",
+            "contract_type",
+            "goal_fraction",
+            "goal_source",
+            "saving_reference",
+            "balance",
+            "bauspar_sum",
+            "loan_notional",
+            "bauspar_loan",
+            "loan_to_bauspar_ratio",
+            "is_bridge_loan",
+            "allocation_estimated",
+            "allocation_in_past",
+            "repayment_active",
+            "saving_after_allocation",
+            "warn_loan_pointless",
+            "contract_start_date",
+            "first_payment_date",
+            "allocation_date",
+            "loan_start_date",
+            "contract_end_date",
+            "year_contract",
+            "year_first_payment",
+            "year_allocation",
+            "year_loan_start",
+            "x_contract",
+            "x_first_payment",
+            "x_allocation",
+            "x_loan_start",
+            "x_now"
+          ],
+          "provenance": "source_declared",
+          "precondition": "The published record carries exactly these 33 names in exactly this order. Derived from the unit's own record construction and confirmed by running the unit over 503 stand-in rows: 33 fields, identical order on every row."
+        },
+        {
+          "name": "export_field_catalogue",
+          "value": [
+            "id",
+            "phase",
+            "warn",
+            "sr",
+            "xc",
+            "xf",
+            "xa",
+            "xl",
+            "xn",
+            "lab_contract",
+            "lab_first",
+            "lab_alloc",
+            "lab_loan",
+            "guthaben",
+            "bausparsumme",
+            "save_target",
+            "loan_amount",
+            "dabetrag",
+            "alloc_est",
+            "da_bsum_ratio",
+            "bridge",
+            "goal_frac",
+            "contract_type",
+            "goal_source",
+            "special"
+          ],
+          "provenance": "source_declared",
+          "precondition": "The export mapping carries exactly these 25 names in exactly this order, and the browser data file renders them in this order."
+        },
+        {
+          "name": "phase_values",
+          "value": [
+            "done",
+            "loan",
+            "oversave",
+            "save"
+          ],
+          "provenance": "source_declared",
+          "precondition": "P-08. The complete value set; the unit can publish no other. Listed alphabetically here; the decision order is the one in behaviour step C14."
+        },
+        {
+          "name": "goal_source_values",
+          "value": [
+            "tariff",
+            "fallback_no_tariff"
+          ],
+          "provenance": "source_declared",
+          "precondition": "P-08. The complete value set, in the order the unit's own branch produces."
+        },
+        {
+          "name": "date_missing_markers",
+          "value": [
+            "",
+            "0",
+            "00",
+            "0000",
+            "00000000",
+            "NA",
+            "<NA>"
+          ],
+          "provenance": "source_declared",
+          "precondition": "The complete set of texts that mean 'this event has not happened'. Seven values; the unit's comment names four of them (finding FND-11)."
+        },
+        {
+          "name": "amount_missing_markers",
+          "value": [
+            "",
+            "NA",
+            "<NA>",
+            "n/a",
+            "-"
+          ],
+          "provenance": "source_declared",
+          "precondition": "The complete set of texts that make an amount missing. They apply only to text; a numeric zero is a zero."
+        },
+        {
+          "name": "bauspar_sum_unit_factor",
+          "value": 1000,
+          "provenance": "source_declared",
+          "precondition": "P-13. bausparsumme_teuro is in THOUSANDS OF EURO; every other amount in the unit is in euro. Multiply by 1000 once, at read time."
+        },
+        {
+          "name": "allocation_fallback_days",
+          "value": 3652,
+          "provenance": "source_declared",
+          "precondition": "The unit computes this as ten times 365.25, rounded -- and that product is exactly 3652.5, which the rounding rule of behaviour step C20 sends to the EVEN neighbour, 3652. An implementation that writes 3653, or that rounds half away from zero, is off by one day for every estimated allocation."
+        },
+        {
+          "name": "contract_end_fallback_days",
+          "value": 4018,
+          "provenance": "source_declared",
+          "precondition": "Eleven times 365.25 is 4017.75, which rounds to 4018."
+        },
+        {
+          "name": "fallback_origin_days",
+          "value": 2557,
+          "provenance": "source_declared",
+          "precondition": "Seven times 365.25 is 2556.75, which rounds to 2557."
+        },
+        {
+          "name": "saving_goal_fraction_default",
+          "value": 0.4,
+          "provenance": "source_declared",
+          "precondition": "A FRACTION of one, not percent points. Used only when the tariff share is missing or not strictly positive."
+        },
+        {
+          "name": "bridge_ratio_cutoff",
+          "value": 2,
+          "provenance": "source_declared",
+          "precondition": "Compared STRICTLY GREATER THAN. A ratio of exactly 2 is not a bridge loan."
+        },
+        {
+          "name": "warn_balance_fraction",
+          "value": 0.9,
+          "provenance": "source_declared",
+          "precondition": "A FRACTION of one. Compared GREATER THAN OR EQUAL TO."
+        },
+        {
+          "name": "special_alarm_ratio_cutoff",
+          "value": 0.5,
+          "provenance": "source_declared",
+          "precondition": "Compared STRICTLY LESS THAN, and missing counts as not alarmed. Written into the export mapping, not derived from the bridge cutoff (finding FND-05)."
+        },
+        {
+          "name": "prefer_tariff_share",
+          "value": true,
+          "provenance": "source_declared",
+          "precondition": "The unit's default: the per-contract tariff share is preferred whenever it is finite and strictly positive. No caller in the bundle passes anything else."
+        },
+        {
+          "name": "axis_position_contract",
+          "value": 0.02,
+          "provenance": "source_declared"
+        },
+        {
+          "name": "axis_position_first_payment",
+          "value": 0.06,
+          "provenance": "source_declared"
+        },
+        {
+          "name": "axis_position_allocation",
+          "value": 0.4,
+          "provenance": "source_declared",
+          "precondition": "The allocation vertex is pinned here so the picture shows the forty/sixty split. The axis is schematic; it is NOT a time scale."
+        },
+        {
+          "name": "oversave_position_bump",
+          "value": 0.06,
+          "provenance": "source_declared",
+          "precondition": "Added to the saving position only in the oversave phase, then capped."
+        },
+        {
+          "name": "oversave_position_cap",
+          "value": 0.46,
+          "provenance": "source_declared",
+          "precondition": "The cap is the allocation position plus the bump, and the unit writes it that way; the value is 0.46."
+        },
+        {
+          "name": "fortsetzer_wedge",
+          "value": 0.18,
+          "provenance": "source_declared",
+          "precondition": "The width of the wedge to the right of the vertex for a contract still saving after allocation."
+        },
+        {
+          "name": "loan_region_width",
+          "value": 0.6,
+          "provenance": "source_declared",
+          "precondition": "One minus the allocation position; the repayment marker travels across it."
+        },
+        {
+          "name": "saving_region_width",
+          "value": 0.34,
+          "provenance": "source_declared",
+          "precondition": "The allocation position minus the first-payment position."
+        },
+        {
+          "name": "load_time_default_valuation_date",
+          "value": "2026-03-31",
+          "provenance": "source_declared",
+          "precondition": "P-12. Used by the load-time branch, by the single-contract inspector and by the standalone-page writer when no session value named VAL_DATE exists. It is a default inside the unit, not an input."
+        },
+        {
+          "name": "rounding_places",
+          "value": {
+            "savings_ratio": 3,
+            "saving_goal": 0,
+            "goal_fraction": 4,
+            "saving_reference": 0,
+            "balance": 0,
+            "bauspar_sum": 0,
+            "loan_notional": 0,
+            "bauspar_loan": 0,
+            "loan_to_bauspar_ratio": 3,
+            "x_contract": 4,
+            "x_first_payment": 4,
+            "x_allocation": 4,
+            "x_loan_start": 4,
+            "x_now": 4
+          },
+          "provenance": "source_declared",
+          "precondition": "The fourteen rounded fields of the record and the places each is rounded to. Every other published field is unrounded."
+        },
+        {
+          "name": "round_reference_vectors",
+          "value": {
+            "0.1235 at 3 places": "0.124",
+            "0.0055 at 3 places": "0.005",
+            "0.0095 at 3 places": "0.01",
+            "0.0085 at 3 places": "0.009",
+            "0.0005 at 3 places": "0",
+            "0.0625 at 3 places": "0.062",
+            "0.1875 at 3 places": "0.188",
+            "0.4445 at 3 places": "0.444",
+            "-0.0055 at 3 places": "-0.005",
+            "0.12345 at 4 places": "0.1235",
+            "0.5 at 0 places": "0",
+            "1.5 at 0 places": "2",
+            "2.5 at 0 places": "2",
+            "14500.5 at 0 places": "14500",
+            "14501.5 at 0 places": "14502",
+            "123456789.5 at 0 places": "123456790"
+          },
+          "provenance": "observed",
+          "precondition": "Sixteen measured cases of the rounding rule of behaviour step C20, taken by executing the source language's own rounding on the stated values. Each value and result is the shortest decimal that names the binary number meant. An implementation must reproduce all sixteen before it may be trusted with any rounded field; the third, fifth and eighth cases are the ones that separate this rule from the multiply-round-divide rule."
+        },
+        {
+          "name": "browser_file_first_line",
+          "value": "// customers_data.js  --  generated by customer_engine.R",
+          "provenance": "source_declared",
+          "precondition": "Written verbatim as the first line of the browser data file, including the double space before and after the two dashes."
+        },
+        {
+          "name": "browser_file_second_line_shape",
+          "value": "// <row count> contracts, valuation date <valuation date as year-month-day>",
+          "provenance": "source_declared",
+          "precondition": "For the stand-in at 503 rows and the declared date, the line reads exactly: // 503 contracts, valuation date 2026-03-31"
+        },
+        {
+          "name": "browser_file_open_line",
+          "value": "window.CUSTOMERS = {",
+          "provenance": "source_declared"
+        },
+        {
+          "name": "browser_file_close_line",
+          "value": "};",
+          "provenance": "source_declared",
+          "precondition": "The file ends with this line and one line feed."
+        }
+      ],
+      "effects": [
+        "At load, in the branch where an enriched contract table already exists in the session, the unit WRITES a file named customers_data.js into the process working directory. This is a side effect of merely loading the unit.",
+        "At load, in every branch, the unit writes to the diagnostic stream: either a warning about the missing enrichment, or a two-line notice telling the operator how to produce the file.",
+        "The browser-data writer opens a progress indicator: a graphical one where the platform offers it, otherwise a console one, otherwise nothing. Every attempt is guarded so that the write cannot be aborted by the indicator, and the console variant emits characters on the standard stream while it runs.",
+        "The browser-data writer prints one completion line on the standard stream giving the row count and the absolute path of the file it wrote, and returns that path quietly.",
+        "The single-contract inspector prints a fixed multi-line report on the standard stream and raises a warning when the identifier matches more than one row.",
+        "The standalone-page writer creates and deletes a temporary file, reads a template from disk, writes one page to disk, and emits a completion message on the diagnostic stream.",
+        "No random number is drawn, no clock is read, no network or database is touched, and nothing outside the working directory is written. Given the same table and the same valuation date the unit is deterministic."
+      ],
+      "notes": [
+        "Module inventory, for the structural graph and the alias map (R10): a date reader, a year-label maker, a clamp, a German-number reader, the per-contract calculation, a whole-book calculation, an export-name mapper, a scalar renderer, a record renderer, a progress-indicator builder, the browser-data writer, a single-contract inspector and a standalone-page writer. Thirteen in all; the flow manifest names them and gives the produce-and-read edges.",
+        "The unit is written in the source language's base vocabulary only: it loads no package, and the two consumers in the bundle say the same of themselves.",
+        "The per-contract calculation is total in the sense that it publishes a record for every row it is given; the only way it fails is the abort described in behaviour step C1, and the two named refusals of the writer in step C24.",
+        "Missing propagates: a missing amount makes every amount derived from it missing, a missing ratio makes the saving progress zero rather than missing, and a missing date is either replaced by a fallback (steps C4, C5, C6) or makes its predicate not set (step C13). There is no place where a missing value is silently replaced by zero.",
+        "Two different rounding rules are in play and they are not interchangeable: the rule of step C20 for the published record, and the fixed-format conversion of step C22 for the browser file. An implementation that uses one rule for both will diverge.",
+        "Every comparison that decides a phase or a flag is stated in the behaviour with its strictness. Four of them are on-or-after and two are strictly-after or strictly-greater; they are not uniform and the difference is observable on a boundary date."
+      ],
+      "finding_refs": [
+        "FND-01",
+        "FND-02",
+        "FND-03",
+        "FND-04",
+        "FND-05",
+        "FND-06",
+        "FND-07",
+        "FND-08",
+        "FND-09",
+        "FND-10",
+        "FND-11",
+        "FND-12"
+      ]
+    }
+  ],
+  "checkpoint_objects": [
+    {
+      "name": "customer_book",
+      "unit": "U01",
+      "kind": "frame",
+      "columns": [
+        "row_index",
+        "id",
+        "phase",
+        "savings_ratio",
+        "saving_goal",
+        "contract_type",
+        "goal_fraction",
+        "goal_source",
+        "saving_reference",
+        "balance",
+        "bauspar_sum",
+        "loan_notional",
+        "bauspar_loan",
+        "loan_to_bauspar_ratio",
+        "is_bridge_loan",
+        "allocation_estimated",
+        "allocation_in_past",
+        "repayment_active",
+        "saving_after_allocation",
+        "warn_loan_pointless",
+        "contract_start_date",
+        "first_payment_date",
+        "allocation_date",
+        "loan_start_date",
+        "contract_end_date",
+        "year_contract",
+        "year_first_payment",
+        "year_allocation",
+        "year_loan_start",
+        "x_contract",
+        "x_first_payment",
+        "x_allocation",
+        "x_loan_start",
+        "x_now"
+      ],
+      "canonical_order": [
+        {
+          "column": "id",
+          "direction": "asc"
+        },
+        {
+          "column": "row_index",
+          "direction": "asc"
+        }
+      ],
+      "notes": "One row per contract row of the input table, carrying the 33 published record fields of record_field_catalogue in that exact order, preceded by row_index. row_index is NOT a field of the unit: it is the 1-based position of the contract row in the input table as the unit receives it, header excluded, added by both emitters so that the canonical order is TOTAL. The order is identifier ascending compared bytewise as UTF-8, then row_index ascending; missing sorts last. The second key is not decoration: run assumption UA-04 says identifiers may repeat in the real table, and with the identifier alone the order would be undefined exactly there. Because row_index travels as data, a side that read the rows in a different order is visible as a divergence rather than hidden by the sort."
+    },
+    {
+      "name": "customer_export_rows",
+      "unit": "U01",
+      "kind": "frame",
+      "columns": [
+        "row_index",
+        "id",
+        "phase",
+        "warn",
+        "sr",
+        "xc",
+        "xf",
+        "xa",
+        "xl",
+        "xn",
+        "lab_contract",
+        "lab_first",
+        "lab_alloc",
+        "lab_loan",
+        "guthaben",
+        "bausparsumme",
+        "save_target",
+        "loan_amount",
+        "dabetrag",
+        "alloc_est",
+        "da_bsum_ratio",
+        "bridge",
+        "goal_frac",
+        "contract_type",
+        "goal_source",
+        "special"
+      ],
+      "canonical_order": [
+        {
+          "column": "id",
+          "direction": "asc"
+        },
+        {
+          "column": "row_index",
+          "direction": "asc"
+        }
+      ],
+      "notes": "The export mapping of behaviour step C21: the 25 names of export_field_catalogue in that exact order, preceded by row_index, one row per contract row. The four yes-or-no values appear here as the whole numbers 1 and 0, which is how the browser receives them. Same canonical order and same reasoning as customer_book."
+    },
+    {
+      "name": "customers_js_document",
+      "unit": "U01",
+      "kind": "frame",
+      "columns": [
+        "line_no",
+        "line_text"
+      ],
+      "canonical_order": [
+        {
+          "column": "line_no",
+          "direction": "asc"
+        }
+      ],
+      "notes": "The browser data file of behaviour step C24, split into its physical lines: line_no is 1-based and line_text is the line WITHOUT its terminating line feed. For a table of n rows the document has n plus 4 lines: two comment lines, the opening line, one line per contract row in TABLE ORDER each ending with a comma except the last, and the closing line. Holding the document as lines rather than as one value keeps the probes small on a full-size book while still digesting every byte of the file. line_no alone is a total order; no second key can be needed. This object is what tests the value rendering, the identifier escaping, the joining and the header, none of which the two frames above can see."
+    }
+  ],
+  "policies": [],
+  "figures": [
+    {
+      "id": "FIG-01",
+      "unit": "U01",
+      "title": "Bauspar lifecycle bow-tie, one contract",
+      "marks": "Two triangles meeting at a vertex on a horizontal axis: a saving triangle rising from the first-payment position to the vertex, and a loan triangle falling from the vertex to the right edge, both drawn pale as a plan reference and then filled to the extent reached; a dashed goal line at the saving-goal height; four milestone ticks with year labels; a position marker labelled 'you are here'; an optional warning box and an optional red special-case box.",
+      "backing_object": "customer_export_rows",
+      "axes": "Horizontal: the schematic zero-to-one lifecycle axis of behaviour step C16, mapped onto the drawing width. It is NOT a time scale -- the allocation vertex is pinned at 0.40 so that the picture shows the forty/sixty split, and the real years appear only in the labels. Vertical: a fraction of the reference amount, with the saving height the savings ratio and the loan height one minus the savings ratio, floored at zero.",
+      "notes": "This unit computes no picture: it publishes the geometry and the two consumers in the bundle draw it, one as scalable vector graphics in a browser page and one natively into a multi-page document. Both derive their own warning and alarm flags from the published values instead of reading the published flags, and both carry a fifth phase the unit never publishes. Details are in figures_notes.md, which is where the geometry that does not fit this entry is recorded (GR-06: a figure is compared on its data, never on pixels)."
+    }
+  ],
+  "findings": [
+    {
+      "id": "FND-01",
+      "unit": "U01",
+      "severity": "FAIL",
+      "statement": "An amount written in German thousands style but WITHOUT a decimal comma is read a thousand times too small. The number reader only strips dots when a comma is also present, so 36.263 is read as 36.263 and not as 36263.",
+      "faithful_behavior": "Reproduce exactly: strip dots only when the text contains a comma; otherwise treat a dot as a decimal point. Do not add a heuristic.",
+      "precondition": "For every non-missing text value of DaBetrag, bausparsumme_teuro, guthaben and tariff_amount: it contains a comma, or it contains no dot, or it has at most two digits after its last dot AND its value is within the plausible range for that field. Report every value that fails, with its row position and the field name; counts must reconcile to the rows read."
+    },
+    {
+      "id": "FND-02",
+      "unit": "U01",
+      "severity": "FAIL",
+      "statement": "The per-contract tariff share is multiplied directly by an amount in euro, so it is used as a FRACTION OF ONE, while the unit's own comment calls it a percentage. A table that carried percent points (40 for forty percent) would make every saving goal one hundred times too large, drive saving progress to about a hundredth of its true value, and flip most contracts out of the oversave phase -- without any error.",
+      "faithful_behavior": "Reproduce exactly: multiply the value as it stands, whatever its magnitude. Do not rescale, do not detect percent points, do not clamp.",
+      "precondition": "Every non-missing tariff share lies in the interval greater than 0 and at most 1. Report the minimum, the maximum and the full set of distinct values, together with the count that are greater than 1. Severity FAIL on any value greater than 1, because the unit's arithmetic is then out by a factor of one hundred."
+    },
+    {
+      "id": "FND-03",
+      "unit": "U01",
+      "severity": "FLAGGED",
+      "statement": "The published identifier is the BSV value rendered by the source language's default numeric-to-text conversion. Measured: a numeric 900000 renders as 9e+05, while 900001 renders as 900001. A numeric identifier column therefore yields exponent-form identifiers for some contracts, which become the keys of the browser data file.",
+      "faithful_behavior": "Reproduce exactly whatever the identifier column supplies. If it arrives as text, the text is used unchanged; there is no trimming and no padding.",
+      "precondition": "Either the identifier column arrives as text, or no identifier renders with an exponent. Check: no published identifier matches the shape of a mantissa followed by the letter e and a signed exponent. Report the count and the first ten."
+    },
+    {
+      "id": "FND-04",
+      "unit": "U01",
+      "severity": "FLAGGED",
+      "statement": "The browser data file is written one entry per ROW, keyed by identifier. Two rows with the same identifier produce two entries with the same key, and a browser keeps only the last. Nothing counts or reports this. The downstream quality harness takes the FIRST row for an identifier, so the two consumers of the same table disagree about which duplicate wins.",
+      "faithful_behavior": "Reproduce exactly: one entry per row, in table order, no deduplication and no message. The published record objects keep every row.",
+      "precondition": "Identifiers are unique across rows. Report the number of rows, the number of distinct identifiers and the number of duplicated identifiers; they must reconcile. A non-zero duplicate count is reported, never silently removed."
+    },
+    {
+      "id": "FND-05",
+      "unit": "U01",
+      "severity": "FLAGGED",
+      "statement": "Two cutoffs describe the same comparison from opposite ends. The bridge flag uses the ratio strictly greater than 2 and is a configurable value of the calculation; the red-alarm flag uses the same ratio strictly less than 0.5 and is written into the export mapping as a literal. Moving the configurable one leaves the literal behind, and the two flags stop being each other's mirror.",
+      "faithful_behavior": "Reproduce exactly: the bridge cutoff is configurable with default 2 and the alarm cutoff is a fixed 0.5. Do not derive one from the other.",
+      "precondition": "Report the count of contracts whose ratio is missing, at most 0.5, between 0.5 and 2 inclusive, and greater than 2. The alarm count must equal the count in the first band excluding missing ratios."
+    },
+    {
+      "id": "FND-06",
+      "unit": "U01",
+      "severity": "FLAGGED",
+      "statement": "The two date branches fail differently. A value containing a hyphen that is not a readable calendar date RAISES AN ERROR and stops the entire run; a value without a hyphen that is not eight readable digits becomes missing silently. Worse, the eight-digit branch is not width-checked: 2013112 is read as 2013-11-02 rather than rejected, and 2011/04/01 -- which has no hyphen -- becomes missing rather than being read as a date.",
+      "faithful_behavior": "Reproduce exactly, including the abort on an unreadable hyphenated value and the greedy read of a short digit string. Do not normalise separators and do not add a width check.",
+      "precondition": "Every non-missing value of the five date fields is either exactly eight digits forming a valid calendar date, or a hyphen-separated year-month-day that is a valid calendar date. Report the count that satisfies neither, by field, before any computation runs."
+    },
+    {
+      "id": "FND-07",
+      "unit": "U01",
+      "severity": "FAIL",
+      "statement": "The standalone-page writer ignores its own table argument. It builds the data block from the session value named merged_data_with_tariff_amount instead, so the documented way of keeping the page small -- passing a subset -- has no effect, and the completion message reports the row count of the ignored argument, which is not the number of contracts in the file just written.",
+      "faithful_behavior": "Reproduce exactly: the data block comes from the enriched session table and the reported count comes from the argument. Do not repair the mismatch.",
+      "precondition": "Whenever the standalone page is produced, the number of entries in the written page equals the number reported in its completion message. This precondition is expected to FAIL for any call with a subset; that failure is the finding."
+    },
+    {
+      "id": "FND-08",
+      "unit": "U01",
+      "severity": "FLAGGED",
+      "statement": "Two fallbacks chain. A missing allocation date becomes a base date plus 3652 days; a missing contract end then becomes THAT estimate plus 4018 days. A contract with neither date recorded can therefore be published in the done phase, with the milestone years shown, on the strength of no observed date at all.",
+      "faithful_behavior": "Reproduce exactly, including the chaining. The only trace left is that allocation_estimated is set; nothing marks an estimated contract end.",
+      "precondition": "Report the count of contracts in each of: allocation estimated, contract end absent, both, and 'phase is done while both were absent'. The last count is the exposure of this finding and must be reported with the verdict."
+    },
+    {
+      "id": "FND-09",
+      "unit": "U01",
+      "severity": "FLAGGED",
+      "statement": "Every published amount is rounded to whole euro independently, so the published loan portion need not equal the published reference minus the published balance: each of the three is rounded from its own unrounded value and the errors do not cancel. The same holds for the saving goal against the reference.",
+      "faithful_behavior": "Reproduce exactly: round each amount independently from its unrounded value. Do not recompute one published amount from the others.",
+      "precondition": "Report the count and maximum size of the discrepancy between the published loan portion and the difference of the published reference and balance. A discrepancy of more than one euro would mean the rounding rule itself diverges."
+    },
+    {
+      "id": "FND-10",
+      "unit": "U01",
+      "severity": "FLAGGED",
+      "statement": "Both downstream consumers of this unit draw a phase called nodata, with its own picture and its own badge. The unit never produces it: the phase value set is exactly done, loan, oversave, save. A contract with no balance and no reference is published in the save phase with a missing savings ratio and a current position of 0.06, and the consumers render it as an ordinary saver at zero progress.",
+      "faithful_behavior": "Reproduce exactly: four phase values, never a fifth. Do not add nodata.",
+      "precondition": "Every published phase is one of the four declared values. Also report the count of contracts with a missing savings ratio; that count is the population the consumers' unreachable branch was written for."
+    },
+    {
+      "id": "FND-11",
+      "unit": "U01",
+      "severity": "FLAGGED",
+      "statement": "The unit's header comment lists four texts that mean 'this event has not happened' -- empty, 0, 00000000 and NA. The code recognises seven, adding 00, 0000 and the angle-bracketed missing marker. A six-zero text is in neither list and becomes missing anyway, by failing the eight-digit read. Comments are not evidence (R1).",
+      "faithful_behavior": "Reproduce the seven markers the code uses, not the four the comment lists.",
+      "precondition": "The seven markers in the constant date_missing_markers are the complete set; a harness that presents any other zero-like text must show it becoming missing through the failed read, not through the marker list."
+    },
+    {
+      "id": "FND-12",
+      "unit": "U01",
+      "severity": "FLAGGED",
+      "statement": "Field access on a contract row is by name with PREFIX FALLBACK in the source language: when the exact name is absent, a field whose name merely begins with it is bound instead, silently. Measured on a one-field table named abcd: a request for abc returned it. Any real table carrying, for instance, a field named guthaben_alt but no guthaben would silently compute from the wrong field.",
+      "faithful_behavior": "Not a behaviour to imitate: it is a hazard of the source's name lookup. The faithful requirement is that the eleven exact names are bound; the precondition makes the difference unobservable.",
+      "precondition": "All eleven declared names are present exactly, AND no other field name in the table has any of the eleven as a strict prefix. Report both checks separately."
+    }
+  ],
+  "preconditions": [
+    {
+      "id": "P-01",
+      "severity": "FAIL",
+      "statement": "The contract table carries all eleven names of input_column_catalogue, spelled exactly, case-sensitively.",
+      "check": "Compare the table's field names against the eleven declared values. Report which are absent. Surplus fields are REPORTED, not rejected: the unit selects by name and ignores everything else (lessons finding 4)."
+    },
+    {
+      "id": "P-02",
+      "severity": "FAIL",
+      "statement": "The identifier field is present; the unit's own writer stops with a named error when it is not.",
+      "check": "Confirm the identifier field is present before any row is computed, and emit the same kind of named refusal when it is not."
+    },
+    {
+      "id": "P-03",
+      "severity": "FAIL",
+      "statement": "Every non-missing value of the five date fields is readable as a date by the rule in behaviour step C1.",
+      "check": "Classify every value of the five date fields into: missing marker, eight-digit valid, hyphenated valid, and unreadable. The four counts must reconcile to the rows read. Any unreadable hyphenated value will abort the unit, so report it before running."
+    },
+    {
+      "id": "P-04",
+      "severity": "FLAGGED",
+      "statement": "Parsed dates are plausible: between 1950-01-01 and 2100-01-01.",
+      "check": "Report the minimum and maximum of each of the five parsed date fields, and the count outside the range. A year below 100 is the signature of a two-digit year read as a full year, which behaviour step C1 measured (11-04-01 reads as year eleven)."
+    },
+    {
+      "id": "P-05",
+      "severity": "FAIL",
+      "statement": "Every non-missing tariff share is greater than 0 and at most 1, so that it is a fraction and not percent points.",
+      "check": "Report the minimum, the maximum, the count at most 0, the count greater than 1, and the full set of distinct values. See finding FND-02."
+    },
+    {
+      "id": "P-06",
+      "severity": "FLAGGED",
+      "statement": "Amounts are plausible: the balance, loan notional and Bauspar sum are finite and not negative wherever present.",
+      "check": "Report the count missing, the count negative, and the minimum and maximum of each, in euro, after the thousands factor has been applied to the Bauspar sum."
+    },
+    {
+      "id": "P-07",
+      "severity": "FLAGGED",
+      "statement": "Identifiers are unique across rows.",
+      "check": "Report rows read, distinct identifiers and duplicated identifiers; the three must reconcile. Never deduplicate silently (GR-08). See finding FND-04 and the run's unverified assumption UA-04."
+    },
+    {
+      "id": "P-08",
+      "severity": "FAIL",
+      "statement": "Derived quantities are within their declared shapes.",
+      "check": "Every published phase is one of the four values of phase_values; every published goal_source is one of the two values of goal_source_values; every published position is missing or within 0 and 1 inclusive; every published saving progress used to build a position was within 0 and 1. Report any breach with the row position."
+    },
+    {
+      "id": "P-09",
+      "severity": "FAIL",
+      "statement": "No row is lost: records published equals rows read.",
+      "check": "Report rows read, records published, and rows refused with the reason. The counts must reconcile to the input total (GR-08)."
+    },
+    {
+      "id": "P-10",
+      "severity": "FLAGGED",
+      "statement": "No field name in the table has any of the eleven declared names as a strict prefix.",
+      "check": "For each of the eleven names, report every other field name that begins with it. See finding FND-12."
+    },
+    {
+      "id": "P-11",
+      "severity": "FLAGGED",
+      "statement": "A text amount carries at most one comma.",
+      "check": "Report the count of text amount values with two or more commas; each of those becomes missing by the rule in behaviour step C2, silently."
+    },
+    {
+      "id": "P-12",
+      "severity": "FAIL",
+      "statement": "The valuation date is supplied, is a valid calendar date, and lies within the plausible range of P-04.",
+      "check": "Report the valuation date actually used and where it came from. The unit's own load-time default is 2026-03-31 and its own session override is a value named VAL_DATE; record which applied."
+    },
+    {
+      "id": "P-13",
+      "severity": "FLAGGED",
+      "statement": "The thousands factor on the Bauspar sum is right way up, judged from a derived quantity rather than from the column (R4).",
+      "check": "Report the median of the ratio of loan notional to Bauspar sum over contracts where both are present and the Bauspar sum is positive. The unit's own documentation says the two are equal for an ordinary contract, so a median near 1 is expected; a median near 0.001 or near 1000 means the thousands factor was applied on the wrong side or not at all, and it would change the bridge flag for the whole book."
+    }
+  ],
+  "open_domain_decisions": [
+    "Findings policy for this run is FAITHFUL ONLY, recorded by the owner before the spec was written. The policies array is therefore deliberately EMPTY: no corrected behaviour is specified and no switch is added, for any of the twelve findings. Each finding carries its faithful behaviour and an executable precondition instead, and the decision whether any of them should be repaired is the owner's, not an agent's (GR-12, R9).",
+    "FND-02, the tariff share used as a fraction while the unit's comment calls it a percentage, is the one finding whose exposure cannot be quantified from this bundle: the real table is absent, so the distribution of the share is unknown. The owner needs the magnitude of the real column before the finding can be closed either way.",
+    "FND-04 and run assumption UA-04 together: if identifiers do repeat in the real table, the owner must decide which row wins, because the two consumers in the bundle already disagree -- the browser keeps the last and the quality harness keeps the first. The unit itself has no opinion; it publishes every row.",
+    "FND-07, the standalone-page writer ignoring its own table argument, is a defect with no ambiguity about intent -- the surrounding documentation describes the argument it ignores. It is reported, not repaired, under the faithful-only policy.",
+    "Whether the run should ever be re-observed against the real contract table. Under R2 the verdict is capped at PROVISIONAL until it is, and re-entering profiling when real inputs appear is required before any result is interpreted."
+  ]
+}
