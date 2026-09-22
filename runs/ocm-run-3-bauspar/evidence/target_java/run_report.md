@@ -60,17 +60,20 @@ rows read 503, records published 503, rows refused 0
 | P-10 | FLAGGED | PASS | no field name begins with a declared name, so the source's prefix fallback (FND-12) cannot bind the wrong field |
 | P-11 | FLAGGED | PASS | no text amount carries a second comma, so the silent-missing clause of C2 is not reached here |
 | P-12 | FAIL | PASS | the valuation date is inside 1950-01-01..2100-01-01 |
-| P-13 | FLAGGED | PASS | the median ratio is 9.75500000e-01, near the 1 the unit's own documentation expects for an ordinary contract, so the factor is the right way up |
+| P-13 | FLAGGED | PASS | the median ratio is 0.9755, near the 1 the unit's own documentation expects for an ordinary contract, so the factor is the right way up |
 
 ## Findings exposure (faithful-only; nothing repaired)
 
-- **FND-01** text amounts with a dot, no comma and more than two digits after the last dot (read a thousand times too small): 345
-- **FND-02** tariff shares greater than 1 (percent points would be out by a hundred): 0; min 3.00000000e-01, max 5.00000000e-01
+- **FND-01** DaBetrag: no text value has a dot, no comma and more than two digits after the last dot; this field cannot be read a thousand times too small here
+- **FND-01** bausparsumme_teuro: 345 value(s) with a dot, no comma and more than two digits after the last dot -- their range 10.008..50.972 OVERLAPS the range of the field's unambiguously-spelled values 0..50.875 (125 of them), so the third decimal is this field's own precision and not a thousands dot; the finding is NOT exposed here
+- **FND-01** guthaben: no text value has a dot, no comma and more than two digits after the last dot; this field cannot be read a thousand times too small here
+- **FND-01** tariff_amount: no text value has a dot, no comma and more than two digits after the last dot; this field cannot be read a thousand times too small here
+- **FND-02** tariff shares greater than 1 (percent points would be out by a hundred): 0; min 0.3, max 0.5
 - **FND-03** published identifiers in exponent form: 0 (the column arrives as text, so the default numeric conversion never runs)
 - **FND-04** rows 503, distinct identifiers 503, duplicated identifiers 0 (the browser keeps the LAST entry per key; the quality harness keeps the FIRST row)
-- **FND-05** ratio missing 3, below 0.5 1, 0.5..2 inclusive 426, above 2 73; red alarms raised 1 (alarms must equal the below-0.5 band excluding missing: they do)
+- **FND-05** published ratio missing 3, at most 0.5 1 (strictly below 0.5: 1), 0.5..2 inclusive 426, above 2 73; red alarms raised 1. The alarm is STRICTLY LESS THAN 0.5 on the already-rounded ratio, so it must equal the strictly-below band: it does. The bridge flag, by contrast, was decided on the UNROUNDED ratio strictly above 2.
 - **FND-08** allocation estimated 99, contract end absent 472, both 99, phase 'done' while both were absent 27 (the last count is this finding's exposure)
-- **FND-09** published loan portion differs from published reference minus published balance in 104 contract(s); largest difference 1.00000000e+00 euro (more than one euro would mean the rounding rule itself diverges)
+- **FND-09** published loan portion differs from published reference minus published balance in 104 contract(s); largest difference 1 euro (more than one euro would mean the rounding rule itself diverges)
 - **FND-10** contracts with a missing savings ratio: 2 -- the population the consumers' unreachable 'nodata' phase was written for; the unit publishes only the four declared phases
 - **FND-11** of the seven markers the code recognises, 3 are never exercised by this input: '00' '0000' '<NA>'
 - **FND-12** field names that shadow a declared name by prefix: none
@@ -127,4 +130,4 @@ rows read 503, records published 503, rows refused 0
 - FND-07 is unobservable at CORE tier: no standalone page writer is built.
 - Every threshold here has only ever seen synthetic data (R15).
 
-Computed 503 contracts in 0.12 s.
+Computed 503 contracts in 0.09 s.

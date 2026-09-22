@@ -3,7 +3,7 @@
   "side": "target",
   "state": "OBSERVE_TARGET",
   "canonicalisation": "dec9-half-even-v1",
-  "emitted_utc": "2026-09-22T20:23:43Z",
+  "emitted_utc": "2026-09-22T20:25:18Z",
   "inputs": [
     { "name": "merged_data_synthetic.csv", "bytes": 37896, "sha256": "7093a21b7197714549c8f8896917eb189b6e3d0a1e3043f3ed26a5f22c1cfa47" },
     { "name": "synthetic_manifest.json", "bytes": 1933, "sha256": "faa2dd1b8f90ed70ddc95dff34a4f8746143f3a89f06b33ba0886f7c33914463" }

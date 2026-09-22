@@ -99,8 +99,8 @@ public final class Preconditions {
         // Counted on the READ values during the profile pass, before any rounding.
         long gt1 = tf.gtOne, le0 = tf.leZero;
         LinkedHashSet<String> tvals = new LinkedHashSet<>(tf.distinctRead);
-        r5.evidence.add("min " + (tf.any() ? CanonicalNumber.num(tf.min) : "n/a")
-                      + ", max " + (tf.any() ? CanonicalNumber.num(tf.max) : "n/a")
+        r5.evidence.add("min " + (tf.any() ? plainNum(tf.min) : "n/a")
+                      + ", max " + (tf.any() ? plainNum(tf.max) : "n/a")
                       + ", missing " + tf.missing + ", at most 0: " + le0 + ", greater than 1: " + gt1);
         r5.evidence.add("distinct raw spellings in full: " + String.join(" / ", tf.distinctRaw));
         r5.evidence.add("distinct read values in full: " + String.join(" / ", tvals));
@@ -121,8 +121,8 @@ public final class Preconditions {
                 unit = " euro (after the thousands factor)";
             }
             r6.evidence.add(a + ": missing " + f.missing + ", negative " + f.negative + ", zero " + f.zeros
-                    + ", min " + (f.any() ? CanonicalNumber.num(mn) : "n/a")
-                    + ", max " + (f.any() ? CanonicalNumber.num(mx) : "n/a") + unit);
+                    + ", min " + (f.any() ? plainNum(mn) : "n/a")
+                    + ", max " + (f.any() ? plainNum(mx) : "n/a") + unit);
             neg += f.negative;
         }
         verdict(r6, neg == 0, "no negative amount in any of the three fields",
@@ -214,17 +214,23 @@ public final class Preconditions {
         }
         double median = median(ratios);
         r13.evidence.add("median loan-notional to Bauspar-sum ratio over " + ratios.size()
-                + " contracts where both are present and the sum is positive: " + CanonicalNumber.num(median));
+                + " contracts where both are present and the sum is positive: " + plainNum(median));
         String why;
         boolean ok13;
         if (ratios.isEmpty()) { ok13 = false; why = "no contract has both amounts with a positive Bauspar sum, so the factor cannot be judged from the data"; }
-        else if (median < 0.01) { ok13 = false; why = "the median ratio is " + CanonicalNumber.num(median)
+        else if (median < 0.01) { ok13 = false; why = "the median ratio is " + plainNum(median)
                 + ", about a thousandth: the thousands factor looks to have been applied on the wrong side, which would clear the bridge flag for the whole book"; }
-        else if (median > 100) { ok13 = false; why = "the median ratio is " + CanonicalNumber.num(median)
+        else if (median > 100) { ok13 = false; why = "the median ratio is " + plainNum(median)
                 + ", about a thousand: the thousands factor looks not to have been applied, which would set the bridge flag for the whole book"; }
-        else { ok13 = true; why = "the median ratio is " + CanonicalNumber.num(median)
+        else { ok13 = true; why = "the median ratio is " + plainNum(median)
                 + ", near the 1 the unit's own documentation expects for an ordinary contract, so the factor is the right way up"; }
         verdict(r13, ok13, why, why);
+    }
+
+    static String plainNum(double v) {
+        if (Double.isNaN(v)) return "NA";
+        if (v == Math.rint(v) && Math.abs(v) < 1e15) return Long.toString((long) v);
+        return Double.toString(v);
     }
 
     private static boolean isPhase(String p) {

@@ -436,15 +436,41 @@ public final class Main {
         List<String[]> out = new ArrayList<>();
         Profile p = run.profile;
 
-        long fnd01 = 0;
-        for (var e : p.amounts.entrySet()) fnd01 += e.getValue().fnd01Suspects;
-        out.add(new String[] { "FND-01", "text amounts with a dot, no comma and more than two digits after the last dot"
-                + " (read a thousand times too small): " + fnd01 });
+        // FND-01, explained FROM THE DATA at the point of the finding (R14), not from a
+        // hard-coded sentence: a dot-and-no-comma value with more than two decimals is only
+        // the defect if it sits about a thousand times BELOW the field's unambiguous values.
+        // Where the two populations overlap, the extra decimal is the field's own precision.
+        for (var e : p.amounts.entrySet()) {
+            Profile.AmountField f = e.getValue();
+            long cand = f.fnd01Suspects;
+            if (cand == 0) {
+                out.add(new String[] { "FND-01", e.getKey() + ": no text value has a dot, no comma and more than"
+                        + " two digits after the last dot; this field cannot be read a thousand times too small here" });
+                continue;
+            }
+            String verdict;
+            if (!f.anyUnambig()) {
+                verdict = "no unambiguously-spelled value in this field to judge them against; UNRESOLVED";
+            } else if (f.suspMax >= f.unambigMin && f.suspMin <= f.unambigMax) {
+                verdict = "their range " + plain(f.suspMin) + ".." + plain(f.suspMax)
+                        + " OVERLAPS the range of the field's unambiguously-spelled values "
+                        + plain(f.unambigMin) + ".." + plain(f.unambigMax) + " (" + f.unambigCount
+                        + " of them), so the third decimal is this field's own precision and not a thousands dot;"
+                        + " the finding is NOT exposed here";
+            } else {
+                verdict = "their range " + plain(f.suspMin) + ".." + plain(f.suspMax)
+                        + " sits OUTSIDE the range of the field's unambiguously-spelled values "
+                        + plain(f.unambigMin) + ".." + plain(f.unambigMax)
+                        + "; scaling by a thousand would bring them into it, so the finding IS exposed";
+            }
+            out.add(new String[] { "FND-01", e.getKey() + ": " + cand + " value(s) with a dot, no comma and more"
+                    + " than two digits after the last dot -- " + verdict });
+        }
 
         Profile.AmountField tf = p.amounts.get("tariff_amount");
         out.add(new String[] { "FND-02", "tariff shares greater than 1 (percent points would be out by a hundred): "
-                + tf.gtOne + "; min " + (tf.any() ? CanonicalNumber.num(tf.min) : "n/a")
-                + ", max " + (tf.any() ? CanonicalNumber.num(tf.max) : "n/a") });
+                + tf.gtOne + "; min " + (tf.any() ? plain(tf.min) : "n/a")
+                + ", max " + (tf.any() ? plain(tf.max) : "n/a") });
 
         out.add(new String[] { "FND-03", "published identifiers in exponent form: " + p.exponentIdCount
                 + (p.exponentIds.isEmpty() ? " (the column arrives as text, so the default numeric conversion never runs)"
@@ -454,19 +480,22 @@ public final class Main {
                 + ", duplicated identifiers " + p.idDuplicated
                 + " (the browser keeps the LAST entry per key; the quality harness keeps the FIRST row)" });
 
-        long missingRatio = 0, le05 = 0, mid = 0, gt2 = 0, alarms = 0;
+        long missingRatio = 0, atMost05 = 0, strictlyBelow05 = 0, mid = 0, gt2 = 0, alarms = 0;
         for (int i = 0; i < b.n; i++) {
             double r = b.loanToBausparRatio[i];
             if (Double.isNaN(r)) { missingRatio++; continue; }
-            if (r < 0.5) le05++;
-            else if (r <= 2) mid++;
-            else gt2++;
+            if (r <= 0.5) atMost05++;
+            if (r < 0.5) strictlyBelow05++;
+            if (r >= 0.5 && r <= 2) mid++;
+            if (r > 2) gt2++;
         }
         for (int i = 0; i < b.n; i++) if (run.export.special[i] == 1) alarms++;
-        out.add(new String[] { "FND-05", "ratio missing " + missingRatio + ", below 0.5 " + le05
-                + ", 0.5..2 inclusive " + mid + ", above 2 " + gt2 + "; red alarms raised " + alarms
-                + " (alarms must equal the below-0.5 band excluding missing: "
-                + (alarms == le05 ? "they do" : "THEY DO NOT") + ")" });
+        out.add(new String[] { "FND-05", "published ratio missing " + missingRatio + ", at most 0.5 " + atMost05
+                + " (strictly below 0.5: " + strictlyBelow05 + "), 0.5..2 inclusive " + mid + ", above 2 " + gt2
+                + "; red alarms raised " + alarms
+                + ". The alarm is STRICTLY LESS THAN 0.5 on the already-rounded ratio, so it must equal the"
+                + " strictly-below band: " + (alarms == strictlyBelow05 ? "it does" : "IT DOES NOT")
+                + ". The bridge flag, by contrast, was decided on the UNROUNDED ratio strictly above 2." });
 
         long allocEst = 0, endAbsent = 0, both = 0, doneOnNothing = 0;
         for (int i = 0; i < b.n; i++) {
@@ -489,7 +518,7 @@ public final class Main {
             if (d > 0) { disc++; maxDisc = Math.max(maxDisc, d); }
         }
         out.add(new String[] { "FND-09", "published loan portion differs from published reference minus published balance in "
-                + disc + " contract(s); largest difference " + CanonicalNumber.num(maxDisc)
+                + disc + " contract(s); largest difference " + plain(maxDisc)
                 + " euro (more than one euro would mean the rounding rule itself diverges)" });
 
         long noRatio = 0;

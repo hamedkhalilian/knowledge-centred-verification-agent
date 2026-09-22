@@ -35,10 +35,17 @@ public final class Profile {
     public static final class AmountField {
         public long missing, negative, zeros, multiComma, dotNoComma, fnd01Suspects, gtOne, leZero;
         public double min = Double.POSITIVE_INFINITY, max = Double.NEGATIVE_INFINITY;
+        /** Values whose text is unambiguous under C2: it carries a comma, or it carries no dot. */
+        public double unambigMin = Double.POSITIVE_INFINITY, unambigMax = Double.NEGATIVE_INFINITY;
+        public long unambigCount;
+        /** Values whose text has a dot, no comma and MORE THAN TWO digits after the last dot. */
+        public double suspMin = Double.POSITIVE_INFINITY, suspMax = Double.NEGATIVE_INFINITY;
         public final List<String> suspectSamples = new ArrayList<>();
         public final LinkedHashSet<String> distinctRaw = new LinkedHashSet<>();
         public final LinkedHashSet<String> distinctRead = new LinkedHashSet<>();
         public boolean any() { return min != Double.POSITIVE_INFINITY; }
+        public boolean anySusp() { return suspMin != Double.POSITIVE_INFINITY; }
+        public boolean anyUnambig() { return unambigMin != Double.POSITIVE_INFINITY; }
     }
 
     public final Map<String, DateField> dates = new LinkedHashMap<>();

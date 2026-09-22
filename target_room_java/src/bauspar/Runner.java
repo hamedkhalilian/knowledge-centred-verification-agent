@@ -131,6 +131,14 @@ public final class Runner {
                     }
                     double v = GermanNumber.readText(t);
                     if (Double.isNaN(v)) { f.missing++; continue; }
+                    if (commas > 0 || t.indexOf('.') < 0) {
+                        f.unambigCount++;
+                        if (v < f.unambigMin) f.unambigMin = v;
+                        if (v > f.unambigMax) f.unambigMax = v;
+                    } else if (t.length() - t.lastIndexOf('.') - 1 > 2) {
+                        if (v < f.suspMin) f.suspMin = v;
+                        if (v > f.suspMax) f.suspMax = v;
+                    }
                     if (f.distinctRead.size() < 64) f.distinctRead.add(CanonicalNumber.num(v));
                     if (v < 0) f.negative++;
                     if (v == 0.0) f.zeros++;
