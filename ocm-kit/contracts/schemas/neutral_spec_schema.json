@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "neutral_spec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["spec_version", "emitted_utc", "author_role", "io_formats", "units", "checkpoint_objects", "policies", "figures", "findings"],
+  "properties": {
+    "spec_version": { "type": "string" },
+    "emitted_utc": { "type": "string" },
+    "author_role": { "const": "source_agent" },
+    "barrier_scan": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "scanned": {"type": "boolean"}, "patterns_hit": {"type": "integer"}, "leak_injection_validated": {"type": "boolean"} }
+    },
+    "io_formats": {
+      "type": "array",
+      "description": "R7: facts about files cross as EXPECTATIONS TO VERIFY, never as settings to adopt. The target performs its own content-based detection (GR-07) and compares.",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["input", "expectations"],
+        "properties": {
+          "input": { "type": "string" },
+          "expectations": { "type": "array", "items": { "type": "object", "additionalProperties": false,
+            "required": ["fact", "provenance"],
+            "properties": {
+              "fact": { "type": "string" },
+              "provenance": { "enum": ["observed_in_real_input", "observed_in_synthetic_input", "source_code_declared", "assumption"],
+                "$comment": "lessons finding 3: a fact observed in a synthetic stand-in must never carry the same label as one observed in a real input. Two invented columns once became a contract the target enforced, and it then refused the real workbook the source reads without complaint. 'observed_in_file' is deliberately NOT accepted: it is the label that hid the distinction." },
+              "note": { "type": "string" } } } }
+        } }
+    },
+    "units": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["id", "name", "reads", "produces", "behavior"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "reads": { "type": "array", "items": { "type": "string" } },
+          "produces": { "type": "array", "items": { "type": "string" } },
+          "behavior": { "type": "array", "items": { "type": "string" },
+            "description": "ordered steps in neutral mathematical / procedural language; no source-language syntax" },
+          "constants": { "type": "array", "items": { "type": "object", "additionalProperties": false,
+            "required": ["name", "value", "provenance"],
+            "properties": {
+              "name": {"type": "string"}, "value": {},
+              "provenance": { "enum": ["observed", "source_declared", "assumption"] },
+              "precondition": { "type": "string" } } } },
+          "effects": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "array", "items": { "type": "string" } },
+          "finding_refs": { "type": "array", "items": { "type": "string" } }
+        } }
+    },
+    "checkpoint_objects": {
+      "type": "array",
+      "description": "every published object both sides must emit, with contractual ordering",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["name", "unit", "kind", "columns", "canonical_order"],
+        "properties": {
+          "name": { "type": "string" },
+          "unit": { "type": "string" },
+          "kind": { "enum": ["frame", "series", "scalar", "keyed_list"] },
+          "columns": { "type": "array", "items": { "type": "string" } },
+          "canonical_order": { "type": "array", "items": { "type": "object", "additionalProperties": false,
+            "required": ["column", "direction"],
+            "properties": { "column": {"type": "string"}, "direction": {"enum": ["asc", "desc"]} } } },
+          "notes": { "type": "string" }
+        } }
+    },
+    "policies": {
+      "type": "array",
+      "description": "R9: named, configurable policies; faithful default, corrected reachable by one setting",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["id", "finding_ref", "faithful", "corrected", "default"],
+        "properties": {
+          "id": { "type": "string" }, "finding_ref": { "type": "string" },
+          "faithful": { "type": "string" }, "corrected": { "type": "string" },
+          "default": { "const": "faithful" } } }
+    },
+    "figures": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["id", "unit", "title", "marks", "backing_object"],
+        "properties": {
+          "id": { "type": "string" }, "unit": { "type": "string" }, "title": { "type": "string" },
+          "marks": { "type": "string" }, "backing_object": { "type": "string" },
+          "axes": { "type": "string" }, "notes": { "type": "string" } } }
+    },
+    "findings": {
+      "type": "array",
+      "description": "GR-12: source defects documented, not fixed; each carries an executable precondition",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["id", "unit", "statement", "faithful_behavior", "precondition"],
+        "properties": {
+          "id": { "type": "string" }, "unit": { "type": "string" },
+          "statement": { "type": "string" },
+          "faithful_behavior": { "type": "string" },
+          "precondition": { "type": "string" },
+          "severity": { "enum": ["FAIL", "FLAGGED"] },
+          "ledger_ref": { "type": "string" } } }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["id", "statement", "check"],
+        "properties": {
+          "id": { "type": "string" }, "statement": { "type": "string" },
+          "check": { "type": "string" },
+          "severity": { "enum": ["FAIL", "FLAGGED"] } } }
+    },
+    "open_domain_decisions": { "type": "array", "items": { "type": "string" } }
+  }
+}

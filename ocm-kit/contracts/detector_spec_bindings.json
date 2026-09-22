@@ -1,0 +1,14 @@
+{
+  "note": "Per-run configuration for the R3 gate (tools/check_detector_vs_spec.py): which mechanically-detected field group is the same fact as which declared spec constant. Shipped empty. The gate exits 2 (could not run) rather than 0 when this is empty, absent, or does not cover every name vector the spec declares -- an uncompared name vector is exactly the run-2 divergence.",
+  "run_id": null,
+  "binding_shape": {
+    "source_file": "<basename of the source file, as the detector's 'file' column spells it>",
+    "unit": "<unit id in the neutral spec>",
+    "pairs": [
+      {"detector_group": "<group name in r_source_field_groups.csv>", "spec_constant": "<list-valued constant name in the unit>"}
+    ],
+    "waived_detector_groups": ["<group deliberately not compared, with a reason recorded in the crossing ledger>"],
+    "waived_spec_constants": ["<constant deliberately not compared, likewise>"]
+  },
+  "bindings": []
+}
