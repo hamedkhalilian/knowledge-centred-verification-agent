@@ -1,0 +1,3 @@
+"file","line","target","reader","source_expr","sheet","sep","dec","header","evidence_role"
+"customer_engine_v4.R",,,"readLines","tmp",,,,,"SOURCE_OBSERVATION_ONLY"
+"customer_engine_v4.R",,,"readLines","template",,,,,"SOURCE_OBSERVATION_ONLY"

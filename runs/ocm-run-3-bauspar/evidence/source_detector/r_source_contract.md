@@ -1,0 +1,217 @@
+# OCM R Source Detector Report
+
+**Evidence role:** `SOURCE_OBSERVATION_ONLY`  
+**Target use:** `COMPARE_OR_REVIEW_ONLY`
+
+> This report describes what the R source says/assumes. It is not permission for Java to silently borrow source positions. Independent target detection remains required unless a reviewer explicitly approves a source-assisted resolution.
+
+## Files
+
+| file | path | bytes | md5 |
+| --- | --- | --- | --- |
+| customer_engine_v4.R | /home/user/knowledge-centred-verification-agent/source_room/customer_engine_v4.R | 32809 | 4fe672d2eba5c633e5e9aa53f59eedc9 |
+| qa_sample_customers_v4.R | /home/user/knowledge-centred-verification-agent/source_room/qa_sample_customers_v4.R | 11051 | 44c5797f0b25296185193f2a504a15a4 |
+
+## Input reads
+
+| file | line | target | reader | source_expr | sheet | sep | dec | header | evidence_role |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| customer_engine_v4.R |  |  | readLines | tmp |  |  |  |  | SOURCE_OBSERVATION_ONLY |
+| customer_engine_v4.R |  |  | readLines | template |  |  |  |  | SOURCE_OBSERVATION_ONLY |
+
+## Positional layouts declared by R
+
+_None detected._
+
+## Field groups
+
+_None detected._
+
+## Function defaults
+
+| file | line | parameter | default_value | function_expr |
+| --- | --- | --- | --- | --- |
+| customer_engine_v4.R |  | bauspar_sum_unit_factor | 1000 | function(contract, valuation_date, bauspar_sum_unit_factor = 1000, allocation_fallback_years = 10, saving_goal_fraction = 0.4, bridge_ratio_cutoff = 2, warn_balance_fraction = 0.9, prefer_tariff_fraction = TRUE) {     contract_start_date <- |
+| customer_engine_v4.R |  | allocation_fallback_years | 10 | function(contract, valuation_date, bauspar_sum_unit_factor = 1000, allocation_fallback_years = 10, saving_goal_fraction = 0.4, bridge_ratio_cutoff = 2, warn_balance_fraction = 0.9, prefer_tariff_fraction = TRUE) {     contract_start_date <- |
+| customer_engine_v4.R |  | saving_goal_fraction | 0.4 | function(contract, valuation_date, bauspar_sum_unit_factor = 1000, allocation_fallback_years = 10, saving_goal_fraction = 0.4, bridge_ratio_cutoff = 2, warn_balance_fraction = 0.9, prefer_tariff_fraction = TRUE) {     contract_start_date <- |
+| customer_engine_v4.R |  | bridge_ratio_cutoff | 2 | function(contract, valuation_date, bauspar_sum_unit_factor = 1000, allocation_fallback_years = 10, saving_goal_fraction = 0.4, bridge_ratio_cutoff = 2, warn_balance_fraction = 0.9, prefer_tariff_fraction = TRUE) {     contract_start_date <- |
+| customer_engine_v4.R |  | warn_balance_fraction | 0.9 | function(contract, valuation_date, bauspar_sum_unit_factor = 1000, allocation_fallback_years = 10, saving_goal_fraction = 0.4, bridge_ratio_cutoff = 2, warn_balance_fraction = 0.9, prefer_tariff_fraction = TRUE) {     contract_start_date <- |
+| customer_engine_v4.R |  | prefer_tariff_fraction | TRUE | function(contract, valuation_date, bauspar_sum_unit_factor = 1000, allocation_fallback_years = 10, saving_goal_fraction = 0.4, bridge_ratio_cutoff = 2, warn_balance_fraction = 0.9, prefer_tariff_fraction = TRUE) {     contract_start_date <- |
+| customer_engine_v4.R |  | path | customers_data.js | function(merged_data, valuation_date, path = "customers_data.js", ...) {     if (missing(merged_data) \|\| is.null(merged_data))          stop("merged_data fehlt / ist NULL -- bitte zuerst den Merge laufen lassen.")     if (!("BSV" %in% names |
+| customer_engine_v4.R |  | template | customer_view.html | function(merged_data, template = "customer_view.html", out = "customer_card_standalone.html", valuation_date = if (exists("VAL_DATE", inherits = TRUE)) VAL_DATE else as.Date("2026-03-31")) {     if (!file.exists(template))          stop("Te |
+| customer_engine_v4.R |  | out | customer_card_standalone.html | function(merged_data, template = "customer_view.html", out = "customer_card_standalone.html", valuation_date = if (exists("VAL_DATE", inherits = TRUE)) VAL_DATE else as.Date("2026-03-31")) {     if (!file.exists(template))          stop("Te |
+| qa_sample_customers_v4.R |  | bd |  | function(xs, ys, col, bd = NA) polygon(xs, ys, col = col, border = bd) |
+| qa_sample_customers_v4.R |  | cex | 0.9 | function(t, cex = 0.9, col = COL$txt, font = 1) {     text(0.05, y, t, cex = cex, col = col, font = font, adj = 0)     y <<- y - step } |
+| qa_sample_customers_v4.R |  | font | 1 | function(t, cex = 0.9, col = COL$txt, font = 1) {     text(0.05, y, t, cex = cex, col = col, font = font, adj = 0)     y <<- y - step } |
+
+## Hard-coded indices
+
+| file | line | object | dimension | index | expression |
+| --- | --- | --- | --- | --- | --- |
+| customer_engine_v4.R |  | row | 1 | 1 | row[1, , drop = FALSE] |
+| customer_engine_v4.R |  | m | 1 | 1 | m[1] |
+| customer_engine_v4.R |  | mh | 1 | 1 | mh[1] |
+| qa_sample_customers_v4.R |  | u | 1 | 1 | u[1] |
+| qa_sample_customers_v4.R |  | u | 1 | 2 | u[2] |
+| qa_sample_customers_v4.R |  | u | 1 | 3 | u[3] |
+| qa_sample_customers_v4.R |  | u | 1 | 4 | u[4] |
+
+## Findings
+
+| severity | code | file | line | message |
+| --- | --- | --- | --- | --- |
+| INFO | RSD-NO-PROBES |  |  | No per-run source probes declared (looked in 'contracts/source_probes.csv'). Anchor and phrase findings were NOT produced; their absence here is not evidence that the source lacks them. |
+
+## Column usage
+
+| file | line | object | field | access | context |
+| --- | --- | --- | --- | --- | --- |
+| customer_engine_v4.R |  | contract | abschlussdatum | $ | parse_date_field(contract$abschlussdatum) |
+| customer_engine_v4.R |  | contract | einloesungsdatum | $ | parse_date_field(contract$einloesungsdatum) |
+| customer_engine_v4.R |  | contract | erstmalige_zuteilungsanwartschaft | $ | parse_date_field(contract$erstmalige_zuteilungsanwartschaft) |
+| customer_engine_v4.R |  | contract | Tilgungsbeginn | $ | parse_date_field(contract$Tilgungsbeginn) |
+| customer_engine_v4.R |  | contract | Vertragsende | $ | parse_date_field(contract$Vertragsende) |
+| customer_engine_v4.R |  | contract | DaBetrag | $ | parse_de_number(contract$DaBetrag) |
+| customer_engine_v4.R |  | contract | bausparsumme_teuro | $ | parse_de_number(contract$bausparsumme_teuro) |
+| customer_engine_v4.R |  | contract | guthaben | $ | parse_de_number(contract$guthaben) |
+| customer_engine_v4.R |  | contract | tariff_amount | $ | parse_de_number(contract$tariff_amount) |
+| customer_engine_v4.R |  | contract | contract_type | $ | is.null(contract$contract_type) |
+| customer_engine_v4.R |  | contract | contract_type | $ | as.character(contract$contract_type) |
+| customer_engine_v4.R |  | contract | BSV | $ | as.character(contract$BSV) |
+| customer_engine_v4.R |  | rec | id | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | phase | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | warn_loan_pointless | $ | as.integer(rec$warn_loan_pointless) |
+| customer_engine_v4.R |  | rec | savings_ratio | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | x_contract | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | x_first_payment | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | x_allocation | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | x_loan_start | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | x_now | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | year_contract | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | year_first_payment | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | year_allocation | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | year_loan_start | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | balance | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | bauspar_sum | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | saving_goal | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | bauspar_loan | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | loan_notional | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | allocation_estimated | $ | as.integer(rec$allocation_estimated) |
+| customer_engine_v4.R |  | rec | loan_to_bauspar_ratio | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | is_bridge_loan | $ | as.integer(rec$is_bridge_loan) |
+| customer_engine_v4.R |  | rec | goal_fraction | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | contract_type | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | goal_source | $ | list(id = rec$id, phase = rec$phase, warn = as.integer(rec$warn_loan_pointless), sr = rec$savings_ratio, xc = rec$x_contract, xf = rec$x_first_payment, xa = rec$x_allocation, xl = rec$x_loan_start, xn = rec$x_now, lab_contract = rec$year_contract, lab_first = rec$year_first_payment, lab_alloc = rec$year_allocation, lab_loan = rec$year_loan_start, guthaben = rec$balance, bausparsumme = rec$bauspar_sum, save_target = rec$saving_goal, loan_amount = rec$bauspar_loan, dabetrag = rec$loan_notional, alloc_est = as.integer(rec$allocation_estimated),      da_bsum_ratio = rec$loan_to_bauspar_ratio, bridge = as.integer(rec$is_bridge_loan), goal_frac = rec$goal_fraction, contract_type = rec$contract_type, goal_source = rec$goal_source, special = as.integer(isTRUE(rec$loan_to_bauspar_ratio < 0.5))) |
+| customer_engine_v4.R |  | rec | loan_to_bauspar_ratio | $ | rec$loan_to_bauspar_ratio < 0.5 |
+| customer_engine_v4.R |  | rec | id | $ | as.character(rec$id) |
+| customer_engine_v4.R |  | progress | update | $ | progress$update(i) |
+| customer_engine_v4.R |  | progress | close | $ | progress$close() |
+| customer_engine_v4.R |  | data | BSV | $ | data$BSV == bsv |
+| customer_engine_v4.R |  | rec | id | $ | cat(" CUSTOMER", rec$id, " (source: merged_data)\n") |
+| customer_engine_v4.R |  | rec | phase | $ | sprintf("  phase                 : %s\n", rec$phase) |
+| customer_engine_v4.R |  | rec | is_bridge_loan | $ | sprintf("  is_bridge_loan        : %s   (DaBetrag/Bausparsumme = %.3f)\n", rec$is_bridge_loan, rec$loan_to_bauspar_ratio) |
+| customer_engine_v4.R |  | rec | loan_to_bauspar_ratio | $ | sprintf("  is_bridge_loan        : %s   (DaBetrag/Bausparsumme = %.3f)\n", rec$is_bridge_loan, rec$loan_to_bauspar_ratio) |
+| customer_engine_v4.R |  | rec | allocation_in_past | $ | sprintf("  allocation_in_past    : %s\n", rec$allocation_in_past) |
+| customer_engine_v4.R |  | rec | repayment_active | $ | sprintf("  repayment_active      : %s   (Tilgungsbeginn reached?)\n", rec$repayment_active) |
+| customer_engine_v4.R |  | rec | saving_after_allocation | $ | sprintf("  saving_after_alloc.   : %s   (allocated but still saving)\n", rec$saving_after_allocation) |
+| customer_engine_v4.R |  | rec | allocation_estimated | $ | sprintf("  allocation_estimated  : %s\n", rec$allocation_estimated) |
+| customer_engine_v4.R |  | rec | warn_loan_pointless | $ | sprintf("  warn_loan_pointless   : %s\n", rec$warn_loan_pointless) |
+| customer_engine_v4.R |  | rec | saving_reference | $ | format(rec$saving_reference, big.mark = ",") |
+| customer_engine_v4.R |  | rec | balance | $ | format(rec$balance, big.mark = ",") |
+| customer_engine_v4.R |  | rec | savings_ratio | $ | 100 * rec$savings_ratio |
+| customer_engine_v4.R |  | rec | saving_goal | $ | format(rec$saving_goal, big.mark = ",") |
+| customer_engine_v4.R |  | rec | bauspar_loan | $ | format(rec$bauspar_loan, big.mark = ",") |
+| customer_engine_v4.R |  | rec | contract_start_date | $ | sprintf("  contract_start_date   : %s   (year %s)\n", rec$contract_start_date, rec$year_contract) |
+| customer_engine_v4.R |  | rec | year_contract | $ | sprintf("  contract_start_date   : %s   (year %s)\n", rec$contract_start_date, rec$year_contract) |
+| customer_engine_v4.R |  | rec | first_payment_date | $ | sprintf("  first_payment_date    : %s   (year %s)\n", rec$first_payment_date, rec$year_first_payment) |
+| customer_engine_v4.R |  | rec | year_first_payment | $ | sprintf("  first_payment_date    : %s   (year %s)\n", rec$first_payment_date, rec$year_first_payment) |
+| customer_engine_v4.R |  | rec | allocation_date | $ | sprintf("  allocation_date       : %s   (year %s)\n", rec$allocation_date, rec$year_allocation) |
+| customer_engine_v4.R |  | rec | year_allocation | $ | sprintf("  allocation_date       : %s   (year %s)\n", rec$allocation_date, rec$year_allocation) |
+| customer_engine_v4.R |  | rec | loan_start_date | $ | sprintf("  loan_start_date       : %s   (year %s)\n", rec$loan_start_date, rec$year_loan_start) |
+| customer_engine_v4.R |  | rec | year_loan_start | $ | sprintf("  loan_start_date       : %s   (year %s)\n", rec$loan_start_date, rec$year_loan_start) |
+| customer_engine_v4.R |  | rec | contract_end_date | $ | sprintf("  contract_end_date     : %s\n", rec$contract_end_date) |
+| customer_engine_v4.R |  | rec | x_contract | $ | sprintf("  x_contract / x_first  : %.3f / %.3f\n", rec$x_contract, rec$x_first_payment) |
+| customer_engine_v4.R |  | rec | x_first_payment | $ | sprintf("  x_contract / x_first  : %.3f / %.3f\n", rec$x_contract, rec$x_first_payment) |
+| customer_engine_v4.R |  | rec | x_allocation | $ | sprintf("  x_allocation          : %.3f\n", rec$x_allocation) |
+| customer_engine_v4.R |  | rec | x_loan_start | $ | sprintf("  x_loan_start          : %.3f\n", rec$x_loan_start) |
+| customer_engine_v4.R |  | rec | x_now | $ | sprintf("  x_now (Sie sind hier) : %.3f\n", rec$x_now) |
+| qa_sample_customers_v4.R |  | md | BSV | $ | as.character(md$BSV) |
+| qa_sample_customers_v4.R |  | COL | ax | $ | segments(x, yax - 4, x, yax + 4, col = COL$ax, lwd = 2) |
+| qa_sample_customers_v4.R |  | COL | ax | $ | al(COL$ax, 0.5) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | text(x, yax + dy - 4, name, cex = 0.62, col = COL$txt) |
+| qa_sample_customers_v4.R |  | COL | ax | $ | text(x, yax + dy + 9, datelab, cex = 0.58, col = COL$ax) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | segments(x, yax + if (dir < 0) 8 else -8, x, y2, lty = 2, col = COL$txt) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | text(x, ty, label, cex = 0.7, col = COL$txt) |
+| qa_sample_customers_v4.R |  | r | goal_fraction | $ | is.finite(r$goal_fraction) |
+| qa_sample_customers_v4.R |  | r | goal_fraction | $ | if (is.finite(r$goal_fraction)) r$goal_fraction else 0.4 |
+| qa_sample_customers_v4.R |  | r | x_contract | $ | gx(r$x_contract, 0.02) |
+| qa_sample_customers_v4.R |  | r | x_first_payment | $ | gx(r$x_first_payment, 0.06) |
+| qa_sample_customers_v4.R |  | r | x_allocation | $ | gx(r$x_allocation, 0.4) |
+| qa_sample_customers_v4.R |  | r | x_now | $ | gx(r$x_now, 0.3) |
+| qa_sample_customers_v4.R |  | r | x_loan_start | $ | gx(r$x_loan_start, if (is.finite(r$x_allocation)) r$x_allocation else 0.44) |
+| qa_sample_customers_v4.R |  | r | x_allocation | $ | is.finite(r$x_allocation) |
+| qa_sample_customers_v4.R |  | r | x_allocation | $ | if (is.finite(r$x_allocation)) r$x_allocation else 0.44 |
+| qa_sample_customers_v4.R |  | r | savings_ratio | $ | is.finite(r$savings_ratio) |
+| qa_sample_customers_v4.R |  | r | savings_ratio | $ | if (is.finite(r$savings_ratio)) r$savings_ratio else 0.3 |
+| qa_sample_customers_v4.R |  | r | phase | $ | ph <- r$phase |
+| qa_sample_customers_v4.R |  | r | warn_loan_pointless | $ | isTRUE(r$warn_loan_pointless) |
+| qa_sample_customers_v4.R |  | r | loan_to_bauspar_ratio | $ | r$loan_to_bauspar_ratio < 0.5 |
+| qa_sample_customers_v4.R |  | COL | grey | $ | poly(c(xf, xa, xa), c(yax, yax, yax - goal), COL$grey, COL$gline) |
+| qa_sample_customers_v4.R |  | COL | gline | $ | poly(c(xf, xa, xa), c(yax, yax, yax - goal), COL$grey, COL$gline) |
+| qa_sample_customers_v4.R |  | COL | grey | $ | poly(c(xa, xa, xe), c(yax, yax + loanref, yax), COL$grey, COL$gline) |
+| qa_sample_customers_v4.R |  | COL | gline | $ | poly(c(xa, xa, xe), c(yax, yax + loanref, yax), COL$grey, COL$gline) |
+| qa_sample_customers_v4.R |  | COL | save | $ | poly(c(xf, xt, xt), c(yax, yax, yax - shn), COL$save) |
+| qa_sample_customers_v4.R |  | COL | save | $ | al(COL$save, 0.3) |
+| qa_sample_customers_v4.R |  | COL | save | $ | poly(c(xf, xn, xn), c(yax, yax, yax - sh), COL$save) |
+| qa_sample_customers_v4.R |  | COL | loan | $ | al(COL$loan, 0.18) |
+| qa_sample_customers_v4.R |  | COL | loan | $ | text((xn + xe)/2, yax + lh/2 + 34, paste0("Darlehen kleiner (", round((1 - sr) * 100), "%)"), cex = 0.65, col = COL$loan) |
+| qa_sample_customers_v4.R |  | COL | save | $ | al(COL$save, 0.85) |
+| qa_sample_customers_v4.R |  | COL | loan | $ | al(COL$loan, 0.16) |
+| qa_sample_customers_v4.R |  | COL | loan | $ | poly(c(xa, xa, xnc, xnc), c(yax, yax + lh, yax + dn, yax), COL$loan) |
+| qa_sample_customers_v4.R |  | COL | warn | $ | text((x0 + xe)/2, yax - 6, "Keine Guthaben-/DaBetrag-Daten", cex = 0.9, col = COL$warn, font = 2) |
+| qa_sample_customers_v4.R |  | COL | save | $ | al(COL$save, 0.15) |
+| qa_sample_customers_v4.R |  | COL | loan | $ | al(COL$loan, 0.15) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | text((x0 + xe)/2, yax - 6, "Vertrag abgeschlossen", cex = 1, col = COL$txt, font = 2) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | al(COL$txt, 0.4) |
+| qa_sample_customers_v4.R |  | r | saving_goal | $ | is.finite(r$saving_goal) |
+| qa_sample_customers_v4.R |  | r | saving_goal | $ | fmt(r$saving_goal) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | al(COL$txt, 0.8) |
+| qa_sample_customers_v4.R |  | COL | ax | $ | segments(x0 - 10, yax, xe + 12, yax, col = COL$ax, lwd = 1.5) |
+| qa_sample_customers_v4.R |  | r | year_contract | $ | mk(xc, r$year_contract, "Vertragsbeginn", 172, yax) |
+| qa_sample_customers_v4.R |  | r | year_first_payment | $ | mk(xf, r$year_first_payment, "1. Sparzahlung", 198, yax) |
+| qa_sample_customers_v4.R |  | r | year_allocation | $ | mk(xa, r$year_allocation, "Zuteilung", 172, yax) |
+| qa_sample_customers_v4.R |  | r | year_loan_start | $ | lab(r$year_loan_start) |
+| qa_sample_customers_v4.R |  | r | year_loan_start | $ | r$year_loan_start != "-" |
+| qa_sample_customers_v4.R |  | r | year_loan_start | $ | mk(xl, r$year_loan_start, "Beginn Bauspardarlehen", 198, yax) |
+| qa_sample_customers_v4.R |  | r | id | $ | paste0("Kunde ", r$id, if (!is.na(r$contract_type) && nzchar(r$contract_type)) paste0("   Tarif ", r$contract_type) else "") |
+| qa_sample_customers_v4.R |  | r | contract_type | $ | is.na(r$contract_type) |
+| qa_sample_customers_v4.R |  | r | contract_type | $ | nzchar(r$contract_type) |
+| qa_sample_customers_v4.R |  | r | contract_type | $ | paste0("   Tarif ", r$contract_type) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | text(x0 - 10, 26, hdr, cex = 1, col = COL$txt, font = 2, adj = 0) |
+| qa_sample_customers_v4.R |  | COL | warn | $ | rect((W - 440)/2, 468, (W - 440)/2 + 440, 492, border = COL$warn, col = al(COL$warn, 0.08), lwd = 1.5) |
+| qa_sample_customers_v4.R |  | COL | warn | $ | al(COL$warn, 0.08) |
+| qa_sample_customers_v4.R |  | COL | warn | $ | text(W/2, 484, "! Sonderfall: Bausparsumme > 2x DaBetrag", cex = 0.72, col = COL$warn, font = 2) |
+| qa_sample_customers_v4.R |  | COL | warn | $ | rect((W - 380)/2, 18, (W - 380)/2 + 380, 64, border = COL$warn, col = al(COL$warn, 0.08), lwd = 1.6) |
+| qa_sample_customers_v4.R |  | COL | warn | $ | text(W/2, 36, paste0("Guthaben ~ ", round(sr * 100), "% des Darlehensbetrags"), cex = 0.78, col = COL$warn, font = 2) |
+| qa_sample_customers_v4.R |  | COL | warn | $ | text(W/2, 54, "Bauspardarlehen kaum sinnvoll", cex = 0.7, col = COL$warn) |
+| qa_sample_customers_v4.R |  | r | balance | $ | fmt(r$balance) |
+| qa_sample_customers_v4.R |  | r | loan_notional | $ | fmt(r$loan_notional) |
+| qa_sample_customers_v4.R |  | r | bauspar_sum | $ | fmt(r$bauspar_sum) |
+| qa_sample_customers_v4.R |  | r | savings_ratio | $ | pct(r$savings_ratio) |
+| qa_sample_customers_v4.R |  | r | bauspar_loan | $ | fmt(r$bauspar_loan) |
+| qa_sample_customers_v4.R |  | r | year_contract | $ | lab(r$year_contract) |
+| qa_sample_customers_v4.R |  | r | year_first_payment | $ | lab(r$year_first_payment) |
+| qa_sample_customers_v4.R |  | r | year_allocation | $ | lab(r$year_allocation) |
+| qa_sample_customers_v4.R |  | r | is_bridge_loan | $ | isTRUE(r$is_bridge_loan) |
+| qa_sample_customers_v4.R |  | r | allocation_estimated | $ | isTRUE(r$allocation_estimated) |
+| qa_sample_customers_v4.R |  | r | goal_source | $ | paste0("Vertrag ", lab(r$year_contract), " \| 1.Zahlung ", lab(r$year_first_payment), " \| Zuteilung ", lab(r$year_allocation), " \| Darlehen ", lab(r$year_loan_start), "  \|\|  warn:", as.integer(isTRUE(r$warn_loan_pointless)), " special:", as.integer(special), " bridge:", as.integer(isTRUE(r$is_bridge_loan)), " est:", as.integer(isTRUE(r$allocation_estimated)), "  \|  src:", r$goal_source, " gf:", formatC(gf, format = "f", digits = 2)) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | text(x0 - 10, 516, l1, cex = 0.62, col = COL$txt, adj = 0) |
+| qa_sample_customers_v4.R |  | COL | ax | $ | text(x0 - 10, 536, l2, cex = 0.62, col = COL$ax, adj = 0) |
+| qa_sample_customers_v4.R |  | r | contract_type | $ | if (is.na(r$contract_type)) "NA" else r$contract_type |
+| qa_sample_customers_v4.R |  | COL | txt | $ | as.pairlist(alist(t = , cex = 0.9, col = COL$txt, font = 1)) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | line(sprintf("QA - %d zufaellige Vertraege  (Seed %d, Stichtag %s)", length(recs), SEED, format(VALDATE)), 1.3, COL$txt, 2) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | line("Phasen:", 1, COL$txt, 2) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | line("Flags:", 1, COL$txt, 2) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | line("goal_source:", 1, COL$txt, 2) |
+| qa_sample_customers_v4.R |  | COL | txt | $ | line("contract_type:", 1, COL$txt, 2) |
+
