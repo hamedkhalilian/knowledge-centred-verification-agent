@@ -39,6 +39,42 @@ jobs:
             echo "R detector tests were SKIPPED; R is not usable in CI." >&2
             exit 1
           fi
+      - name: Regenerate the run-3 staged inputs
+        # Synthetic data is not committed: it is fully determined by the seeded
+        # generator, and committing generated data invites editing the data
+        # instead of the generator.
+        run: |
+          python3 runs/ocm-run-3-bauspar/tools/gen_synthetic_bauspar.py --out-dir staged_inputs
+          test -f staged_inputs/merged_data_synthetic.csv
+      - name: Verify both targets still reproduce the source checkpoints
+        # Run 3 established that the R source, a TypeScript target and a Java
+        # target produce byte-identical checkpoints. Nothing re-checked it: the
+        # suite above is all Python and builds neither target, so an edit to
+        # either one's export mapping or canonicalisation would break the
+        # agreement while CI stayed green.
+        #
+        # This rebuilds each target from source, runs it, and compares its three
+        # digests against the committed source checkpoints. Exit codes are
+        # three-valued: 0 agree, 1 regression, 2 could not be established -- and
+        # 2 is non-zero on purpose, because a verifier that cannot verify must
+        # never pass.
+        #
+        # JAVA_HOME is pinned to 21 explicitly. The runner image ships several
+        # JDKs and defaults JAVA_HOME to an older one; the Java target declares
+        # java.level=21 in its own project.properties and compiles with
+        # --release 21, which an older javac rejects outright. Selecting the
+        # version here rather than hoping the default matches is the same
+        # discipline as installing R above instead of relying on the image.
+        run: |
+          if [ -n "${JAVA_HOME_21_X64:-}" ]; then
+            export JAVA_HOME="$JAVA_HOME_21_X64"
+            export PATH="$JAVA_HOME/bin:$PATH"
+          fi
+          echo "JAVA_HOME=$JAVA_HOME"
+          javac -version
+          java -version
+          node --version
+          python3 runs/ocm-run-3-bauspar/tools/verify_targets.py
       - name: Validate example ledger
         run: kcv-validate examples/498-bgb/claim-ledger.example.json
       - name: Validate §254 run ledger
