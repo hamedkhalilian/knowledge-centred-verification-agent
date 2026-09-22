@@ -1,0 +1,71 @@
+{
+  "provenance": "synthetic",
+  "generator": "gen_synthetic_bauspar.py",
+  "seed": 20260922,
+  "valuation_date": "2026-03-31",
+  "row_count": 503,
+  "edge_case_rows": 23,
+  "bulk_rows": 480,
+  "columns": [
+    "BSV",
+    "abschlussdatum",
+    "einloesungsdatum",
+    "erstmalige_zuteilungsanwartschaft",
+    "Tilgungsbeginn",
+    "Vertragsende",
+    "DaBetrag",
+    "bausparsumme_teuro",
+    "guthaben",
+    "tariff_amount",
+    "contract_type"
+  ],
+  "harness_coercions": {
+    "to_date_class": [
+      "abschlussdatum",
+      "einloesungsdatum"
+    ],
+    "left_as_raw_yyyymmdd": [
+      "erstmalige_zuteilungsanwartschaft",
+      "Tilgungsbeginn",
+      "Vertragsende"
+    ],
+    "note": "Both branches of parse_date_field must be exercised. The harness applies these coercions identically on both sides; neither side infers them."
+  },
+  "empty_markers_used": [
+    "",
+    "0",
+    "00000000",
+    "NA"
+  ],
+  "branch_coverage": {
+    "all_empty_markers": 1,
+    "allocation_estimated": 2,
+    "allocation_in_past": 2,
+    "bauspar_sum_zero": 1,
+    "boundary_allocation_today": 1,
+    "boundary_bridge_exact": 1,
+    "boundary_end_today": 1,
+    "boundary_repayment_today": 1,
+    "boundary_warn_exact": 1,
+    "bulk": 480,
+    "empty_contract_type": 1,
+    "german_decimal_comma": 1,
+    "goal_source_fallback": 89,
+    "goal_source_tariff": 1,
+    "is_bridge_loan": 73,
+    "no_loan_start": 1,
+    "phase_done": 2,
+    "phase_loan": 3,
+    "phase_oversave": 2,
+    "phase_save": 2,
+    "ratio_undefined_not_bridge": 1,
+    "saving_after_allocation": 2,
+    "saving_reference_missing": 1,
+    "saving_reference_zero": 1,
+    "special_alarm": 1,
+    "start_from_first_payment": 1,
+    "start_from_valuation_fallback": 1,
+    "warn_loan_pointless": 1
+  },
+  "caveat": "R2: every fact observed here is observed_in_synthetic_input. It caps the verdict and must not harden into a target-enforced contract (lessons, finding 3)."
+}

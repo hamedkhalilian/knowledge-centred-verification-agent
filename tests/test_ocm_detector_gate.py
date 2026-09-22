@@ -217,19 +217,53 @@ class TestShippedContractsCarryNoPreviousRun(unittest.TestCase):
             head = path.read_text(encoding="utf-8")[:1200]
             self.assertIn("EXAMPLE ONLY", head, "%s lacks its EXAMPLE ONLY header" % path.name)
 
+    def test_target_directives_ships_as_a_template(self):
+        """The kit must not ship one run's directives as the next run's orders.
+
+        A blanket "this file may mention run 2" exemption cannot distinguish
+        prose explaining a removal from the directives themselves -- the first
+        version of this test granted that exemption and then passed happily
+        with run 2's Java/Swing directives restored. So this asserts a
+        STRUCTURAL property instead: the kit's copy declares itself a template
+        and names no concrete deliverable. A filled-in directives file always
+        names one; a template never does.
+        """
+        path = ROOT / "ocm-kit" / "contracts" / "target_directives.md"
+        text = path.read_text(encoding="utf-8")
+        first_heading = next(l for l in text.splitlines() if l.startswith("#"))
+        self.assertIn("TEMPLATE", first_heading,
+                      "the kit's target_directives.md must declare itself a template")
+        for concrete in ("Project name:", "Root package:", "Declared language level:"):
+            self.assertNotIn(concrete, text,
+                             "%r names a concrete deliverable; that belongs in a "
+                             "run directory, not in the kit" % concrete)
+
     def test_no_tool_hard_codes_a_previous_run(self):
         leaked = ("kobra_numeric_cols", "bsv_loan_overview", "RSD-KOBRA",
                   "RSD-DECISION", "yield_curve_diagnostic", "swap_npv_history",
-                  "run 2")
+                  "ocm-hedging", "org.eclipse.jdt")
         offenders = []
-        for path in sorted((ROOT / "ocm-kit" / "tools").glob("*")):
-            if path.suffix not in {".py", ".R"}:
+        # contracts/*.md is scanned too: target_directives.md shipped run 2's
+        # directives verbatim -- an Eclipse Java/Swing project named
+        # ocm-hedging -- and this test's first version globbed only tools/, so
+        # it missed the one file whose entire purpose is to be obeyed.
+        candidates = (sorted((ROOT / "ocm-kit" / "tools").glob("*"))
+                      + sorted((ROOT / "ocm-kit" / "contracts").glob("*.md")))
+        for path in candidates:
+            if path.suffix not in {".py", ".R", ".md"}:
                 continue
             text = path.read_text(encoding="utf-8")
             for token in leaked:
                 # The gate's docstring discusses run 2 by name; that is prose,
                 # not a hard-coded identifier driving a comparison.
-                if token in text and path.name != "check_detector_vs_spec.py":
+                # Prose that NAMES a previous run while explaining why its
+                # content was removed is the opposite of a leak. Only files
+                # that would drive behaviour are held to the literal check.
+                narrates = path.name in {"check_detector_vs_spec.py",
+                                         "target_directives.md",
+                                         "canonicalisation_contract.md",
+                                         "controller_flow.md"}
+                if token in text and not narrates:
                     offenders.append("%s: %s" % (path.name, token))
         self.assertEqual(offenders, [])
 
