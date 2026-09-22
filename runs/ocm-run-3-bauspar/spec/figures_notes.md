@@ -114,7 +114,12 @@ so a goal share of 0.355 shows as 36 % while the geometry uses 0.355.
   the published `warn` is set **or** the drawn savings ratio is at least 0.90 —
   and the drawn ratio may be the substituted 0.30 of section 3. So the box can
   appear for a contract whose published flag is not set, and the harness's
-  caption line prints the published flag separately from the box it drew.
+  caption line prints the published flag separately from the box it drew. There
+  is a second, exact way for the two to disagree, and it has nothing to do with
+  the substitution: the unit decides the flag on the **unrounded** ratio and
+  publishes the ratio **rounded to three places**, so a true ratio of 0.8996 is
+  published as 0.900 with the flag not set — and both consumers then draw the
+  box. That is finding FND-13, and it is measured, not supposed.
 
 ## 7. Caption data in the quality harness
 
