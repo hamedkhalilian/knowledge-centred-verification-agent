@@ -35,6 +35,18 @@ Emits:
   merged_data_synthetic.csv   all values as text, in-format
   synthetic_manifest.json     seed, row count, per-column coercions the R
                               harness must apply, and branch coverage counts
+  abort_probe.csv             the separate input that exercises the abort path
+
+The abort probe is emitted HERE, by the generator that owns every other staged
+input, rather than being a hand-written file committed beside generated ones.
+That mixture is fragile and it bit: regenerating the staged inputs deleted the
+committed probe, because the generator produced only the other two and nothing
+noticed the third was gone. A directory that is partly generated and partly
+committed has no single source of truth.
+
+The probe must stay a SEPARATE file from the main table: its trigger halts the
+whole run, so a poisoned row in the main table would make ordinary observation
+impossible (controller directive 01, Rule E).
 """
 import argparse
 import csv
@@ -320,6 +332,24 @@ def main():
                   "It caps the verdict and must not harden into a target-enforced "
                   "contract (lessons, finding 3).",
     }
+    # The abort probe: four rows, one of which carries a hyphenated unparseable
+    # date in a column the unit parses itself rather than one the harness
+    # coerces. Per the corrected trigger in controller directive 01, the abort
+    # depends on the value's POSITION, and a bad value in a coerced column
+    # would not abort at all -- the probe would then silently prove nothing.
+    # Verified to abort at row_index 3 after 2 completed rows.
+    abort_rows = [
+        ("910001", "2010-01-01", "2010-02-01", "20210201", "", "", "30000", "30", "12000", "0.4", "BS1"),
+        ("910002", "2011-03-01", "2011-04-01", "20220401", "", "", "25000", "25", "9000", "0.4", "BS2"),
+        ("910003", "2012-04-01", "2012-05-01", "20230501", "2013-13-45", "", "20000", "20", "8000", "0.4", "BS1"),
+        ("910004", "2014-06-01", "2014-07-01", "20250701", "", "", "22000", "22", "7000", "0.4", "BSK"),
+    ]
+    abort_path = os.path.join(args.out_dir, "abort_probe.csv")
+    with open(abort_path, "w", newline="", encoding="utf-8") as fh:
+        writer = csv.writer(fh, lineterminator="\n")
+        writer.writerow(COLUMNS)
+        writer.writerows(abort_rows)
+
     manifest_path = os.path.join(args.out_dir, "synthetic_manifest.json")
     with open(manifest_path, "w", encoding="utf-8") as fh:
         json.dump(manifest, fh, indent=2, sort_keys=False)
@@ -328,6 +358,8 @@ def main():
     print("wrote %s (%d rows: %d edge cases + %d bulk)"
           % (csv_path, len(builder.rows), edge_count, len(builder.rows) - edge_count))
     print("wrote %s (%d branches covered)" % (manifest_path, len(builder.coverage)))
+    print("wrote %s (%d rows; aborts at row_index 3 after 2 completed rows)"
+          % (abort_path, len(abort_rows)))
     return 0
 
 

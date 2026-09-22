@@ -43,9 +43,28 @@ jobs:
         # Synthetic data is not committed: it is fully determined by the seeded
         # generator, and committing generated data invites editing the data
         # instead of the generator.
+        # The generator owns EVERY staged input, including the abort probe. That
+        # matters: the probe was once a hand-written file committed beside
+        # generated ones, and regenerating the directory deleted it, because the
+        # generator produced only the other two and nothing noticed the third
+        # was gone. A directory that is partly generated and partly committed
+        # has no single source of truth.
+        #
+        # Regenerating must therefore be a no-op against what is committed. If
+        # it is not, the committed data has drifted from the generator and the
+        # generator is no longer the source of truth -- so the diff fails the
+        # build rather than being silently overwritten.
         run: |
           python3 runs/ocm-run-3-bauspar/tools/gen_synthetic_bauspar.py --out-dir staged_inputs
-          test -f staged_inputs/merged_data_synthetic.csv
+          for f in merged_data_synthetic.csv synthetic_manifest.json abort_probe.csv; do
+            test -f "staged_inputs/$f" || { echo "missing staged_inputs/$f" >&2; exit 1; }
+          done
+          if ! git diff --quiet -- staged_inputs; then
+            echo "Regenerating the staged inputs changed committed files:" >&2
+            git diff --stat -- staged_inputs >&2
+            echo "The committed data has drifted from the seeded generator." >&2
+            exit 1
+          fi
       - name: Verify both targets still reproduce the source checkpoints
         # Run 3 established that the R source, a TypeScript target and a Java
         # target produce byte-identical checkpoints. Nothing re-checked it: the
