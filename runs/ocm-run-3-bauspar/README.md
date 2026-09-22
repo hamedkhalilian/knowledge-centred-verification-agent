@@ -9,9 +9,60 @@ General Rules rev 2, using the kit in `ocm-kit/`.
 |---|---|
 | DISCOVER | **done** — source staged, inventoried, findings F1–F7 recorded |
 | PROFILE | **done** — `evidence/input_profile.json`, schema-validated |
-| SPECIFY | **not started** — needs the source agent, in its own context |
-| OBSERVE_SOURCE | **probe only** — see below |
-| IMPLEMENT onward | **blocked** — target language not yet chosen by the owner |
+| SPECIFY | **done** — gate PASSED, spec releasable to the target room |
+| OBSERVE_SOURCE | **done** — `evidence/checkpoints_source.json`, schema-valid, deterministic |
+| IMPLEMENT | **next** — target agent, separate context |
+
+### SPECIFY exit gate — controller-executed
+
+Every gate was run by the controller, not accepted from the agent's report.
+`evidence/gate_specify_result.json`, exit 0:
+
+| Gate | Result |
+|---|---|
+| barrier | PASS — spec and flow manifest clean; scanner self-validated on its injected leak (6 patterns) |
+| schema | PASS — both artifacts valid |
+| R3 | PASS — 7 of 7 declared name vectors agree |
+
+**The R3 gate was run against the controller's own parse, not the agent's.**
+The source agent produced its own mechanical parse and ran the gate with it,
+which measures the agent's self-consistency — a different and weaker claim than
+the one the gate exists to make. The controller re-derived all seven vectors by
+a different method (text extraction in Python, against the agent's parse of the
+source with R's own parser) and bound the gate to that. Seven agreements
+between two unrelated derivations is evidence; an agent agreeing with itself is
+not.
+
+Two corrections were made to the controller's own derivation before it could be
+trusted, both the controller's bugs rather than spec defects — a sorted vector
+that produced a spurious order disagreement, and a regex that missed the amount
+markers entirely and reported zero of them. Both would have been reported as
+spec defects if left alone.
+
+Fault injection confirms the gate is live rather than vacuous: swapping two
+adjacent fields in the record catalogue — the run-2 defect class exactly —
+yields `same values, DIFFERENT ORDER` and exit 1.
+
+### OBSERVE_SOURCE
+
+The source agent's emitter was executed by the controller, twice, with the
+timestamp fixed: **byte-identical**. Its three digests match what the agent
+reported.
+
+| object | kind | rows | cols | canonical order |
+|---|---|---|---|---|
+| `customer_book` | frame | 503 | 34 | id asc, row_index asc |
+| `customer_export_rows` | frame | 503 | 26 | id asc, row_index asc |
+| `customers_js_document` | frame | 507 | 2 | line_no asc |
+
+`row_index` is an emitter-added ordering key declared in the spec, so the order
+stays total even if contract identifiers repeat (UA-04) — and because it
+travels as data, a side that read rows in a different order shows up as a
+divergence instead of being hidden by the sort.
+
+The answer key was checked intact after the emitter ran
+(`d06cbc27820ad702…`, unchanged), because the emitter executes the unit's
+browser-file writer and that writer's default output has the same name.
 
 `evidence/probe_source_execution.json` is a pre-spec **feasibility probe**, not
 the run's OBSERVE_SOURCE evidence. It fixes a checkpoint field set and a
@@ -157,3 +208,28 @@ The generator is seeded and clock-free, so the CSV and the probe digest
 (`82bf5ab2...`) reproduce byte for byte. The synthetic data itself is not
 committed: it is fully determined by the generator, and committing generated
 data invites someone to edit the data instead of the generator.
+
+### F8 — the spec schema polices provenance in one place and not the other
+
+`neutral_spec_schema.json` constrains `provenance` to the four-value enum only
+under `io_formats[].expectations[]`. The same key also appears 31 times under
+`units[].constants[]`, where the schema constrains nothing, and a different
+vocabulary is in use there: `source_declared` 30 times and a bare `observed`
+once.
+
+The 17 constrained tags are honest — 8 `observed_in_synthetic_input`, 6
+`source_code_declared`, 3 `assumption`, and no `observed_in_real_input`
+anywhere, which is correct because no real input exists.
+
+The single bare `observed` is on `round_reference_vectors`, sixteen measured
+cases of the source language's rounding. That is observed by executing the
+platform, not by reading an input, so neither `observed_in_real_input` nor
+`observed_in_synthetic_input` would be truthful. The tag is honest and the
+vocabulary is missing — which is the point.
+
+Not blocking, and not amended mid-run: lesson 3's fix was to stop a synthetic
+observation from wearing a real observation's label, and the location where
+that could happen **is** constrained. But an unconstrained provenance field is
+the door that defect walks back through, and a fifth term is needed for facts
+observed from the runtime rather than from data. Recorded for v4.5 alongside
+F4.

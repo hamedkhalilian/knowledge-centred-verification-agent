@@ -127,7 +127,7 @@ def main():
     p.add_argument("--spec-dir", default="runs/ocm-run-3-bauspar/spec")
     p.add_argument("--detector",
                    default="runs/ocm-run-3-bauspar/evidence/source_detector/derived_field_groups.csv")
-    p.add_argument("--bindings", default="ocm-kit/contracts/detector_spec_bindings.json")
+    p.add_argument("--bindings", default="runs/ocm-run-3-bauspar/detector_spec_bindings.json")
     p.add_argument("--out", default="runs/ocm-run-3-bauspar/evidence/gate_specify_result.json")
     args = p.parse_args()
 
