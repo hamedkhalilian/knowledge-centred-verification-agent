@@ -1,0 +1,244 @@
+{
+  "run_id": "ocm-run-3-bauspar",
+  "provenance": "synthetic",
+  "profiler": "profile_inputs_bauspar.py (python stdlib csv/re only; no R, no source-language convenience reader)",
+  "emitted_utc": "2026-09-22T00:00:00Z",
+  "files": [
+    {
+      "name": "merged_data_synthetic.csv",
+      "bytes": 37896,
+      "sha256": "7093a21b7197714549c8f8896917eb189b6e3d0a1e3043f3ed26a5f22c1cfa47",
+      "kind": "delimited_text",
+      "encoding": "utf-8",
+      "row_count": 503,
+      "field_count_distribution": {
+        "11": 504
+      },
+      "layout": {
+        "anchors": [
+          {
+            "what": "quoting hazard: fields per line under a naive comma split",
+            "where": "103 of 503 data lines carry quoted commas; naive split sees {11: 400, 14: 21, 15: 82}",
+            "winning_score": 11.0,
+            "runner_up": 15.0,
+            "margin": 4.0
+          },
+          {
+            "what": "header row",
+            "where": "line 1",
+            "winning_score": 1.0,
+            "runner_up": 0.0,
+            "margin": 1.0
+          }
+        ],
+        "note": "Generated file: the header is at line 1 by construction, so this anchor is asserted, not discovered. On a real input it would have to be scored against alternatives -- and the score expressed in the coordinate system the source's own reader uses, then checked against that reader empirically (lessons, finding 5)."
+      },
+      "date_range": {
+        "min": "1998-01-04",
+        "max": "2043-10-15",
+        "plausible": true
+      },
+      "fields": [
+        {
+          "name": "BSV",
+          "type": "number_plain:503",
+          "null_count": 0,
+          "min": 800000.0,
+          "max": 900023.0,
+          "distinct": 503,
+          "duplicates": 0,
+          "magnitude_distribution": {
+            "6": 503
+          }
+        },
+        {
+          "name": "abschlussdatum",
+          "type": "date_iso:500+empty_marker:3",
+          "null_count": 3,
+          "min": "1998-01-04",
+          "max": "2022-11-20",
+          "distinct": 488,
+          "duplicates": 15
+        },
+        {
+          "name": "einloesungsdatum",
+          "type": "date_iso:501+empty_marker:2",
+          "null_count": 2,
+          "min": 0.0,
+          "max": 0.0,
+          "distinct": 491,
+          "duplicates": 12,
+          "magnitude_distribution": {
+            "0": 1
+          }
+        },
+        {
+          "name": "erstmalige_zuteilungsanwartschaft",
+          "type": "date_yyyymmdd:404+empty_marker:99",
+          "null_count": 99,
+          "min": 0.0,
+          "max": 20350719.0,
+          "distinct": 396,
+          "duplicates": 107,
+          "magnitude_distribution": {
+            "0": 2,
+            "8": 404
+          }
+        },
+        {
+          "name": "Tilgungsbeginn",
+          "type": "date_yyyymmdd:147+empty_marker:356",
+          "null_count": 356,
+          "min": 20080321.0,
+          "max": 20361226.0,
+          "distinct": 148,
+          "duplicates": 355,
+          "magnitude_distribution": {
+            "8": 147
+          }
+        },
+        {
+          "name": "Vertragsende",
+          "type": "date_yyyymmdd:31+empty_marker:472",
+          "null_count": 472,
+          "min": 20200120.0,
+          "max": 20431015.0,
+          "distinct": 32,
+          "duplicates": 471,
+          "magnitude_distribution": {
+            "8": 31
+          }
+        },
+        {
+          "name": "DaBetrag",
+          "type": "empty_marker:2+number_de_comma:103+number_plain:398",
+          "null_count": 2,
+          "min": 0.0,
+          "max": 295982.79,
+          "distinct": 500,
+          "duplicates": 3,
+          "magnitude_distribution": {
+            "0": 1,
+            "4": 15,
+            "5": 451,
+            "6": 35
+          }
+        },
+        {
+          "name": "bausparsumme_teuro",
+          "type": "empty_marker:3+number_de_comma:103+number_plain:397",
+          "null_count": 3,
+          "min": 0.0,
+          "max": 50.972,
+          "distinct": 495,
+          "duplicates": 8,
+          "magnitude_distribution": {
+            "0": 3,
+            "2": 500
+          }
+        },
+        {
+          "name": "guthaben",
+          "type": "number_de_comma:103+number_plain:400",
+          "null_count": 0,
+          "min": 318.53,
+          "max": 216706.84,
+          "distinct": 500,
+          "duplicates": 3,
+          "magnitude_distribution": {
+            "3": 9,
+            "4": 175,
+            "5": 306,
+            "6": 13
+          }
+        },
+        {
+          "name": "tariff_amount",
+          "type": "empty_marker:89+number_de_comma:82+number_plain:332",
+          "null_count": 89,
+          "min": 0.3,
+          "max": 0.5,
+          "distinct": 9,
+          "duplicates": 494,
+          "values_in_full": [
+            "0,3000",
+            "0,3500",
+            "0,4000",
+            "0,5000",
+            "0.3",
+            "0.35",
+            "0.4",
+            "0.5",
+            "NA"
+          ],
+          "categories": [
+            "0,3000",
+            "0,3500",
+            "0,4000",
+            "0,5000",
+            "0.3",
+            "0.35",
+            "0.4",
+            "0.5",
+            "NA"
+          ],
+          "magnitude_distribution": {
+            "1": 414
+          }
+        },
+        {
+          "name": "contract_type",
+          "type": "empty_marker:83+text:420",
+          "null_count": 83,
+          "min": null,
+          "max": null,
+          "distinct": 5,
+          "duplicates": 498,
+          "values_in_full": [
+            "",
+            "BS1",
+            "BS2",
+            "BSK",
+            "VL7"
+          ],
+          "categories": [
+            "",
+            "BS1",
+            "BS2",
+            "BSK",
+            "VL7"
+          ]
+        }
+      ]
+    }
+  ],
+  "observations": [
+    "The engine reads exactly 11 columns from a contract row. The list was established two independent ways -- the R detector's mechanical column usage, and a direct scan of contract[[...]] / contract$ accesses -- which agree exactly. Recorded as values, not a count (R3).",
+    "Date columns appear in two forms on purpose: ISO text coerced to R Date class by the harness, and raw YYYYMMDD left as text. The source's parse_date_field has a branch for each, and a stand-in that emitted only one form would leave the other untested.",
+    "Amount columns appear both as plain decimals and in German decimal-comma form, including a thousands dot, because the source's parse_de_number strips dots before switching comma to point.",
+    "The empty-marker vocabulary the source treats as 'this event has not happened' -- '', '0', '00000000', 'NA' -- is present in the date columns rather than described.",
+    "HAZARD for any implementation that hand-rolls a delimiter split: German decimal-comma amounts are CSV-quoted and contain commas, so a naive split on ',' sees 14 or 15 fields on those lines instead of 11 and mis-assigns every column after the first amount. Under proper CSV quoting the file is exactly rectangular at 11 fields. This profiler's own first version made that mistake and reported the file as ragged."
+  ],
+  "unverified_assumptions": [
+    {
+      "id": "UA-01",
+      "statement": "The real merged_data_with_tariff_amount carries these 11 columns under these names.",
+      "precondition": "The real table is absent from the bundle (F1). The names come from the source's own accesses, so they are what the engine DEMANDS -- not evidence that the real table supplies them."
+    },
+    {
+      "id": "UA-02",
+      "statement": "Real inputs mix Date-class and raw YYYYMMDD columns as the engine's header comment describes.",
+      "precondition": "Asserted by the source's comments only. Comments are not evidence (R1); no real file was available to check which columns arrive in which form."
+    },
+    {
+      "id": "UA-03",
+      "statement": "Real tariff_amount values are fractions in (0,1] and absent values mean the tariff code found no match.",
+      "precondition": "Inferred from the engine's use of the field and its goal_source='fallback_no_tariff' branch. Distribution and absence rate in real data are unknown."
+    },
+    {
+      "id": "UA-04",
+      "statement": "Contract identifiers (BSV) are unique per row.",
+      "precondition": "Enforced by this generator so the checkpoint's canonical order is total. The real table may repeat a BSV -- qa_sample_customers_v4.R takes match(bsv, bsv_chr), the FIRST row for a BSV, which implies duplicates are expected there."
+    }
+  ]
+}

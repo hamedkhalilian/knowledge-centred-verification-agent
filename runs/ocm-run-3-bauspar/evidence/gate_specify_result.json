@@ -1,0 +1,20 @@
+{
+  "run_id": "ocm-run-3-bauspar",
+  "state": "SPECIFY",
+  "gates": {
+    "barrier": {
+      "result": "PASS",
+      "note": "clean"
+    },
+    "schema": {
+      "result": "PASS",
+      "note": "2 artifact(s) valid"
+    },
+    "r3": {
+      "result": "PASS",
+      "note": "all declared vectors agree"
+    }
+  },
+  "verdict": "PASS",
+  "releasable_to_target": true
+}

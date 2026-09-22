@@ -1,0 +1,2 @@
+"severity","code","file","line","message"
+"INFO","RSD-NO-PROBES",,,"No per-run source probes declared (looked in 'contracts/source_probes.csv'). Anchor and phrase findings were NOT produced; their absence here is not evidence that the source lacks them."

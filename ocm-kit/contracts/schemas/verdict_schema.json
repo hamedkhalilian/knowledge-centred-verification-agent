@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "verdict",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run_id", "tier", "verdict", "caps", "context_sharing", "waivers", "unverified_assumptions", "layers", "owner_decisions", "emitted_utc"],
+  "properties": {
+    "run_id": { "type": "string" },
+    "tier": { "enum": ["CORE", "FULL"] },
+    "verdict": { "enum": ["APPROVE", "VERIFIED_TARGET_ONLY", "PROVISIONAL", "BLOCKED"] },
+    "emitted_utc": { "type": "string" },
+    "caps": {
+      "type": "array",
+      "description": "R20: which observation is absent and what it would have covered — in the verdict itself, not in prose",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["rule", "absent_observation", "would_have_covered", "resulting_cap"],
+        "properties": {
+          "rule": { "type": "string" },
+          "absent_observation": { "type": "string" },
+          "would_have_covered": { "type": "string" },
+          "resulting_cap": { "enum": ["APPROVE", "VERIFIED_TARGET_ONLY", "PROVISIONAL", "BLOCKED"] } } }
+    },
+    "context_sharing": {
+      "type": "object", "additionalProperties": false,
+      "required": ["structural_barrier", "roles"],
+      "properties": {
+        "structural_barrier": { "type": "boolean" },
+        "roles": { "type": "array", "items": { "type": "object", "additionalProperties": false,
+          "required": ["role", "context"],
+          "properties": { "role": {"type": "string"}, "context": {"type": "string"},
+            "saw_source": {"type": "boolean"}, "saw_target": {"type": "boolean"} } } },
+        "note": { "type": "string" }
+      }
+    },
+    "waivers": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["decision", "by", "risk_accepted"],
+        "properties": { "decision": {"type": "string"}, "by": {"type": "string"}, "risk_accepted": {"type": "string"},
+          "mitigations": { "type": "array", "items": {"type": "string"} } } }
+    },
+    "unverified_assumptions": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["id", "statement", "precondition", "status"],
+        "properties": { "id": {"type": "string"}, "statement": {"type": "string"},
+          "precondition": {"type": "string"},
+          "status": { "enum": ["open", "discharged", "violated"] } } }
+    },
+    "layers": {
+      "type": "array", "minItems": 12, "maxItems": 12,
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["n", "name", "tier", "ran", "result"],
+        "properties": {
+          "n": { "type": "integer", "minimum": 1, "maximum": 12 },
+          "name": { "type": "string" },
+          "tier": { "enum": ["CORE", "FULL"] },
+          "ran": { "type": "boolean" },
+          "result": { "enum": ["PASS", "FINDINGS", "BLOCKED", "NOT_RUN"] },
+          "findings": { "type": "array", "items": { "type": "string" } },
+          "blocked_reason": { "type": "string" } } }
+    },
+    "findings": { "type": "array", "items": { "type": "string" } },
+    "owner_decisions": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["decision", "choice"],
+        "properties": { "decision": {"type": "string"}, "choice": {"type": "string"}, "consequence": {"type": "string"} } }
+    },
+    "limits": { "type": "array", "items": { "type": "string" },
+      "description": "§6: what is not established — stated in the verdict, not in prose" }
+  }
+}

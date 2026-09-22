@@ -1,0 +1,438 @@
+{
+  "run_id": "ocm-run-3-bauspar",
+  "side": "source",
+  "state": "OBSERVE_SOURCE",
+  "canonicalisation": "dec9-half-even-v1",
+  "emitted_utc": "2026-09-22T00:00:00Z",
+  "harness_patches": [
+    {
+      "file": "customer_engine_v4.R",
+      "what": "none: the unit is sourced unmodified",
+      "why": "No line of the unit was edited, so no observed behaviour is attributable to this harness."
+    },
+    {
+      "file": "merged_data_synthetic.csv",
+      "what": "two fields coerced to a date type before the unit sees them",
+      "why": "The stand-in is delivered as text. The manifest declares abschlussdatum and einloesungsdatum as date-typed and leaves the other three date fields as raw digits, so both branches of the unit's date reader are exercised. The same declaration governs both sides; neither side infers it."
+    },
+    {
+      "file": "customer_engine_v4.R",
+      "what": "no value named merged_data or merged_data_with_tariff_amount is created",
+      "why": "Creating either would make the act of loading the unit write customers_data.js into the working directory, which is the name of the run's quarantined answer key. The browser data file is instead produced by an explicit call into a temporary path and read back as lines."
+    },
+    {
+      "file": "customer_engine_v4.R",
+      "what": "the progress indicator's console output is captured",
+      "why": "The unit's console progress indicator emits several thousand characters. They are captured so the run log stays readable. Nothing written to the browser data file, and nothing in any checkpoint object, is affected."
+    },
+    {
+      "file": "checkpoint objects",
+      "what": "row_index and line_no added as ordering keys",
+      "why": "Neither is a field of the unit. They make the declared canonical order total even if contract identifiers repeat, which the run's assumption UA-04 says they may. Both sides emit them; the neutral spec declares them."
+    }
+  ],
+  "inputs": [
+    {
+      "name": "merged_data_synthetic.csv",
+      "bytes": 37896,
+      "sha256": "7093a21b7197714549c8f8896917eb189b6e3d0a1e3043f3ed26a5f22c1cfa47"
+    },
+    {
+      "name": "synthetic_manifest.json",
+      "bytes": 1933,
+      "sha256": "faa2dd1b8f90ed70ddc95dff34a4f8746143f3a89f06b33ba0886f7c33914463"
+    }
+  ],
+  "units": [
+    {
+      "unit": "U01",
+      "objects": [
+        {
+          "name": "customer_book",
+          "kind": "frame",
+          "rows": 503,
+          "cols": 34,
+          "colnames": [
+            "row_index",
+            "id",
+            "phase",
+            "savings_ratio",
+            "saving_goal",
+            "contract_type",
+            "goal_fraction",
+            "goal_source",
+            "saving_reference",
+            "balance",
+            "bauspar_sum",
+            "loan_notional",
+            "bauspar_loan",
+            "loan_to_bauspar_ratio",
+            "is_bridge_loan",
+            "allocation_estimated",
+            "allocation_in_past",
+            "repayment_active",
+            "saving_after_allocation",
+            "warn_loan_pointless",
+            "contract_start_date",
+            "first_payment_date",
+            "allocation_date",
+            "loan_start_date",
+            "contract_end_date",
+            "year_contract",
+            "year_first_payment",
+            "year_allocation",
+            "year_loan_start",
+            "x_contract",
+            "x_first_payment",
+            "x_allocation",
+            "x_loan_start",
+            "x_now"
+          ],
+          "canonical_order": [
+            {
+              "column": "id",
+              "direction": "asc"
+            },
+            {
+              "column": "row_index",
+              "direction": "asc"
+            }
+          ],
+          "digest": {
+            "algorithm": "SHA-256",
+            "canonicalisation": "dec9-half-even-v1",
+            "value": "9ef73ff04d1d8f76e79fe76a0efcc1c7d8d921cbdf133867af8f4a046f0db90b"
+          },
+          "coverage": {
+            "row_count": 503,
+            "field_count": 34,
+            "null_count": 690,
+            "min": "-1.66139000e+05",
+            "max": "2.95983000e+05"
+          },
+          "probes": [
+            {
+              "selection_rule": "index:1",
+              "fields": {
+                "row_index": "2.40000000e+01",
+                "id": "800000",
+                "phase": "oversave",
+                "savings_ratio": "4.46000000e-01",
+                "saving_goal": "1.55650000e+04",
+                "contract_type": "BS1",
+                "goal_fraction": "3.50000000e-01",
+                "goal_source": "tariff",
+                "saving_reference": "4.44720000e+04",
+                "balance": "1.98550000e+04",
+                "bauspar_sum": "4.50390000e+04",
+                "loan_notional": "4.44720000e+04",
+                "bauspar_loan": "2.46170000e+04",
+                "loan_to_bauspar_ratio": "9.87000000e-01",
+                "is_bridge_loan": "false",
+                "allocation_estimated": "false",
+                "allocation_in_past": "false",
+                "repayment_active": "false",
+                "saving_after_allocation": "false",
+                "warn_loan_pointless": "false",
+                "contract_start_date": "18955",
+                "first_payment_date": "19159",
+                "allocation_date": "23732",
+                "loan_start_date": "23809",
+                "contract_end_date": "27750",
+                "year_contract": "2021",
+                "year_first_payment": "2022",
+                "year_allocation": "2034",
+                "year_loan_start": "2035",
+                "x_contract": "2.00000000e-02",
+                "x_first_payment": "6.00000000e-02",
+                "x_allocation": "4.00000000e-01",
+                "x_loan_start": "NA",
+                "x_now": "4.60000000e-01"
+              }
+            },
+            {
+              "selection_rule": "index:ceil(n/2)",
+              "fields": {
+                "row_index": "2.75000000e+02",
+                "id": "800251",
+                "phase": "done",
+                "savings_ratio": "6.60000000e-01",
+                "saving_goal": "8.39000000e+03",
+                "contract_type": "BSK",
+                "goal_fraction": "4.00000000e-01",
+                "goal_source": "fallback_no_tariff",
+                "saving_reference": "2.09740000e+04",
+                "balance": "1.38500000e+04",
+                "bauspar_sum": "2.08680000e+04",
+                "loan_notional": "2.09740000e+04",
+                "bauspar_loan": "7.12400000e+03",
+                "loan_to_bauspar_ratio": "1.00500000e+00",
+                "is_bridge_loan": "false",
+                "allocation_estimated": "false",
+                "allocation_in_past": "true",
+                "repayment_active": "false",
+                "saving_after_allocation": "false",
+                "warn_loan_pointless": "false",
+                "contract_start_date": "12642",
+                "first_payment_date": "12955",
+                "allocation_date": "15672",
+                "loan_start_date": "NA",
+                "contract_end_date": "19690",
+                "year_contract": "2004",
+                "year_first_payment": "2005",
+                "year_allocation": "2012",
+                "year_loan_start": "",
+                "x_contract": "2.00000000e-02",
+                "x_first_payment": "6.00000000e-02",
+                "x_allocation": "4.00000000e-01",
+                "x_loan_start": "4.00000000e-01",
+                "x_now": "1.00000000e+00"
+              }
+            },
+            {
+              "selection_rule": "index:n",
+              "fields": {
+                "row_index": "2.30000000e+01",
+                "id": "900023",
+                "phase": "save",
+                "savings_ratio": "NA",
+                "saving_goal": "0.00000000e+00",
+                "contract_type": "BS2",
+                "goal_fraction": "4.00000000e-01",
+                "goal_source": "tariff",
+                "saving_reference": "0.00000000e+00",
+                "balance": "1.20000000e+03",
+                "bauspar_sum": "0.00000000e+00",
+                "loan_notional": "0.00000000e+00",
+                "bauspar_loan": "-1.20000000e+03",
+                "loan_to_bauspar_ratio": "NA",
+                "is_bridge_loan": "false",
+                "allocation_estimated": "false",
+                "allocation_in_past": "true",
+                "repayment_active": "false",
+                "saving_after_allocation": "true",
+                "warn_loan_pointless": "false",
+                "contract_start_date": "15857",
+                "first_payment_date": "15887",
+                "allocation_date": "19905",
+                "loan_start_date": "NA",
+                "contract_end_date": "23923",
+                "year_contract": "2013",
+                "year_first_payment": "2013",
+                "year_allocation": "2024",
+                "year_loan_start": "",
+                "x_contract": "2.00000000e-02",
+                "x_first_payment": "6.00000000e-02",
+                "x_allocation": "4.00000000e-01",
+                "x_loan_start": "NA",
+                "x_now": "4.28600000e-01"
+              }
+            }
+          ]
+        },
+        {
+          "name": "customer_export_rows",
+          "kind": "frame",
+          "rows": 503,
+          "cols": 26,
+          "colnames": [
+            "row_index",
+            "id",
+            "phase",
+            "warn",
+            "sr",
+            "xc",
+            "xf",
+            "xa",
+            "xl",
+            "xn",
+            "lab_contract",
+            "lab_first",
+            "lab_alloc",
+            "lab_loan",
+            "guthaben",
+            "bausparsumme",
+            "save_target",
+            "loan_amount",
+            "dabetrag",
+            "alloc_est",
+            "da_bsum_ratio",
+            "bridge",
+            "goal_frac",
+            "contract_type",
+            "goal_source",
+            "special"
+          ],
+          "canonical_order": [
+            {
+              "column": "id",
+              "direction": "asc"
+            },
+            {
+              "column": "row_index",
+              "direction": "asc"
+            }
+          ],
+          "digest": {
+            "algorithm": "SHA-256",
+            "canonicalisation": "dec9-half-even-v1",
+            "value": "afa5ebd0b822d43c441cec219ae5ebd7a70b247e02a3a8f7c2224a8052996f81"
+          },
+          "coverage": {
+            "row_count": 503,
+            "field_count": 26,
+            "null_count": 331,
+            "min": "-1.66139000e+05",
+            "max": "2.95983000e+05"
+          },
+          "probes": [
+            {
+              "selection_rule": "index:1",
+              "fields": {
+                "row_index": "2.40000000e+01",
+                "id": "800000",
+                "phase": "oversave",
+                "warn": "0.00000000e+00",
+                "sr": "4.46000000e-01",
+                "xc": "2.00000000e-02",
+                "xf": "6.00000000e-02",
+                "xa": "4.00000000e-01",
+                "xl": "NA",
+                "xn": "4.60000000e-01",
+                "lab_contract": "2021",
+                "lab_first": "2022",
+                "lab_alloc": "2034",
+                "lab_loan": "2035",
+                "guthaben": "1.98550000e+04",
+                "bausparsumme": "4.50390000e+04",
+                "save_target": "1.55650000e+04",
+                "loan_amount": "2.46170000e+04",
+                "dabetrag": "4.44720000e+04",
+                "alloc_est": "0.00000000e+00",
+                "da_bsum_ratio": "9.87000000e-01",
+                "bridge": "0.00000000e+00",
+                "goal_frac": "3.50000000e-01",
+                "contract_type": "BS1",
+                "goal_source": "tariff",
+                "special": "0.00000000e+00"
+              }
+            },
+            {
+              "selection_rule": "index:ceil(n/2)",
+              "fields": {
+                "row_index": "2.75000000e+02",
+                "id": "800251",
+                "phase": "done",
+                "warn": "0.00000000e+00",
+                "sr": "6.60000000e-01",
+                "xc": "2.00000000e-02",
+                "xf": "6.00000000e-02",
+                "xa": "4.00000000e-01",
+                "xl": "4.00000000e-01",
+                "xn": "1.00000000e+00",
+                "lab_contract": "2004",
+                "lab_first": "2005",
+                "lab_alloc": "2012",
+                "lab_loan": "",
+                "guthaben": "1.38500000e+04",
+                "bausparsumme": "2.08680000e+04",
+                "save_target": "8.39000000e+03",
+                "loan_amount": "7.12400000e+03",
+                "dabetrag": "2.09740000e+04",
+                "alloc_est": "0.00000000e+00",
+                "da_bsum_ratio": "1.00500000e+00",
+                "bridge": "0.00000000e+00",
+                "goal_frac": "4.00000000e-01",
+                "contract_type": "BSK",
+                "goal_source": "fallback_no_tariff",
+                "special": "0.00000000e+00"
+              }
+            },
+            {
+              "selection_rule": "index:n",
+              "fields": {
+                "row_index": "2.30000000e+01",
+                "id": "900023",
+                "phase": "save",
+                "warn": "0.00000000e+00",
+                "sr": "NA",
+                "xc": "2.00000000e-02",
+                "xf": "6.00000000e-02",
+                "xa": "4.00000000e-01",
+                "xl": "NA",
+                "xn": "4.28600000e-01",
+                "lab_contract": "2013",
+                "lab_first": "2013",
+                "lab_alloc": "2024",
+                "lab_loan": "",
+                "guthaben": "1.20000000e+03",
+                "bausparsumme": "0.00000000e+00",
+                "save_target": "0.00000000e+00",
+                "loan_amount": "-1.20000000e+03",
+                "dabetrag": "0.00000000e+00",
+                "alloc_est": "0.00000000e+00",
+                "da_bsum_ratio": "NA",
+                "bridge": "0.00000000e+00",
+                "goal_frac": "4.00000000e-01",
+                "contract_type": "BS2",
+                "goal_source": "tariff",
+                "special": "0.00000000e+00"
+              }
+            }
+          ]
+        },
+        {
+          "name": "customers_js_document",
+          "kind": "frame",
+          "rows": 507,
+          "cols": 2,
+          "colnames": [
+            "line_no",
+            "line_text"
+          ],
+          "canonical_order": [
+            {
+              "column": "line_no",
+              "direction": "asc"
+            }
+          ],
+          "digest": {
+            "algorithm": "SHA-256",
+            "canonicalisation": "dec9-half-even-v1",
+            "value": "fc9c29b403d73516ea3234d83e4e02d55701a4e4ecdbeff906c091ddc20e506a"
+          },
+          "coverage": {
+            "row_count": 507,
+            "field_count": 2,
+            "null_count": 0,
+            "min": "1.00000000e+00",
+            "max": "5.07000000e+02"
+          },
+          "probes": [
+            {
+              "selection_rule": "index:1",
+              "fields": {
+                "line_no": "1.00000000e+00",
+                "line_text": "// customers_data.js  --  generated by customer_engine.R"
+              }
+            },
+            {
+              "selection_rule": "index:ceil(n/2)",
+              "fields": {
+                "line_no": "2.54000000e+02",
+                "line_text": "\"800227\":{\"id\":\"800227\",\"phase\":\"oversave\",\"warn\":0,\"sr\":0.796,\"xc\":0.02,\"xf\":0.06,\"xa\":0.4,\"xl\":null,\"xn\":0.46,\"lab_contract\":\"2020\",\"lab_first\":\"2020\",\"lab_alloc\":\"~2030\",\"lab_loan\":\"\",\"guthaben\":28117,\"bausparsumme\":36864,\"save_target\":14137,\"loan_amount\":7225,\"dabetrag\":35342,\"alloc_est\":1,\"da_bsum_ratio\":0.959,\"bridge\":0,\"goal_frac\":0.4,\"contract_type\":\"\",\"goal_source\":\"tariff\",\"special\":0},"
+              }
+            },
+            {
+              "selection_rule": "index:n",
+              "fields": {
+                "line_no": "5.07000000e+02",
+                "line_text": "};"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "run_id": "ocm-run-3-bauspar",
+  "side": "target",
+  "state": "OBSERVE_TARGET",
+  "emitted_utc": "2026-09-22T18:07:17Z",
+  "input": "merged_data_synthetic.csv",
+  "valuation_date": "2026-03-31",
+  "valuation_date_source": "input manifest synthetic_manifest.json field valuation_date",
+  "results": [
+    {
+      "id": "P-01",
+      "severity": "FAIL",
+      "status": "PASS",
+      "statement": "The contract table carries all eleven names of input_column_catalogue, spelled exactly, case-sensitively.",
+      "evidence": "all eleven names bound; surplus fields REPORTED not rejected: none"
+    },
+    {
+      "id": "P-02",
+      "severity": "FAIL",
+      "status": "PASS",
+      "statement": "The identifier field is present; the unit's own writer stops with a named error when it is not.",
+      "evidence": "BSV bound at position 1 of the header"
+    },
+    {
+      "id": "P-03",
+      "severity": "FAIL",
+      "status": "PASS",
+      "statement": "Every non-missing value of the five date fields is readable as a date by the rule in behaviour step C1.",
+      "evidence": "abschlussdatum: marker 3, eight-digit valid 0, hyphenated valid 500, unreadable 0 -> 503 reconciles to 503 rows read | einloesungsdatum: marker 2, eight-digit valid 0, hyphenated valid 501, unreadable 0 -> 503 reconciles to 503 rows read | erstmalige_zuteilungsanwartschaft: marker 99, eight-digit valid 404, hyphenated valid 0, unreadable 0 -> 503 reconciles to 503 rows read | Tilgungsbeginn: marker 356, eight-digit valid 147, hyphenated valid 0, unreadable 0 -> 503 reconciles to 503 rows read | Vertragsende: marker 472, eight-digit valid 31, hyphenated valid 0, unreadable 0 -> 503 reconciles to 503 rows read || total unreadable 0, of which hyphenated (abort-triggering) 0"
+    },
+    {
+      "id": "P-04",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "Parsed dates are plausible: between 1950-01-01 and 2100-01-01.",
+      "evidence": "abschlussdatum: 1998-01-04 .. 2022-11-20 over 500 parsed, outside 1950-01-01..2100-01-01: 0 | einloesungsdatum: 1998-05-10 .. 2023-06-29 over 501 parsed, outside 1950-01-01..2100-01-01: 0 | erstmalige_zuteilungsanwartschaft: 2005-11-11 .. 2035-07-19 over 404 parsed, outside 1950-01-01..2100-01-01: 0 | Tilgungsbeginn: 2008-03-21 .. 2036-12-26 over 147 parsed, outside 1950-01-01..2100-01-01: 0 | Vertragsende: 2020-01-20 .. 2043-10-15 over 31 parsed, outside 1950-01-01..2100-01-01: 0"
+    },
+    {
+      "id": "P-05",
+      "severity": "FAIL",
+      "status": "PASS",
+      "statement": "Every non-missing tariff share is greater than 0 and at most 1, so that it is a fraction and not percent points.",
+      "evidence": "range 0.3 .. 0.5; missing 89; at most 0: 0; greater than 1: 0; distinct raw texts of tariff_amount: 0,3000 | 0,3500 | 0,4000 | 0,5000 | 0.3 | 0.35 | 0.4 | 0.5 | NA"
+    },
+    {
+      "id": "P-06",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "Amounts are plausible: the balance, loan notional and Bauspar sum are finite and not negative wherever present.",
+      "evidence": "guthaben: missing 0, negative 0, range 318.53 .. 216706.84 | DaBetrag: missing 1, negative 0, range 0 .. 295982.79 | bausparsumme_teuro: missing 0, negative 0, range 0 .. 50.972 (in thousands of euro as read; x1000 in the record)"
+    },
+    {
+      "id": "P-07",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "Identifiers are unique across rows.",
+      "evidence": "rows read 503, distinct identifiers 503, identifiers appearing more than once 0; reconciliation rows - distinct = 0 (never deduplicated: the published record objects keep every row)"
+    },
+    {
+      "id": "P-08",
+      "severity": "FAIL",
+      "status": "PASS",
+      "statement": "Derived quantities are within their declared shapes.",
+      "evidence": "phase tally done=125, loan=55, oversave=213, save=110 (out of the declared set: 0); goal_source tally fallback_no_tariff=89, tariff=414 (out of set: 0); published positions outside 0..1: 0; saving progress outside 0..1: 0"
+    },
+    {
+      "id": "P-09",
+      "severity": "FAIL",
+      "status": "PASS",
+      "statement": "No row is lost: records published equals rows read.",
+      "evidence": "rows read 503, records published 503, rows refused 0 (the per-contract calculation publishes a record for every row it is given; its only failure mode is the abort of behaviour step C1, which emits no checkpoint file at all)"
+    },
+    {
+      "id": "P-10",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "No field name in the table has any of the eleven declared names as a strict prefix.",
+      "evidence": "checked all eleven declared names against all 11 header names: no strict-prefix collision"
+    },
+    {
+      "id": "P-11",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "A text amount carries at most one comma.",
+      "evidence": "text amount values with two or more commas, by field: DaBetrag: 0, bausparsumme_teuro: 0, guthaben: 0, tariff_amount: 0 (each of those becomes missing by behaviour step C2, silently)"
+    },
+    {
+      "id": "P-12",
+      "severity": "FAIL",
+      "status": "PASS",
+      "statement": "The valuation date is supplied, is a valid calendar date, and lies within the plausible range of P-04.",
+      "evidence": "valuation date used: 2026-03-31 (epoch day 20543), source: input manifest synthetic_manifest.json field valuation_date; the unit's own load-time default is 2026-03-31 and its own session override is a value named VAL_DATE -- neither applied here, because this target's launch interface takes the date as an argument or from the input manifest"
+    },
+    {
+      "id": "P-13",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "The thousands factor on the Bauspar sum is right way up, judged from a derived quantity rather than from the column (R4).",
+      "evidence": "median of loan notional / Bauspar sum over 500 contracts where both are present and the Bauspar sum is positive: 0.975629. A median near 1 is expected; near 0.001 or near 1000 would mean the thousands factor was applied on the wrong side or not at all."
+    },
+    {
+      "id": "FND-01",
+      "severity": "FAIL",
+      "status": "PASS",
+      "statement": "An amount written in German thousands style but WITHOUT a decimal comma is read a thousand times too small.",
+      "evidence": "DaBetrag: 373 values with a dot and no comma, of which 0 have exactly three digits after the last dot (the thousands-dot shape) | bausparsumme_teuro: 378 values with a dot and no comma, of which 10 have exactly three digits after the last dot (the thousands-dot shape); first: row 24=\"45.039\", row 25=\"24.387\", row 26=\"10.182\", row 28=\"24.789\", row 29=\"10.621\" | guthaben: 375 values with a dot and no comma, of which 0 have exactly three digits after the last dot (the thousands-dot shape) | tariff_amount: 332 values with a dot and no comma, of which 0 have exactly three digits after the last dot (the thousands-dot shape) || note: bausparsumme_teuro is denominated in thousands of euro with three decimals, so a three-decimal value there is the ordinary spelling of that column and not the thousands-dot hazard; the check reports the shape for every field and judges the hazard only where the field is denominated in euro."
+    },
+    {
+      "id": "FND-02",
+      "severity": "FAIL",
+      "status": "PASS",
+      "statement": "The per-contract tariff share is multiplied directly by an amount in euro, so it is used as a FRACTION OF ONE.",
+      "evidence": "non-missing tariff shares: range 0.3 .. 0.5, count greater than 1: 0, count at most 0: 0, missing 89, distinct raw texts 0,3000 | 0,3500 | 0,4000 | 0,5000 | 0.3 | 0.35 | 0.4 | 0.5 | NA"
+    },
+    {
+      "id": "FND-03",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "The published identifier is the BSV value rendered by the source language's default numeric-to-text conversion.",
+      "evidence": "published identifiers matching a mantissa followed by e and a signed exponent: 0. The identifier column arrived as TEXT in this run, so the text is used unchanged, with no trimming and no padding."
+    },
+    {
+      "id": "FND-04",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "The browser data file is written one entry per ROW, keyed by identifier; duplicates produce duplicate keys.",
+      "evidence": "rows 503, distinct identifiers 503, duplicated identifiers 0 (reconciles: 503 rows - 503 distinct = 0 extra rows)"
+    },
+    {
+      "id": "FND-05",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "Two cutoffs describe the same comparison from opposite ends and are not applied to the same number.",
+      "evidence": "bands over the UNROUNDED ratio: missing 3, at most 0.5 1, between 0.5 and 2 inclusive 426, greater than 2 73; alarm count from the ROUNDED ratio strictly below 0.5: 1; bridge flag count from the UNROUNDED ratio strictly above 2: 73 -- the two agree on this input"
+    },
+    {
+      "id": "FND-06",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "The two date branches fail differently: a hyphenated unreadable value aborts the run, a non-hyphenated one goes silently missing.",
+      "evidence": "values satisfying neither branch: 0 (by field: abschlussdatum 0, einloesungsdatum 0, erstmalige_zuteilungsanwartschaft 0, Tilgungsbeginn 0, Vertragsende 0); of those, hyphenated and therefore ABORT-TRIGGERING: 0"
+    },
+    {
+      "id": "FND-07",
+      "severity": "FAIL",
+      "status": "NOT_EXERCISED",
+      "statement": "The standalone-page writer ignores its own table argument and builds the data block from the enriched session table.",
+      "evidence": "no standalone page is produced by this build: the target's launch interface (GR-14, target directive 4) takes one input path and an optional valuation date and produces no page. The precondition is therefore not exercised here rather than vacuously passed. It is expected to FAIL for any call with a subset."
+    },
+    {
+      "id": "FND-08",
+      "severity": "FLAGGED",
+      "status": "FLAGGED",
+      "statement": "Two fallbacks chain: a missing allocation becomes base + 3652 days, and a missing contract end becomes THAT estimate + 4018 days.",
+      "evidence": "allocation estimated 99; contract end absent 472; both 99; phase is done while both were absent: 27 (the last count is this finding's exposure and travels with the verdict)"
+    },
+    {
+      "id": "FND-09",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "Every published amount is rounded independently, so the published loan portion need not equal the published reference minus the published balance.",
+      "evidence": "contracts where published loan portion != published reference - published balance: 104; maximum size of the discrepancy: 1 euro (a discrepancy of more than one euro would mean the rounding rule itself diverges)"
+    },
+    {
+      "id": "FND-10",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "Both downstream consumers draw a fifth phase called nodata; the unit never produces it.",
+      "evidence": "published phases: done=125, loan=55, oversave=213, save=110; published phases outside the declared four: 0; contracts with a missing savings ratio (the population the consumers' unreachable branch was written for): 2"
+    },
+    {
+      "id": "FND-11",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "The unit's comment lists four missing markers; the code recognises seven.",
+      "evidence": "the seven markers of date_missing_markers are implemented in full; the markers actually PRESENT in this input's date fields are: (empty) | 0 | 00000000 | NA. Markers not exercised by this input are named rather than assumed covered."
+    },
+    {
+      "id": "FND-12",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "Field access on a contract row is by name with PREFIX FALLBACK in the source language.",
+      "evidence": "check 1 -- all eleven exact names present: yes; check 2 -- other field names having one of the eleven as a strict prefix: none. The two checks are reported separately, as the finding requires. This target binds by exact name only and never falls back to a prefix; the precondition is what makes the difference unobservable."
+    },
+    {
+      "id": "FND-13",
+      "severity": "FLAGGED",
+      "status": "PASS",
+      "statement": "The warning flag is decided on the unrounded savings ratio while the ratio itself is published rounded to three places.",
+      "evidence": "contracts where the published flag and the test 'published ratio at least 0.90' disagree: 0 (that count is the population where the picture and the record contradict each other and it travels with the verdict)"
+    }
+  ]
+}

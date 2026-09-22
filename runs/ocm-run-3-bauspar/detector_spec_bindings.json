@@ -1,0 +1,21 @@
+{
+  "note": "R3 gate bindings for THIS RUN. Deliberately not written into ocm-kit/contracts/: the kit ships its stub empty so it carries no run's answers, and a test asserts that. The detector CSV these are bound to is the CONTROLLER's independent derivation (evidence/controller_name_vectors.csv), not the source agent's own parse -- an agent's parse compared against that same agent's spec measures self-consistency, which is a weaker claim than the one this gate exists to make.",
+  "run_id": "ocm-run-3-bauspar",
+  "bindings": [
+    {
+      "source_file": "customer_engine_v4.R",
+      "unit": "U01",
+      "pairs": [
+        {"detector_group": "contract_input_fields",   "spec_constant": "input_column_catalogue"},
+        {"detector_group": "record_fields",           "spec_constant": "record_field_catalogue"},
+        {"detector_group": "export_fields",           "spec_constant": "export_field_catalogue"},
+        {"detector_group": "phase_values",            "spec_constant": "phase_values"},
+        {"detector_group": "goal_source_values",      "spec_constant": "goal_source_values"},
+        {"detector_group": "date_missing_markers",    "spec_constant": "date_missing_markers"},
+        {"detector_group": "amount_missing_markers",  "spec_constant": "amount_missing_markers"}
+      ],
+      "waived_detector_groups": [],
+      "waived_spec_constants": []
+    }
+  ]
+}

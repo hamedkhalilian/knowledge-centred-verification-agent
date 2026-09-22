@@ -1,0 +1,361 @@
+{
+  "side": "source",
+  "provenance": "static",
+  "emitted_utc": "2026-09-22T00:00:00Z",
+  "nodes": [
+    {
+      "id": "mod:engine_load",
+      "kind": "module",
+      "label": "load-time branch: decides whether to write the browser data file"
+    },
+    {
+      "id": "mod:date_reader",
+      "kind": "module",
+      "label": "date field reader: typed date, eight digits, or missing marker"
+    },
+    {
+      "id": "mod:number_reader",
+      "kind": "module",
+      "label": "German decimal-comma number reader"
+    },
+    {
+      "id": "mod:clamp",
+      "kind": "module",
+      "label": "bound a value into a closed interval"
+    },
+    {
+      "id": "mod:year_label",
+      "kind": "module",
+      "label": "four-digit year label, empty when the date is missing"
+    },
+    {
+      "id": "mod:contract_calculation",
+      "kind": "module",
+      "label": "per-contract lifecycle calculation, one row in one record out"
+    },
+    {
+      "id": "mod:book_calculation",
+      "kind": "module",
+      "label": "whole-table calculation, one record per row stacked into a table"
+    },
+    {
+      "id": "mod:export_mapper",
+      "kind": "module",
+      "label": "rename and narrow the record to the 25 export names"
+    },
+    {
+      "id": "mod:scalar_renderer",
+      "kind": "module",
+      "label": "render one exported value for the browser file"
+    },
+    {
+      "id": "mod:record_renderer",
+      "kind": "module",
+      "label": "render one contract as a brace-delimited browser object"
+    },
+    {
+      "id": "mod:progress_indicator",
+      "kind": "module",
+      "label": "progress indicator cascade: graphical, console, silent"
+    },
+    {
+      "id": "mod:browser_data_writer",
+      "kind": "module",
+      "label": "write the browser data file over a whole table"
+    },
+    {
+      "id": "mod:contract_inspector",
+      "kind": "module",
+      "label": "select one contract by identifier and print its situation"
+    },
+    {
+      "id": "mod:standalone_page_writer",
+      "kind": "module",
+      "label": "splice the browser data into a copy of the view template"
+    },
+    {
+      "id": "obj:contract_table",
+      "kind": "object",
+      "label": "input: the contract table with the eleven read fields"
+    },
+    {
+      "id": "obj:valuation_date",
+      "kind": "object",
+      "label": "input: the valuation date of the analysis"
+    },
+    {
+      "id": "obj:parsed_milestone_dates",
+      "kind": "object",
+      "label": "the five parsed milestone dates of one contract"
+    },
+    {
+      "id": "obj:parsed_amounts",
+      "kind": "object",
+      "label": "the four parsed amounts of one contract, Bauspar sum in euro"
+    },
+    {
+      "id": "obj:clamped_progress",
+      "kind": "object",
+      "label": "saving progress and repayment progress, bounded to zero-to-one"
+    },
+    {
+      "id": "obj:year_labels",
+      "kind": "object",
+      "label": "the four year labels, with the tilde prefix on an estimated allocation"
+    },
+    {
+      "id": "obj:contract_record",
+      "kind": "object",
+      "label": "published: one record of 33 named values for one contract"
+    },
+    {
+      "id": "obj:customer_book",
+      "kind": "object",
+      "label": "published checkpoint object: one record per row of the table"
+    },
+    {
+      "id": "obj:customer_export_rows",
+      "kind": "object",
+      "label": "published checkpoint object: the 25-name export mapping per row"
+    },
+    {
+      "id": "obj:rendered_value_texts",
+      "kind": "object",
+      "label": "the 25 rendered value texts of one contract"
+    },
+    {
+      "id": "obj:rendered_record_text",
+      "kind": "object",
+      "label": "one contract rendered as a browser object text"
+    },
+    {
+      "id": "obj:customers_js_document",
+      "kind": "object",
+      "label": "published checkpoint object: the browser data file, by line"
+    },
+    {
+      "id": "obj:standalone_page",
+      "kind": "object",
+      "label": "the self-contained page with the data spliced in"
+    },
+    {
+      "id": "obj:inspection_report",
+      "kind": "object",
+      "label": "the printed report of the single-contract inspector"
+    },
+    {
+      "id": "obj:progress_indicator_handle",
+      "kind": "object",
+      "label": "the progress indicator actually obtained, or none"
+    }
+  ],
+  "edges": [
+    {
+      "from": "mod:engine_load",
+      "to": "obj:contract_table",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:engine_load",
+      "to": "obj:valuation_date",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:date_reader",
+      "to": "obj:contract_table",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:date_reader",
+      "to": "obj:parsed_milestone_dates",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:number_reader",
+      "to": "obj:contract_table",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:number_reader",
+      "to": "obj:parsed_amounts",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:clamp",
+      "to": "obj:clamped_progress",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:year_label",
+      "to": "obj:parsed_milestone_dates",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:year_label",
+      "to": "obj:year_labels",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:contract_calculation",
+      "to": "obj:contract_table",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:contract_calculation",
+      "to": "obj:valuation_date",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:contract_calculation",
+      "to": "obj:parsed_milestone_dates",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:contract_calculation",
+      "to": "obj:parsed_amounts",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:contract_calculation",
+      "to": "obj:clamped_progress",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:contract_calculation",
+      "to": "obj:year_labels",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:contract_calculation",
+      "to": "obj:contract_record",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:book_calculation",
+      "to": "obj:contract_table",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:book_calculation",
+      "to": "obj:valuation_date",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:book_calculation",
+      "to": "obj:contract_record",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:book_calculation",
+      "to": "obj:customer_book",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:export_mapper",
+      "to": "obj:contract_record",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:export_mapper",
+      "to": "obj:customer_export_rows",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:scalar_renderer",
+      "to": "obj:customer_export_rows",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:scalar_renderer",
+      "to": "obj:rendered_value_texts",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:record_renderer",
+      "to": "obj:rendered_value_texts",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:record_renderer",
+      "to": "obj:rendered_record_text",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:progress_indicator",
+      "to": "obj:progress_indicator_handle",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:browser_data_writer",
+      "to": "obj:contract_table",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:browser_data_writer",
+      "to": "obj:valuation_date",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:browser_data_writer",
+      "to": "obj:contract_record",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:browser_data_writer",
+      "to": "obj:rendered_record_text",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:browser_data_writer",
+      "to": "obj:progress_indicator_handle",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:browser_data_writer",
+      "to": "obj:customers_js_document",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:contract_inspector",
+      "to": "obj:contract_table",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:contract_inspector",
+      "to": "obj:valuation_date",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:contract_inspector",
+      "to": "obj:contract_record",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:contract_inspector",
+      "to": "obj:inspection_report",
+      "kind": "PRODUCE"
+    },
+    {
+      "from": "mod:standalone_page_writer",
+      "to": "obj:contract_table",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:standalone_page_writer",
+      "to": "obj:customers_js_document",
+      "kind": "READ"
+    },
+    {
+      "from": "mod:standalone_page_writer",
+      "to": "obj:standalone_page",
+      "kind": "PRODUCE"
+    }
+  ],
+  "notes": [
+    "Edge convention: every edge runs from a module to an object. READ means the module consumes that object; PRODUCE means it creates it. Stated because the schema does not fix a direction and a reversed dependency is exactly what a graph diff is meant to catch (R10).",
+    "Built by static reading of the unit, not by tracing a run: source instrumentation is waived on record for this migration, so provenance is static. It was checked against an actual execution of the unit over 503 stand-in rows, which reached every module in this graph except the standalone-page writer and the graphical branch of the progress indicator.",
+    "Three of the published objects are checkpoint objects and the others are intermediates. The intermediates are listed because a target that fuses them still agrees on every digest while losing the ability to show an analyst the parsed dates, the parsed amounts or the rendered text of one contract -- the observability loss GR-04 forbids and R10 measures.",
+    "Optional at CORE tier, which this run declared. Produced anyway because the unit is one file and the graph cost minutes.",
+    "The load-time module has no PRODUCE edge of its own: in the branch that fires it calls the browser-data writer, which is the module that produces the file. In the branch a clean load takes it produces nothing at all."
+  ]
+}

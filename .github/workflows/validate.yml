@@ -19,8 +19,26 @@ jobs:
           cache: pip
       - name: Install
         run: python -m pip install -e '.[test]'
+      - name: Install R
+        # The OCM source detector is the migration protocol's mandatory PROFILE
+        # artifact, and its tests skip when Rscript is absent. A silently
+        # skipped test reports green while checking nothing, so R is installed
+        # explicitly rather than relied on from the runner image: if this step
+        # fails, CI fails, and the skip cannot happen unnoticed.
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq r-base-core
+          Rscript --version
       - name: Test
         run: pytest
+      - name: Assert the R detector tests actually ran
+        # Belt and braces: prove the suite executed rather than skipped.
+        run: |
+          pytest tests/test_ocm_r_detector.py -q -rs | tee /tmp/r-tests.log
+          if grep -qi 'skipped' /tmp/r-tests.log; then
+            echo "R detector tests were SKIPPED; R is not usable in CI." >&2
+            exit 1
+          fi
       - name: Validate example ledger
         run: kcv-validate examples/498-bgb/claim-ledger.example.json
       - name: Validate §254 run ledger

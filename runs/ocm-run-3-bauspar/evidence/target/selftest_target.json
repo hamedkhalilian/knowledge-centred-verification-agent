@@ -1,0 +1,574 @@
+{
+  "run_id": "ocm-run-3-bauspar",
+  "side": "target",
+  "passed": 89,
+  "failed": 0,
+  "groups": {
+    "canonical reference vectors": 12,
+    "C20 rounding reference vectors": 19,
+    "C22 script rendering": 8,
+    "inversion / property": 6,
+    "C1 date reading": 17,
+    "C18 year labels": 1,
+    "C2 number reading": 12,
+    "R18 good-input control run": 14
+  },
+  "blind_spots": [
+    "The canonicalisation and C20 vectors are constants transcribed from the contract and the spec. A transcription error in the spec itself would be invisible to them. Covered structurally by the idempotence and half-place-bracket properties, which share no constant with the vectors.",
+    "The C1 date cases are the behaviours the spec measured on the source. They share the 4/2/2 greedy, non-backtracking scanner assumption with the code under test. Covered by the calendar round-trip, which is independent of the scanner, and by the explicit non-backtracking case 2011/04/01.",
+    "canonicalNumber, the digests and roundRecord all rest on exactOf. A fault there would corrupt all three together and every check above would still agree. Partly covered by the render/re-parse fixed point, which crosses into the runtime's own correctly-rounded decimal conversion.",
+    "The io layer's agreement with the spec is computed with the same quote-aware parser the run uses, so a parser fault would make both readings wrong together. Covered by the naive-split histogram, a structurally different reading of the same bytes.",
+    "Nothing here can detect a systematic MISREADING of the neutral spec: every check is built from the same reading of it. Only the source-side comparison can, and the source's values are withheld until after this emission by design.",
+    "The good/bad fixtures are hand-built, so they calibrate the checks against defects that were thought of. They cannot calibrate against a defect nobody imagined (R15: a threshold calibrated on synthetic data is not calibrated).",
+    "The abort path is exercised by its own probe input, not here: a poisoned row placed in these fixtures would halt the fixture run rather than produce a verdict."
+  ],
+  "good_input_control_run": [
+    "P-03: good=PASS, bad=FAIL -- abschlussdatum: marker 0, eight-digit valid 0, hyphenated valid 3, unreadable 0 -> 3 reconciles to 3 rows read | einloesungsdatum: marker 0, eight-digit valid 0, hyphenated valid 3, unreadable 0 -> 3 reconciles to 3 rows read | erstmalige_zuteilungsanwartschaft: marker 0, eight-digit valid 2, hyphenated valid 0, unreadable 1 -> 3 reconciles to 3 rows read; first offenders: row 2=\"2011/04/01\" | Tilgungsbeginn: marker 2, eight-digit valid 1, hyphenated valid 0, unreadable 0 -> 3 reconciles to 3 rows read | Vertragsende: marker 2, eight-digit valid 1, hyphenated valid 0, unreadable 0 -> 3 reconciles to 3 rows read || total unreadable 1, of which hyphenated (abort-triggering) 0",
+    "P-05: good=PASS, bad=FAIL -- range 40 .. 40; missing 0; at most 0: 0; greater than 1: 3; distinct raw texts of tariff_amount: 40",
+    "P-06: good=PASS, bad=FLAGGED -- guthaben: missing 0, negative 1, range -11230 .. 12000 | DaBetrag: missing 1, negative 0, range 20000 .. 30000 | bausparsumme_teuro: missing 0, negative 0, range 20000 .. 40000 (in thousands of euro as read; x1000 in the record)",
+    "P-07: good=PASS, bad=FLAGGED -- rows read 3, distinct identifiers 2, identifiers appearing more than once 1; reconciliation rows - distinct = 1; first duplicated: 700001 (never deduplicated: the published record objects keep every row)",
+    "P-10: good=PASS, bad=FLAGGED -- strict-prefix collisions: guthaben_alt begins with guthaben",
+    "P-11: good=PASS, bad=FLAGGED -- text amount values with two or more commas, by field: DaBetrag: 1, bausparsumme_teuro: 0, guthaben: 0, tariff_amount: 0 (each of those becomes missing by behaviour step C2, silently)",
+    "P-13: good=PASS, bad=FLAGGED -- median of loan notional / Bauspar sum over 2 contracts where both are present and the Bauspar sum is positive: 0.001. A median near 1 is expected; near 0.001 or near 1000 would mean the thousands factor was applied on the wrong side or not at all.",
+    "FND-02: good=PASS, bad=FAIL -- non-missing tariff shares: range 40 .. 40, count greater than 1: 3, count at most 0: 0, missing 0, distinct raw texts 40",
+    "FND-04: good=PASS, bad=FLAGGED -- rows 3, distinct identifiers 2, duplicated identifiers 1 (reconciles: 3 rows - 2 distinct = 1 extra rows)",
+    "FND-06: good=PASS, bad=FLAGGED -- values satisfying neither branch: 1 (by field: abschlussdatum 0, einloesungsdatum 0, erstmalige_zuteilungsanwartschaft 1, Tilgungsbeginn 0, Vertragsende 0); of those, hyphenated and therefore ABORT-TRIGGERING: 0",
+    "FND-12: good=PASS, bad=FLAGGED -- check 1 -- all eleven exact names present: yes; check 2 -- other field names having one of the eleven as a strict prefix: guthaben_alt begins with guthaben. The two checks are reported separately, as the finding requires. This target binds by exact name only and never falls back to a prefix; the precondition is what makes the difference unobservable."
+  ],
+  "checks": [
+    {
+      "group": "canonical reference vectors",
+      "name": "1",
+      "ok": true,
+      "detail": "got 1.00000000e+00, want 1.00000000e+00"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "-0.0",
+      "ok": true,
+      "detail": "got 0.00000000e+00, want 0.00000000e+00"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "2^-13 (decimal tie at digit 9)",
+      "ok": true,
+      "detail": "got 1.22070312e-04, want 1.22070312e-04"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "1/3",
+      "ok": true,
+      "detail": "got 3.33333333e-01, want 3.33333333e-01"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "123456789.5",
+      "ok": true,
+      "detail": "got 1.23456790e+08, want 1.23456790e+08"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "-2.5e-10",
+      "ok": true,
+      "detail": "got -2.50000000e-10, want -2.50000000e-10"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "NaN",
+      "ok": true,
+      "detail": "got NA, want NA"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "NA (null)",
+      "ok": true,
+      "detail": "got NA, want NA"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "logical true/false/NA",
+      "ok": true,
+      "detail": "true/false/NA"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "date renders as epoch days; missing as NA",
+      "ok": true,
+      "detail": "1970-01-02 -> 1, 1969-12-31 -> -1, missing -> NA"
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "string escapes are exactly three",
+      "ok": true,
+      "detail": "backslash, LF and CR escaped; tab and quote left alone; got \"a\\\\\\\\b\\\\nc\\\\rd\\te\\\"f\""
+    },
+    {
+      "group": "canonical reference vectors",
+      "name": "infinities",
+      "ok": true,
+      "detail": "INF / -INF"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.1235 at 3 places",
+      "ok": true,
+      "detail": "got 0.124, want 0.124"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.0055 at 3 places",
+      "ok": true,
+      "detail": "got 0.005, want 0.005"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.0095 at 3 places",
+      "ok": true,
+      "detail": "got 0.01, want 0.01"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.0085 at 3 places",
+      "ok": true,
+      "detail": "got 0.009, want 0.009"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.0005 at 3 places",
+      "ok": true,
+      "detail": "got 0, want 0"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.0625 at 3 places",
+      "ok": true,
+      "detail": "got 0.062, want 0.062"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.1875 at 3 places",
+      "ok": true,
+      "detail": "got 0.188, want 0.188"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.4445 at 3 places",
+      "ok": true,
+      "detail": "got 0.444, want 0.444"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "-0.0055 at 3 places",
+      "ok": true,
+      "detail": "got -0.005, want -0.005"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.12345 at 4 places",
+      "ok": true,
+      "detail": "got 0.1235, want 0.1235"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "0.5 at 0 places",
+      "ok": true,
+      "detail": "got 0, want 0"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "1.5 at 0 places",
+      "ok": true,
+      "detail": "got 2, want 2"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "2.5 at 0 places",
+      "ok": true,
+      "detail": "got 2, want 2"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "14500.5 at 0 places",
+      "ok": true,
+      "detail": "got 14500, want 14500"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "14501.5 at 0 places",
+      "ok": true,
+      "detail": "got 14502, want 14502"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "123456789.5 at 0 places",
+      "ok": true,
+      "detail": "got 123456790, want 123456790"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "the rule is NOT multiply-round-divide",
+      "ok": true,
+      "detail": "0.0055 -> 0.005 (naive 0.006), 0.0085 -> 0.009 (naive 0.008)"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "the unit's three day constants fall out of the rule",
+      "ok": true,
+      "detail": "10x365.25 -> 3652 (must be 3652, the EVEN neighbour), 11x365.25 -> 4018, 7x365.25 -> 2557"
+    },
+    {
+      "group": "C20 rounding reference vectors",
+      "name": "a negative value rounding to zero yields NEGATIVE zero",
+      "ok": true,
+      "detail": "round(-0.3, 0) is -0"
+    },
+    {
+      "group": "C22 script rendering",
+      "name": "0.4",
+      "ok": true,
+      "detail": "got 0.4, want 0.4"
+    },
+    {
+      "group": "C22 script rendering",
+      "name": "14500",
+      "ok": true,
+      "detail": "got 14500, want 14500"
+    },
+    {
+      "group": "C22 script rendering",
+      "name": "one ten-millionth",
+      "ok": true,
+      "detail": "got 0, want 0"
+    },
+    {
+      "group": "C22 script rendering",
+      "name": "negative zero",
+      "ok": true,
+      "detail": "got -0, want -0"
+    },
+    {
+      "group": "C22 script rendering",
+      "name": "1/3",
+      "ok": true,
+      "detail": "got 0.333333, want 0.333333"
+    },
+    {
+      "group": "C22 script rendering",
+      "name": "2.5e-7 (half-even at the sixth place, to even)",
+      "ok": true,
+      "detail": "got 0, want 0"
+    },
+    {
+      "group": "C22 script rendering",
+      "name": "7.5e-7 (half-even at the sixth place, to even)",
+      "ok": true,
+      "detail": "got 0.000001, want 0.000001"
+    },
+    {
+      "group": "C22 script rendering",
+      "name": "C22 and C20 are different rules",
+      "ok": true,
+      "detail": "C20 at 3 places gives 0.005; C22 renders the raw value as 0.0055"
+    },
+    {
+      "group": "inversion / property",
+      "name": "C20 rounding is idempotent and bracketed by half a place",
+      "ok": true,
+      "detail": "20000 pseudo-random values across 0..5 places"
+    },
+    {
+      "group": "inversion / property",
+      "name": "canonical rendering is idempotent under re-parse",
+      "ok": true,
+      "detail": "20000 pseudo-random values; render -> parse -> render is a fixed point"
+    },
+    {
+      "group": "inversion / property",
+      "name": "calendar conversion round-trips",
+      "ok": true,
+      "detail": "epoch days -30000..60000 step 7 (1887..2134)"
+    },
+    {
+      "group": "inversion / property",
+      "name": "object digest is stable across builds and sensitive to one cell",
+      "ok": true,
+      "detail": "identical stores agree; one changed cell in 100 changes the digest"
+    },
+    {
+      "group": "inversion / property",
+      "name": "NA sorts last regardless of direction",
+      "ok": true,
+      "detail": "ascending and descending both put the missing key last"
+    },
+    {
+      "group": "inversion / property",
+      "name": "quote-aware parser: embedded delimiter, doubled quote, embedded newline, CRLF",
+      "ok": true,
+      "detail": "4 records, 3 fields each"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"20110401\" -> 2011-04-01",
+      "ok": true,
+      "detail": "eight digits; got 2011-04-01"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"20110401.0\" -> 2011-04-01",
+      "ok": true,
+      "detail": "text after a complete match is ignored; got 2011-04-01"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"2013112\" -> 2013-11-02",
+      "ok": true,
+      "detail": "fewer than eight digits, read greedily, NOT rejected; got 2013-11-02"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"20131345\" -> MISSING",
+      "ok": true,
+      "detail": "month 13 day 45, digit branch, silently missing; got MISSING"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"2011/04/01\" -> MISSING",
+      "ok": true,
+      "detail": "no hyphen, so the digit branch, and it fails -- NOT read as a date; got MISSING"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"abcdefgh\" -> MISSING",
+      "ok": true,
+      "detail": "no hyphen, unreadable, silently missing; got MISSING"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"000000\" -> MISSING",
+      "ok": true,
+      "detail": "six zeros: not a marker, missing by failing the read (FND-11); got MISSING"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"\" -> MISSING",
+      "ok": true,
+      "detail": "marker; got MISSING"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"00000000\" -> MISSING",
+      "ok": true,
+      "detail": "marker; got MISSING"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"<NA>\" -> MISSING",
+      "ok": true,
+      "detail": "marker the unit's comment does not list (FND-11); got MISSING"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"00\" -> MISSING",
+      "ok": true,
+      "detail": "marker the unit's comment does not list (FND-11); got MISSING"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"0000\" -> MISSING",
+      "ok": true,
+      "detail": "marker the unit's comment does not list (FND-11); got MISSING"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"2013-13-45\" ABORTS (FND-06)",
+      "ok": true,
+      "detail": "got ABORT"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"not-a-date\" ABORTS (FND-06)",
+      "ok": true,
+      "detail": "got ABORT"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "\"2013-02-30\" ABORTS (FND-06)",
+      "ok": true,
+      "detail": "got ABORT"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "a two-digit year in the hyphen branch is year eleven, not 2011",
+      "ok": true,
+      "detail": "11-04-01 reads as year 11 (the signature P-04 looks for)"
+    },
+    {
+      "group": "C1 date reading",
+      "name": "the digit scanner does not backtrack",
+      "ok": true,
+      "detail": "a backtracking regular expression would read this as year 20, month 1, day 1"
+    },
+    {
+      "group": "C18 year labels",
+      "name": "estimated allocation carries a tilde only via C18, and a missing date is an empty text",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"36263,14\" -> 36263.14",
+      "ok": true,
+      "detail": "got 36263.14"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"36.263,14\" -> 36263.14",
+      "ok": true,
+      "detail": "got 36263.14"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"1.234.567,89\" -> 1234567.89",
+      "ok": true,
+      "detail": "got 1234567.89"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"36.263\" -> 36.263",
+      "ok": true,
+      "detail": "got 36.263"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"1,2,3\" -> MISSING",
+      "ok": true,
+      "detail": "got MISSING"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"\" -> MISSING",
+      "ok": true,
+      "detail": "got MISSING"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"NA\" -> MISSING",
+      "ok": true,
+      "detail": "got MISSING"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"<NA>\" -> MISSING",
+      "ok": true,
+      "detail": "got MISSING"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"n/a\" -> MISSING",
+      "ok": true,
+      "detail": "got MISSING"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"-\" -> MISSING",
+      "ok": true,
+      "detail": "got MISSING"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "\"0\" -> 0",
+      "ok": true,
+      "detail": "got 0"
+    },
+    {
+      "group": "C2 number reading",
+      "name": "FND-01 is reproduced, not repaired",
+      "ok": true,
+      "detail": "a thousands dot without a decimal comma reads a thousand times too small, exactly as the source does"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "no check reports FAIL or FLAGGED on known-good input",
+      "ok": true,
+      "detail": "26 checks, all PASS or NOT_EXERCISED"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "P-03 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FAIL (want PASS / FAIL)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "P-05 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FAIL (want PASS / FAIL)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "P-06 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FLAGGED (want PASS / FLAGGED)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "P-07 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FLAGGED (want PASS / FLAGGED)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "P-10 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FLAGGED (want PASS / FLAGGED)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "P-11 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FLAGGED (want PASS / FLAGGED)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "P-13 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FLAGGED (want PASS / FLAGGED)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "FND-02 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FAIL (want PASS / FAIL)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "FND-04 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FLAGGED (want PASS / FLAGGED)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "FND-06 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FLAGGED (want PASS / FLAGGED)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "FND-12 separates good from bad",
+      "ok": true,
+      "detail": "good=PASS bad=FLAGGED (want PASS / FLAGGED)"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "a FLAGGED check never reports FAIL",
+      "ok": true,
+      "detail": "severity and status are kept distinct"
+    },
+    {
+      "group": "R18 good-input control run",
+      "name": "unexercised checks say NOT_EXERCISED rather than PASS",
+      "ok": true,
+      "detail": "not exercised on the good fixture: FND-07"
+    }
+  ]
+}

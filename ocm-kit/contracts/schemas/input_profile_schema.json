@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "input_profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run_id", "provenance", "profiler", "emitted_utc", "files"],
+  "properties": {
+    "run_id": { "type": "string" },
+    "provenance": { "enum": ["real", "synthetic"] },
+    "profiler": { "type": "string", "description": "tool used; must not be a source-language convenience reader (§9)" },
+    "emitted_utc": { "type": "string" },
+    "files": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["name", "bytes", "sha256", "kind", "encoding", "row_count", "layout", "fields"],
+        "properties": {
+          "name": { "type": "string" },
+          "bytes": { "type": "integer" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "kind": { "enum": ["delimited_text", "xlsx"] },
+          "encoding": { "type": "string" },
+          "row_count": { "type": "integer" },
+          "field_count_distribution": {
+            "type": "object", "additionalProperties": { "type": "integer" },
+            "description": "field-count -> line-count; ragged files are where positional readers mis-assign silently (§9)"
+          },
+          "sheets": { "type": "array", "items": { "type": "string" } },
+          "layout": {
+            "type": "object", "additionalProperties": false,
+            "required": ["anchors"],
+            "properties": {
+              "anchors": {
+                "type": "array",
+                "items": { "type": "object", "additionalProperties": false,
+                  "required": ["what", "where", "winning_score", "runner_up", "margin"],
+                  "properties": {
+                    "what": { "type": "string" },
+                    "where": { "type": "string" },
+                    "winning_score": { "type": "number" },
+                    "runner_up": { "type": "number" },
+                    "margin": { "type": "number" } } }
+              },
+              "note": { "type": "string" }
+            }
+          },
+          "date_range": {
+            "type": "object", "additionalProperties": false,
+            "properties": { "min": { "type": "string" }, "max": { "type": "string" }, "plausible": { "type": "boolean" } }
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["name", "type", "null_count", "min", "max"],
+              "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "null_count": { "type": "integer" },
+                "min": { "type": ["string", "number", "null"] },
+                "max": { "type": ["string", "number", "null"] },
+                "distinct": { "type": "integer" },
+                "duplicates": { "type": "integer" },
+                "categories": { "type": "array", "items": { "type": "string" } },
+                "values_in_full": { "type": "array",
+                  "description": "R3: small structurally decisive vectors record the values themselves" },
+                "magnitude_distribution": { "type": "object", "additionalProperties": { "type": "integer" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "observations": { "type": "array", "items": { "type": "string" } },
+    "unverified_assumptions": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false,
+        "required": ["id", "statement", "precondition"],
+        "properties": { "id": {"type": "string"}, "statement": {"type": "string"}, "precondition": {"type": "string"} } }
+    }
+  }
+}

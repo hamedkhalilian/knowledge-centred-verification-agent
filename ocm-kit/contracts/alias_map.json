@@ -1,0 +1,12 @@
+{
+  "note": "R10 single declared alias map. Declared PER RUN. The kit ships this empty on purpose: an alias map carrying the previous run's module names is the previous run's answer, and a kit that ships last run's answers cannot test anything (README). Fill 'run_id' and 'entries' during SPECIFY, from the neutral spec's own unit ids, before any FULL-tier graph is rendered.",
+  "run_id": null,
+  "entry_shape": {
+    "source": "mod:<source module name as it appears in the source flow manifest>",
+    "target": "mod:<unit id as declared in the neutral spec>",
+    "kind": "module",
+    "declared_by": "neutral_spec units (id <-> name)"
+  },
+  "order_note": "tools/render_graphs.py takes the declared unit order from the order of 'entries'. List them in the order the diagram should read.",
+  "entries": []
+}

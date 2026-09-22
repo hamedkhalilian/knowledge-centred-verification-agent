@@ -1,0 +1,12 @@
+file,group,ordinal,field
+customer_engine_v4.R,contract_input_columns,1,BSV
+customer_engine_v4.R,contract_input_columns,2,DaBetrag
+customer_engine_v4.R,contract_input_columns,3,Tilgungsbeginn
+customer_engine_v4.R,contract_input_columns,4,Vertragsende
+customer_engine_v4.R,contract_input_columns,5,abschlussdatum
+customer_engine_v4.R,contract_input_columns,6,bausparsumme_teuro
+customer_engine_v4.R,contract_input_columns,7,contract_type
+customer_engine_v4.R,contract_input_columns,8,einloesungsdatum
+customer_engine_v4.R,contract_input_columns,9,erstmalige_zuteilungsanwartschaft
+customer_engine_v4.R,contract_input_columns,10,guthaben
+customer_engine_v4.R,contract_input_columns,11,tariff_amount

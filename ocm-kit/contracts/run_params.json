@@ -1,0 +1,5 @@
+{
+  "note": "Controller-fixed parameters for the invoked analyses both sides must additionally execute and checkpoint, beyond what the source executes at load. Declared PER RUN and shipped empty: the previous run's analysis names and valuation dates are that run's answers, not this run's contract. Values chosen here must be supported by the staged inputs. A unit's own configured values are used as written in the source and are NOT overridden here.",
+  "run_id": null,
+  "invoked_analyses": {}
+}
