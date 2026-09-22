@@ -1,0 +1,15 @@
+{
+  "provenance": "selftest_fixture",
+  "valuation_date": "2026-03-31",
+  "harness_coercions": {
+    "to_date_class": [
+      "abschlussdatum",
+      "einloesungsdatum"
+    ],
+    "left_as_raw_yyyymmdd": [
+      "erstmalige_zuteilungsanwartschaft",
+      "Tilgungsbeginn",
+      "Vertragsende"
+    ]
+  }
+}

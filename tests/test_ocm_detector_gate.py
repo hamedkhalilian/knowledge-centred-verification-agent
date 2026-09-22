@@ -7,6 +7,7 @@ reports agreement. These tests pin both halves -- it must catch the divergence
 it was built for, and it must refuse to pass when it compared nothing.
 """
 import csv
+import sys
 import importlib.util
 import json
 import unittest
@@ -270,3 +271,61 @@ class TestShippedContractsCarryNoPreviousRun(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestCompareExitContract(GateHarness):
+    """COMPARE must not report agreement it did not establish.
+
+    The tool originally had no sys.exit at all, so it returned 0 whatever it
+    found -- including input lists that the canonicalisation contract says make
+    two checkpoint files incomparable, which it printed and then passed anyway.
+    """
+
+    COMPARE = ROOT / "ocm-kit" / "tools" / "compare_checkpoints.py"
+
+    def checkpoint(self, name, side, digest, inputs):
+        path = self.tmp / name
+        path.write_text(json.dumps({
+            "run_id": "t", "side": side,
+            "state": "OBSERVE_SOURCE" if side == "source" else "OBSERVE_TARGET",
+            "canonicalisation": "dec9-half-even-v1",
+            "emitted_utc": "2026-01-01T00:00:00Z",
+            "inputs": inputs,
+            "units": [{"unit": "U01", "objects": [{
+                "name": "obj", "kind": "frame", "rows": 1, "cols": 1,
+                "colnames": ["a"],
+                "canonical_order": [{"column": "a", "direction": "asc"}],
+                "digest": {"algorithm": "SHA-256",
+                           "canonicalisation": "dec9-half-even-v1",
+                           "value": digest},
+                "coverage": {"row_count": 1, "field_count": 1, "null_count": 0,
+                             "min": None, "max": None},
+                "probes": []}]}],
+        }), encoding="utf-8")
+        return path
+
+    def compare(self, src, tgt):
+        import subprocess
+        return subprocess.run(
+            [sys.executable, str(self.COMPARE), str(src), str(tgt),
+             str(self.tmp / "out.json")],
+            capture_output=True, text=True).returncode
+
+    IN_A = [{"name": "a.csv", "bytes": 1, "sha256": "a" * 64}]
+    IN_AB = IN_A + [{"name": "b.json", "bytes": 2, "sha256": "b" * 64}]
+
+    def test_same_inputs_and_same_digest_agree(self):
+        src = self.checkpoint("s.json", "source", "c" * 64, self.IN_A)
+        tgt = self.checkpoint("t.json", "target", "c" * 64, self.IN_A)
+        self.assertEqual(self.compare(src, tgt), 0)
+
+    def test_same_inputs_different_digest_is_a_divergence(self):
+        src = self.checkpoint("s.json", "source", "c" * 64, self.IN_A)
+        tgt = self.checkpoint("t.json", "target", "d" * 64, self.IN_A)
+        self.assertEqual(self.compare(src, tgt), 1)
+
+    def test_differing_input_lists_are_not_comparable(self):
+        """Agreeing digests over different input lists establish nothing."""
+        src = self.checkpoint("s.json", "source", "c" * 64, self.IN_A)
+        tgt = self.checkpoint("t.json", "target", "c" * 64, self.IN_AB)
+        self.assertEqual(self.compare(src, tgt), 2)

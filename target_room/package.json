@@ -1,0 +1,16 @@
+{
+  "name": "bauspar-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OCM run 3 target implementation of unit U01 (customer lifecycle engine for a single Bauspar contract), built clean-room from neutral_spec.json.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "./build.sh",
+    "selftest": "node dist/index.js --selftest-only"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

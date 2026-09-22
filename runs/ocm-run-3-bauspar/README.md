@@ -271,3 +271,73 @@ was the controller's directive that was wrong.
 
 Controller directive 01 (`controller_directive_01_abort.md`) carries the
 corrected trigger and binds both sides.
+
+## IMPLEMENT / OBSERVE_TARGET / COMPARE
+
+The target was built in a separate context from the neutral spec alone, in
+TypeScript, zero runtime dependencies.
+
+### Barrier — checked, not accepted
+
+The target agent's report lists what it read. The controller checked what can
+be checked independently:
+
+- `find target_room -name '*.[Rr]'` → 0 files.
+- Barrier scan of all 21 TypeScript/mjs modules → CLEAN, 0 hits, scanner
+  self-validated on its injected leak.
+- The three source digests appear nowhere in the target's sources (`grep` over
+  `src/` and `tools/` → 0 hits), so they are computed, not transcribed.
+- The controller deleted `dist/`, rebuilt from source, and re-ran the program
+  itself. All three digests reproduced exactly.
+
+That last check is the one that matters: a target that had seen the answers
+could hard-code them, but not recompute them from its own sources after a
+clean rebuild.
+
+### COMPARE — 3 of 3 digests byte-identical
+
+| object | rows | cols | digest | |
+|---|---|---|---|---|
+| `customer_book` | 503 | 34 | `9ef73ff0…0db90b` | AGREE |
+| `customer_export_rows` | 503 | 26 | `afa5ebd0…996f81` | AGREE |
+| `customers_js_document` | 507 | 2 | `fc9c29b4…c20e506a` | AGREE |
+
+Two independently written implementations, in different languages, in
+separate contexts, neither able to see the other's values, agreeing on every
+byte of all three published objects — including the browser document's 507
+physical lines, which exercises the value rendering, the identifier escaping
+and the second rounding rule that the two frames cannot reach.
+
+### …and the comparison is NOT YET VALID
+
+`inputs bound identically: False`. The canonicalisation contract §7 makes two
+checkpoint files comparable only if their input lists agree, and they do not:
+the source declares one input, the target declares two.
+
+The target is right. The source emitter reads the stand-in manifest
+(`readLines` at line 215) and takes two decisive settings from it — the harness
+date-class coercions and the valuation date — but does not list it. An
+under-reported consumed input is the silent decline R16 forbids.
+
+Routed to the source agent as an emitter defect. The controller did not fix it:
+a divergence is routed to the responsible side, never resolved by the
+controller copying something across. The object digests are unaffected, since
+the inputs list is provenance metadata and not part of any object digest —
+stated to the source agent as a constraint on the fix, so a changed digest
+would itself be a finding.
+
+### F10 — COMPARE reported a disqualifying condition and exited 0 anyway
+
+`compare_checkpoints.py` had no `sys.exit` at all. It returned 0 whatever it
+found: a real divergence, an object present on only one side, or input lists
+that §7 says make the two files incomparable. It printed
+`inputs bound identically: False` and then exited 0.
+
+A controller scripting the gate would have read success. This is the same shape
+as the R3 gate that agreed having compared nothing (F/lessons 10), in the tool
+that produces the run's central evidence.
+
+Given the three-valued contract now used by every other gate: 0 comparable and
+agreeing, 1 comparable and diverging, 2 not comparable. Three tests pin it,
+including the case that matters — agreeing digests over differing input lists
+return 2, because agreement over different inputs establishes nothing.

@@ -68,3 +68,29 @@ for d in differ:
           (d["unit"], d["object"], d["rows"], d["cols"], d["colnames_differ"], len(d["probe_diffs"])))
 if only_s: print("only in source:", only_s)
 if only_t: print("only in target:", only_t)
+
+# Exit contract, three-valued, matching the other gates:
+#   0  comparable, and every common object agrees
+#   1  comparable, and at least one object diverges
+#   2  NOT COMPARABLE -- the comparison did not establish anything
+#
+# This tool previously had no sys.exit at all, so it returned 0 whatever it
+# found: a divergence, an object present on only one side, or input lists that
+# contract section 7 says make the two files incomparable in the first place.
+# It printed "inputs bound identically: False" and then exited 0, which is the
+# same shape of defect as a gate that agrees with itself having compared
+# nothing. A COMPARE that cannot compare must never be reportable as agreement.
+if not inputs_ok or only_s or only_t:
+    reasons = []
+    if not inputs_ok:
+        reasons.append("input lists differ, so contract section 7 makes these "
+                       "two checkpoint files incomparable")
+    if only_s:
+        reasons.append("objects present only in the source: %s" % (only_s,))
+    if only_t:
+        reasons.append("objects present only in the target: %s" % (only_t,))
+    print("\nNOT COMPARABLE: " + "; ".join(reasons), file=sys.stderr)
+    print("Digest agreement above, if any, establishes nothing until this is "
+          "resolved.", file=sys.stderr)
+    sys.exit(2)
+sys.exit(1 if differ else 0)

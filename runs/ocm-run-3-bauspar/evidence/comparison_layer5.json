@@ -1,0 +1,15 @@
+{
+ "state": "COMPARE",
+ "layer": 5,
+ "emitted_utc": "2026-09-22T18:12:20Z",
+ "source_file": "runs/ocm-run-3-bauspar/evidence/checkpoints_source.json",
+ "target_file": "runs/ocm-run-3-bauspar/evidence/target/checkpoints_target.json",
+ "inputs_bound_identically": false,
+ "objects_source": 3,
+ "objects_target": 3,
+ "only_in_source": [],
+ "only_in_target": [],
+ "agree": 3,
+ "differ": 0,
+ "divergences": []
+}
