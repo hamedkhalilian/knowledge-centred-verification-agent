@@ -35,6 +35,12 @@
 #     against the platform, so a drift between spec and source is caught at
 #     startup rather than at comparison time.
 #
+# Inputs consumed: TWO files, and both are declared in the checkpoint's inputs
+# list per contract section 7 -- the contract table, and the stand-in manifest
+# that declares the date-class coercions and the valuation date. The second one
+# is easy to miss precisely because it is configuration rather than data, and
+# missing it makes the checkpoint file incomparable rather than merely terse.
+#
 # Determinism: two consecutive runs are byte-identical apart from emitted_utc.
 # Pass --emitted-utc to fix that field and the two runs become fully identical.
 #
@@ -349,6 +355,26 @@ objects <- list(
   emit_object("customer_export_rows", export, c("row_index", EXPORT_FIELDS), ord_id_row),
   emit_object("customers_js_document", jsdoc, c("line_no", "line_text"),     ord_line))
 
+## Contract section 7: one entry for EACH input file consumed. This harness
+## consumes TWO. The contract table is the obvious one; the stand-in manifest is
+## the other, and it is not incidental -- the declared date-class coercions and
+## the valuation date both come out of it, and both change every emitted value.
+## A reader given only the table could not tell where the valuation date came
+## from, which is the silent omission R16 forbids, and a checkpoint file that
+## under-reports what it consumed is not comparable under section 7.
+##
+## Entries are emitted in BYTE ORDER OF THEIR NAMES. The contract requires the
+## two sides' lists to agree; it does not say whether they are compared as
+## sequences or as sets. Sorting removes the question at the source instead of
+## leaving it to the comparison: two emitters then cannot differ merely by the
+## order in which they happened to open their files.
+CONSUMED    <- c(INPUTS, MANIFEST)
+CONSUMED    <- CONSUMED[order(basename(CONSUMED), method = "radix")]
+inputs_list <- lapply(CONSUMED, function(p)
+  list(name   = basename(p),
+       bytes  = as.integer(file.info(p)$size),
+       sha256 = sha256_file(p)))
+
 checkpoint <- list(
   run_id = RUN_ID, side = "source", state = "OBSERVE_SOURCE",
   canonicalisation = "dec9-half-even-v1",
@@ -381,9 +407,7 @@ checkpoint <- list(
          why  = paste("Neither is a field of the unit. They make the declared canonical order",
                       "total even if contract identifiers repeat, which the run's assumption",
                       "UA-04 says they may. Both sides emit them; the neutral spec declares them."))),
-  inputs = list(list(name = basename(INPUTS),
-                     bytes = as.integer(file.info(INPUTS)$size),
-                     sha256 = sha256_file(INPUTS))),
+  inputs = inputs_list,
   units = list(list(unit = UNIT, objects = objects)))
 
 dir.create(dirname(OUT), recursive = TRUE, showWarnings = FALSE)
@@ -393,5 +417,7 @@ cat("\nwrote", OUT, "\n")
 for (o in objects)
   cat(sprintf("  %-22s rows %5d  cols %3d  nulls %6d  digest %s\n",
               o$name, o$rows, o$cols, o$coverage$null_count, o$digest$value))
+for (k in inputs_list)
+  cat(sprintf("  input consumed: %-28s %6d bytes  %s\n", k$name, k$bytes, k$sha256))
 cat("invoked analyses beyond the unit's own execution: none declared for this run",
     "(contracts/run_params.json carries an empty set).\n")
