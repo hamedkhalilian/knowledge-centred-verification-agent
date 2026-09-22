@@ -179,8 +179,35 @@ public final class SelfTest {
             if (x.warn[i] != (b.warnLoanPointless[i] ? 1 : 0)) mapOk = false;
             if (x.bridge[i] != (b.isBridgeLoan[i] ? 1 : 0)) mapOk = false;
             if (x.allocEst[i] != (b.allocationEstimated[i] ? 1 : 0)) mapOk = false;
+            if (!java.util.Objects.equals(x.contractType[i], b.contractType[i])) mapOk = false;
+            if (!java.util.Objects.equals(x.goalSource[i], b.goalSource[i])) mapOk = false;
+            if (!java.util.Objects.equals(x.id[i], b.id[i])) mapOk = false;
+            if (!java.util.Objects.equals(x.phase[i], b.phase[i])) mapOk = false;
+            if (!java.util.Objects.equals(x.labContract[i], b.yearContract[i])) mapOk = false;
+            if (!java.util.Objects.equals(x.labFirst[i], b.yearFirstPayment[i])) mapOk = false;
+            if (!java.util.Objects.equals(x.labAlloc[i], b.yearAllocation[i])) mapOk = false;
+            if (!java.util.Objects.equals(x.labLoan[i], b.yearLoanStart[i])) mapOk = false;
         }
         check("property: export maps the published values through unchanged", mapOk, "C21 recomputed something it should have carried");
+
+        // A structurally different check on the same object (R8): no export column may be
+        // wholly missing. A column never written would look like 'every value is missing',
+        // which no per-value comparison above would notice. This is how the unfilled
+        // contract_type and goal_source columns were caught.
+        int wholly = 0;
+        StringBuilder whollyNames = new StringBuilder();
+        for (Col c : Objects.exportRows(x).cols) {
+            boolean allNa = c.size() > 0;
+            for (int i = 0; i < c.size(); i++) if (!c.isNA(i)) { allNa = false; break; }
+            if (allNa) { wholly++; whollyNames.append(c.name).append(' '); }
+        }
+        for (Col c : Objects.customerBook(b).cols) {
+            boolean allNa = c.size() > 0;
+            for (int i = 0; i < c.size(); i++) if (!c.isNA(i)) { allNa = false; break; }
+            if (allNa) { wholly++; whollyNames.append(c.name).append(' '); }
+        }
+        check("property: no published column is wholly missing", wholly == 0,
+              "these columns are missing in every row: " + whollyNames);
 
         // P6. The browser document's shape.
         List<String> doc = run.buildJsDocument(DateValue.fromIso("2026-03-31"));

@@ -62,6 +62,8 @@ public final class Export {
             daBsumRatio[i] = b.loanToBausparRatio[i];
             bridge[i] = b.isBridgeLoan[i] ? 1 : 0;
             goalFrac[i] = b.goalFraction[i];
+            contractType[i] = b.contractType[i];      // carried through unchanged (C21)
+            goalSource[i] = b.goalSource[i];          // carried through unchanged (C21)
             double publishedRatio = b.loanToBausparRatio[i];         // ALREADY ROUNDED
             special[i] = (!Double.isNaN(publishedRatio) && !Double.isInfinite(publishedRatio)
                           && publishedRatio < Engine.SPECIAL_ALARM_RATIO_CUTOFF) ? 1 : 0;

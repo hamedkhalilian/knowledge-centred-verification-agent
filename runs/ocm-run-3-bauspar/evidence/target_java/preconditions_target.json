@@ -3,7 +3,7 @@
   "side": "target",
   "unit": "U01",
   "complete": true,
-  "self_test": { "checks": 93, "passed": 93, "green": true },
+  "self_test": { "checks": 94, "passed": 94, "green": true },
   "detector_calibration_R18": [
     "known-GOOD (7 rows): 13/13 PASS, fired: none",
     "known-BAD values (5 rows): fired P-03=FAIL P-04=FLAGGED P-05=FAIL P-06=FLAGGED P-07=FLAGGED P-10=FLAGGED P-11=FLAGGED",

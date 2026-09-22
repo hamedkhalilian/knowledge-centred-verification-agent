@@ -29,7 +29,7 @@ rows read 503, records published 503, rows refused 0
 
 ## Self-tests
 
-93/93 checks green.
+94/94 checks green.
 
 - R18 known-GOOD (7 rows): 13/13 PASS, fired: none
 - R18 known-BAD values (5 rows): fired P-03=FAIL P-04=FLAGGED P-05=FAIL P-06=FLAGGED P-07=FLAGGED P-10=FLAGGED P-11=FLAGGED
@@ -86,8 +86,8 @@ rows read 503, records published 503, rows refused 0
 | object | rows | cols | digest |
 |---|---|---|---|
 | customer_book | 503 | 34 | `9ef73ff04d1d8f76e79fe76a0efcc1c7d8d921cbdf133867af8f4a046f0db90b` |
-| customer_export_rows | 503 | 26 | `f792c262a687dc38ef1b49710bdf3bb0fb354bb045b3ae68dff1c93f8ee4b212` |
-| customers_js_document | 507 | 2 | `22a977188ae5c66a69ad4cd95fd9431043effc4b52b21765e56163148a333bd7` |
+| customer_export_rows | 503 | 26 | `afa5ebd0b822d43c441cec219ae5ebd7a70b247e02a3a8f7c2224a8052996f81` |
+| customers_js_document | 507 | 2 | `fc9c29b403d73516ea3234d83e4e02d55701a4e4ecdbeff906c091ddc20e506a` |
 
 ## Spec expectations diffed (R7)
 
@@ -130,4 +130,4 @@ rows read 503, records published 503, rows refused 0
 - FND-07 is unobservable at CORE tier: no standalone page writer is built.
 - Every threshold here has only ever seen synthetic data (R15).
 
-Computed 503 contracts in 0.09 s.
+Computed 503 contracts in 0.08 s.
