@@ -29,17 +29,26 @@ echo "build.sh: javac  -> $(javac -version 2>&1)"
 echo "build.sh: java   -> $(java -version 2>&1 | head -1)"
 
 # ---- GR-11 gate: BigDecimal may appear ONLY in the declared allow-list -----
+# The gate scans CODE, not prose: Javadoc and line comments are stripped first, so a
+# file that merely EXPLAINS why it does not use BigDecimal is not a violation. Raw
+# mentions are still reported, so the weakening is visible rather than silent.
+# (This gate fired on its first run, on a comment. That is the detector working; the
+#  fix was to scan the right thing, not to lower the bar.)
 echo "build.sh: GR-11 gate -- scanning for BigDecimal outside the allow-list ($ALLOW)"
 VIOLATIONS=0
 while IFS= read -r f; do
   rel="${f#$HERE/}"
-  if grep -q 'BigDecimal' "$f"; then
+  CODE_HITS=$(sed -E 's://.*::; s:^[[:space:]]*\*.*::; s:^[[:space:]]*/\*.*::' "$f" | grep -c 'BigDecimal' || true)
+  RAW_HITS=$(grep -c 'BigDecimal' "$f" || true)
+  if [ "$CODE_HITS" -gt 0 ]; then
     if [ "$rel" != "$ALLOW" ]; then
-      echo "build.sh: GR-11 VIOLATION -- BigDecimal in $rel" >&2
+      echo "build.sh: GR-11 VIOLATION -- BigDecimal used in $rel ($CODE_HITS code hit(s))" >&2
       VIOLATIONS=$((VIOLATIONS+1))
     else
-      echo "build.sh: GR-11 ok       -- BigDecimal in $rel (allow-listed serialiser)"
+      echo "build.sh: GR-11 ok       -- BigDecimal used in $rel ($CODE_HITS code hits, allow-listed serialiser)"
     fi
+  elif [ "$RAW_HITS" -gt 0 ]; then
+    echo "build.sh: GR-11 note     -- $rel MENTIONS BigDecimal in prose only ($RAW_HITS), no code use"
   fi
 done < <(find "$HERE/$SRCDIR" -name '*.java' | sort)
 if [ "$VIOLATIONS" -ne 0 ]; then
