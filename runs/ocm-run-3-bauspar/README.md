@@ -233,3 +233,41 @@ that could happen **is** constrained. But an unconstrained provenance field is
 the door that defect walks back through, and a fifth term is needed for facts
 observed from the runtime rather than from data. Recorded for v4.5 alongside
 F4.
+
+### F9 — the abort is position-dependent, not value-dependent (corrects FND-06)
+
+FND-06 records that the date reader aborts on a malformed hyphenated value and
+silently accepts a malformed digit value. True, but incomplete in a way that
+matters: the abort depends on **where the value sits**, not on the value.
+
+The source language's date conversion infers a format from the first non-NA
+element of the vector it receives and then applies it to the rest. Measured:
+
+| call | result |
+|---|---|
+| a single bad hyphenated value | abort |
+| good value first, bad second | no abort — bad value silently missing |
+| bad value first, good second | abort |
+| missing, then bad, then good | abort — a leading missing is not "the first element" |
+
+Because the unit computes one contract at a time, a column the unit parses
+itself always presents its value as the first element, so every bad hyphenated
+value in such a column aborts. A column the harness coerces to a date type
+beforehand is converted all at once, so only a bad value in the first
+non-missing position aborts.
+
+Which columns get coerced is a declared setting in the stand-in's manifest.
+That setting therefore changes whether the abort fires at all, which makes it
+part of the observation contract rather than an incidental staging detail.
+
+This was caught because the first abort probe placed the bad value in a
+harness-coerced column and **did not abort** — the branch the probe existed to
+exercise was not reached. The same class of miss as F7's unreached branch, and
+the reason Rule E of controller directive 01 requires the path to be exercised
+rather than merely specified. Had the first draft shipped, the target would
+have been handed a rule stating the abort depends on the value, and a
+divergence on the abort path would have been routed as a target defect when it
+was the controller's directive that was wrong.
+
+Controller directive 01 (`controller_directive_01_abort.md`) carries the
+corrected trigger and binds both sides.
